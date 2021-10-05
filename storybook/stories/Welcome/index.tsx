@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-
+console.log("Why u no run me :c")
 export interface WelcomeProps {
   showApp?: () => void;
 }

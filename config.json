@@ -1,0 +1,16 @@
+{
+  "connections": {
+    "ws": {
+      "substrate": "wss://rpc.subsocial.network",
+      "kusama": "wss://kusama-rpc.polkadot.io",
+      "offchain": "wss://app.subsocial.network/notif-ws"
+    },
+    "rpc": {
+      "substrate": "https://rpc.subsocial.network/http",
+      "offchain": "https://app.subsocial.network/offchain",
+      "graphql": "https://staging.subsocial.network/hydra/graphql"
+    },
+    "dagHttpMethod": "get",
+    "useOffchainForIpfs": true
+  }
+}

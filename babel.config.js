@@ -1,6 +1,15 @@
 module.exports = function(api) {
-  api.cache(true);
+  api.cache(false);
   return {
-    presets: ['babel-preset-expo'],
+    presets: ['expo'],
+    plugins: [
+      ['module-resolver', {
+        root: ['.'],
+        alias: {
+          'crypto': 'crypto-browserify',
+          'stream': 'stream-browserify',
+        },
+      }],
+    ],
   };
 };
