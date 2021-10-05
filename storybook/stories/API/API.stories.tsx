@@ -5,9 +5,11 @@ import React from 'react'
 import { Text } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
 import { SubstrateProvider, useSubstrate } from '../../../src/components/substrate'
+import CenterView from '../CenterView'
 import config from '../../../config.json'
 
 storiesOf('API', module)
+  .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
   .add('Substrate', () => {
     return (
       <SubstrateProvider endpoint={config.connections.ws.substrate}>
