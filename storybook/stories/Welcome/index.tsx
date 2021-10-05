@@ -11,12 +11,19 @@ export default class Welcome extends Component<WelcomeProps> {
     
     return (
       <View style={styles.container}>
-        <Text style={styles.header}>Welcome to React Native Storybook</Text>
+        <Text style={styles.header}>Welcome to Subsocial RN</Text>
         <Text style={styles.content}>
-          This is a UI Component development environment for your React Native app. Here you can
-          display and interact with your UI components as stories. A story is a single state of one
-          or more UI components. You can have as many stories as you want. In other words a story is
-          like a visual test case.
+          Subsocial RN is an example app built in
+          <Text style={styles.italic}>React Native</Text>
+          for the Subsocial Ecosystem.
+        </Text>
+        <Text style={styles.content}>
+          The purpose of this app is to demonstrate how one would go
+          about creating their own.
+        </Text>
+        <Text style={styles.content}>
+          This app was built with Storybook for React Native. It is
+          not a requirement for your own Subsocial app.
         </Text>
       </View>
     );
@@ -37,5 +44,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 10,
     lineHeight: 18,
+  },
+  italic: {
+    fontStyle: 'italic',
+    color: '#037fc6'
   },
 });
