@@ -14,7 +14,7 @@ export default class Welcome extends Component<WelcomeProps> {
         <Text style={styles.header}>Welcome to Subsocial RN</Text>
         <Text style={styles.content}>
           Subsocial RN is an example app built in
-          <Text style={styles.italic}>React Native</Text>
+          {' '}<Text style={styles.italic}>React Native</Text>{' '}
           for the Subsocial Ecosystem.
         </Text>
         <Text style={styles.content}>
