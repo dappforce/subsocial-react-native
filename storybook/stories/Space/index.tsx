@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import Subsocial from '@subsocial/api';
+import React, { ReactNode } from 'react'
+import Subsocial from '@subsocial/api'
 
 import config from 'config.json'
 

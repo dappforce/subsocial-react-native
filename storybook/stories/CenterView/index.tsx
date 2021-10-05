@@ -1,6 +1,6 @@
-import React, { ReactNode } from 'react';
-import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
+import React, { ReactNode } from 'react'
+import { StyleSheet } from 'react-native'
+import { View } from 'react-native'
 
 export interface CenterViewProps {
   children: ReactNode | ReactNode[];
