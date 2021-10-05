@@ -3,7 +3,7 @@
 // -----
 // SPDX-License-Identifier: GPL-3.0
 import React, { useCallback, useContext, useEffect, useReducer } from 'react'
-import Subsocial from '@subsocial/api'
+import * as Subsocial from '@subsocial/api'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { RegistryTypes } from '@polkadot/types/types'
 
@@ -22,7 +22,7 @@ type State = {
 }
 
 type StateAction = {
-  type: 'CONNECT' | 'CONNECT_SUCCESS' | 'CONNECT_ERROR' | 'DISCONNECT'
+  type: 'CONNECT_SUCCESS' | 'CONNECT_ERROR' | 'DISCONNECT'
   data?: any
 }
 
@@ -41,17 +41,14 @@ export function SubstrateProvider(props: SubstrateProviderProps) {
   
   const connect = useCallback(async () => {
     if (api) return;
-    // const substrate = new ApiPromise({provider: new WsProvider(endpoint)});
-    const substrate = await Subsocial.getApi(endpoint);
-    
-    substrate.on('connected', () => {
-      dispatch({type: 'CONNECT', data: {substrate}})
-      substrate.isReady.then(() => dispatch({type: 'CONNECT_SUCCESS', data: {substrate}}));
-    });
-    
-    substrate.on('ready', () => dispatch({type: 'CONNECT_SUCCESS', data: {substrate}}));
-    substrate.on('error', (err) => dispatch({type: 'CONNECT_ERROR', data: err}));
-    substrate.on('disconnected', () => dispatch({type: 'DISCONNECT'}));
+    try {
+      const substrate = await Subsocial.getApi(endpoint);
+      dispatch({type: 'CONNECT_SUCCESS', data: {substrate}});
+      substrate.on('disconnected', () => dispatch({type: 'DISCONNECT'}));
+    }
+    catch (err) {
+      dispatch({type: 'CONNECT_ERROR', data: err});
+    }
   }, [api, endpoint, dispatch]);
   
   useEffect(() => {
@@ -68,23 +65,30 @@ export function SubstrateProvider(props: SubstrateProviderProps) {
 
 function stateReducer(state: State, action: StateAction): State {
   switch (action.type) {
-    case 'CONNECT': {
-      console.log(`connecting to Substrate endpoint ${state.endpoint}...`);
-      const {substrate}: WithApi = action.data;
-      return {...state, api: substrate, apiState: 'CONNECTING'};
-    }
     case 'CONNECT_SUCCESS': {
+      assertState(state.apiState, 'PENDING');
       console.info(`successfully connected to Substrate endpoint ${state.endpoint}`);
       const {substrate}: WithApi = action.data;
       return {...state, api: substrate, apiState: 'READY'};
     }
     case 'CONNECT_ERROR': {
+      assertState(state.apiState, 'PENDING');
       console.error(`failed to connect to Substrate endpoint ${state.endpoint}`, action.data);
       return {...state, apiState: 'ERROR', apiError: action.data};
     }
     case 'DISCONNECT': {
-      return {...state, apiState: 'PENDING'};
+      assertState(state.apiState, 'READY');
+      console.info(`disconnected from Substrate endpoint ${state.endpoint}`);
+      return {...state, api: undefined, apiState: 'PENDING'};
     }
     default: throw new Error(`unknown action ${action.type}`);
+  }
+}
+
+function assertState(actual: ApiState, expected: ApiState, critical: boolean = false) {
+  if (actual !== expected) {
+    if (critical)
+      throw new Error(`expected API state ${expected}, found ${actual}`);
+    console.warn(`Substrate API state warning: expected ${expected}, found ${actual}`);
   }
 }

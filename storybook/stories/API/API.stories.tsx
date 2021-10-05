@@ -7,18 +7,18 @@ import { storiesOf } from '@storybook/react-native'
 import { SubstrateProvider, useSubstrate } from '../../../src/components/substrate'
 import config from '../../../config.json'
 
-storiesOf('Substrate API', module)
-  .add('RPC', () => {
+storiesOf('API', module)
+  .add('Substrate', () => {
     return (
-      <SubstrateProvider endpoint={config.connections.rpc.substrate}>
-        
+      <SubstrateProvider endpoint={config.connections.ws.substrate}>
+        <SubstrateConsumer />
       </SubstrateProvider>
     )
   })
 
 
 function SubstrateConsumer() {
-  const {api, apiState, apiError} = useSubstrate();
+  const {apiState} = useSubstrate();
   
   console.log(apiState);
   switch (apiState) {
