@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.kiruse.SubsocialRN"
+      "package": "com.kiruse.subsocialrn"
     },
     "web": {
       "favicon": "./assets/favicon.png"
