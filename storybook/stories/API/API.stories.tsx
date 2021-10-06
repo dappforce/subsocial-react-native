@@ -4,9 +4,9 @@
 import React from 'react'
 import { Text } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
-import { SubstrateProvider, useSubstrate } from '../../../src/components/substrate'
+import { SubstrateProvider, useSubstrate } from 'src/components/SubstrateContext'
 import CenterView from '../CenterView'
-import config from '../../../config.json'
+import config from 'config.json'
 
 storiesOf('API', module)
   .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
