@@ -2398,7 +2398,7 @@
     "@subsocial/utils" "^0.6.4-rn.2"
     axios "^0.21.2"
 
-"@subsocial/types@^0.6.4-rn.2":
+"@subsocial/types@0.6.4-rn.2", "@subsocial/types@^0.6.4-rn.2":
   version "0.6.4-rn.2"
   resolved "https://registry.yarnpkg.com/@subsocial/types/-/types-0.6.4-rn.2.tgz#29b8a11f053e0f6cdb47b208d56943a4218c2e66"
   integrity sha512-tJMUucVS3U7CaBrTiDAeeEo+Eo8Zc4XY9iID//sy3u9ybFgAe/dxFGtzWy2vdQaXKQOQyDoDLo2hEDxqVChpFQ==
