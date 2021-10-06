@@ -7,17 +7,17 @@ import * as Subsocial from '@subsocial/api'
 import { ApiPromise, WsProvider } from '@polkadot/api'
 import { RegistryTypes } from '@polkadot/types/types'
 
-type SubstrateProviderProps = React.PropsWithChildren<{
+export type SubstrateProviderProps = React.PropsWithChildren<{
   endpoint: string
   types?: RegistryTypes
 }>
 
-type ApiState = 'PENDING' | 'CONNECTING' | 'READY' | 'ERROR'
+export type SubstrateConnectionState = 'PENDING' | 'CONNECTING' | 'READY' | 'ERROR'
 
-type State = {
+export type SubstrateState = {
   endpoint: string
   api?: ApiPromise
-  apiState: ApiState
+  connectionState: SubstrateConnectionState
   apiError?: any
 }
 
@@ -30,13 +30,13 @@ type WithApi = {
   substrate: ApiPromise
 }
 
-export const SubstrateContext = React.createContext<State>(undefined as unknown as State);
+export const SubstrateContext = React.createContext<SubstrateState>(undefined as unknown as SubstrateState);
 export const useSubstrate = () => useContext(SubstrateContext);
 
 export function SubstrateProvider(props: SubstrateProviderProps) {
   const {children, endpoint} = props;
   
-  const [state, dispatch] = useReducer(stateReducer, {endpoint, apiState: 'PENDING'});
+  const [state, dispatch] = useReducer(stateReducer, {endpoint, connectionState: 'PENDING'});
   const {api} = state;
   
   const connect = useCallback(async () => {
@@ -63,29 +63,29 @@ export function SubstrateProvider(props: SubstrateProviderProps) {
 }
 
 
-function stateReducer(state: State, action: StateAction): State {
+function stateReducer(state: SubstrateState, action: StateAction): SubstrateState {
   switch (action.type) {
     case 'CONNECT_SUCCESS': {
-      assertState(state.apiState, 'PENDING');
+      assertState(state.connectionState, 'PENDING');
       console.info(`successfully connected to Substrate endpoint ${state.endpoint}`);
       const {substrate}: WithApi = action.data;
-      return {...state, api: substrate, apiState: 'READY'};
+      return {...state, api: substrate, connectionState: 'READY'};
     }
     case 'CONNECT_ERROR': {
-      assertState(state.apiState, 'PENDING');
+      assertState(state.connectionState, 'PENDING');
       console.error(`failed to connect to Substrate endpoint ${state.endpoint}`, action.data);
-      return {...state, apiState: 'ERROR', apiError: action.data};
+      return {...state, connectionState: 'ERROR', apiError: action.data};
     }
     case 'DISCONNECT': {
-      assertState(state.apiState, 'READY');
+      assertState(state.connectionState, 'READY');
       console.info(`disconnected from Substrate endpoint ${state.endpoint}`);
-      return {...state, api: undefined, apiState: 'PENDING'};
+      return {...state, api: undefined, connectionState: 'PENDING'};
     }
     default: throw new Error(`unknown action ${action.type}`);
   }
 }
 
-function assertState(actual: ApiState, expected: ApiState, critical: boolean = false) {
+function assertState(actual: SubstrateConnectionState, expected: SubstrateConnectionState, critical: boolean = false) {
   if (actual !== expected) {
     if (critical)
       throw new Error(`expected API state ${expected}, found ${actual}`);
