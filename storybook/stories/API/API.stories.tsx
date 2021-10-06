@@ -11,22 +11,12 @@ import config from 'config.json'
 
 storiesOf('API', module)
   .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
-  .add('Substrate', () => {
-    return (
-      <SubstrateProvider endpoint={config.connections.ws.substrate}>
-        <SubstrateConsumer />
-      </SubstrateProvider>
-    )
-  })
-  .add('Subsocial', () => {
-    return (
-      <SubstrateProvider endpoint={config.connections.ws.substrate}>
-        <SubsocialProvider>
-          <SubsocialConsumer />
-        </SubsocialProvider>
-      </SubstrateProvider>
-    )
-  })
+  .add('Substrate', () => <SubstrateConsumer />)
+  .add('Subsocial', () => (
+    <SubsocialProvider>
+      <SubsocialConsumer />
+    </SubsocialProvider>
+  ))
 
 
 function SubstrateConsumer() {
