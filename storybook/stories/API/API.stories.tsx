@@ -4,7 +4,8 @@
 import React from 'react'
 import { Text } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
-import { SubstrateProvider, useSubstrate } from 'src/components/SubstrateContext'
+import { SubstrateProvider, useSubstrate } from '../../../src/components/SubstrateContext'
+import { SubsocialProvider, useSubsocial } from '../../../src/components/SubsocialContext'
 import CenterView from '../CenterView'
 import config from 'config.json'
 
@@ -17,16 +18,34 @@ storiesOf('API', module)
       </SubstrateProvider>
     )
   })
+  .add('Subsocial', () => {
+    return (
+      <SubstrateProvider endpoint={config.connections.ws.substrate}>
+        <SubsocialProvider>
+          <SubsocialConsumer />
+        </SubsocialProvider>
+      </SubstrateProvider>
+    )
+  })
 
 
 function SubstrateConsumer() {
   const {connectionState} = useSubstrate();
   
-  console.log(connectionState);
   switch (connectionState) {
     case 'PENDING': return <Text>pending ...</Text>;
     case 'CONNECTING': return <Text>connecting ...</Text>;
     case 'READY': return <Text>✔️ ready</Text>;
+    case 'ERROR': return <Text>❌ failed</Text>;
+  }
+}
+
+function SubsocialConsumer() {
+  const {connectionState} = useSubsocial();
+  
+  switch (connectionState) {
+    case 'PENDING': return <Text>pending ...</Text>;
+    case 'CONNECTED': return <Text>✔️ ready</Text>;
     case 'ERROR': return <Text>❌ failed</Text>;
   }
 }
