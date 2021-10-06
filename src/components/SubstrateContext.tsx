@@ -67,18 +67,15 @@ function stateReducer(state: SubstrateState, action: StateAction): SubstrateStat
   switch (action.type) {
     case 'CONNECT_SUCCESS': {
       assertState(state.connectionState, 'PENDING');
-      console.info(`successfully connected to Substrate endpoint ${state.endpoint}`);
       const {substrate}: WithApi = action.data;
       return {...state, api: substrate, connectionState: 'READY'};
     }
     case 'CONNECT_ERROR': {
       assertState(state.connectionState, 'PENDING');
-      console.error(`failed to connect to Substrate endpoint ${state.endpoint}`, action.data);
       return {...state, connectionState: 'ERROR', apiError: action.data};
     }
     case 'DISCONNECT': {
       assertState(state.connectionState, 'READY');
-      console.info(`disconnected from Substrate endpoint ${state.endpoint}`);
       return {...state, api: undefined, connectionState: 'PENDING'};
     }
     default: throw new Error(`unknown action ${action.type}`);
