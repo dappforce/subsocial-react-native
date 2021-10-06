@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0
 import React, { useContext, useReducer } from 'react'
 import { SubsocialApi } from '@subsocial/api'
-import { SubstrateState, useSubstrate } from "./SubstrateContext"
+import { SubstrateState, useSubstrate } from './SubstrateContext'
 import config from 'config.json'
+export { SubstrateProvider, useSubstrate } from './SubstrateContext'
 
 type SubsocialConnectionState = 'PENDING' | 'CONNECTED' | 'ERROR'
 
