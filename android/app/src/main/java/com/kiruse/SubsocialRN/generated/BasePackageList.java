@@ -1,4 +1,4 @@
-package com.kiruse.SubsocialRN.generated;
+package com.kiruse.subsocialrn.generated;
 
 import java.util.Arrays;
 import java.util.List;

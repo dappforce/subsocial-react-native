@@ -1,4 +1,4 @@
-package com.kiruse.SubsocialRN;
+package com.kiruse.subsocialrn;
 import android.content.res.Configuration;
 import android.content.Intent;
 
