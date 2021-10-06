@@ -20,10 +20,10 @@ storiesOf('API', module)
 
 
 function SubstrateConsumer() {
-  const {apiState} = useSubstrate();
+  const {connectionState} = useSubstrate();
   
-  console.log(apiState);
-  switch (apiState) {
+  console.log(connectionState);
+  switch (connectionState) {
     case 'PENDING': return <Text>pending ...</Text>;
     case 'CONNECTING': return <Text>connecting ...</Text>;
     case 'READY': return <Text>✔️ ready</Text>;
