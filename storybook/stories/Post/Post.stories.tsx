@@ -9,11 +9,14 @@ import CenterView from '../CenterView'
 storiesOf('Post', module)
   .addDecorator((getStory) => (
     <SubsocialProvider>
-      <CenterView>
-        {getStory()}
-      </CenterView>
+      {getStory()}
     </SubsocialProvider>
   ))
-  .add('sample post', () => {
-    return <Post id={20423} />
-  })
+  .add('sample overview', () => (
+    <CenterView>
+      <Post id={20459} summary />
+    </CenterView>
+  ))
+  .add('sample post', () => (
+    <Post id={20459} />
+  ))
