@@ -64,7 +64,6 @@ type PostHeadProps = {
 type PostBodyProps = {
   job: PostStateJob
   summary: boolean
-  fadeColor?: string
   data?: PostData
 }
 
@@ -76,7 +75,7 @@ function PostHead({job, data}: PostHeadProps) {
   return <SubsocialText style={[styles.title, schemeStyle, isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</SubsocialText>
 }
 
-function PostBody({job, summary, fadeColor, data}: PostBodyProps) {
+function PostBody({job, summary, data}: PostBodyProps) {
   // State
   const isLoading = job === 'PENDING' || job === 'LOADING'
   const isError   = job === 'ERROR';
