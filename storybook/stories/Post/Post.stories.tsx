@@ -1,4 +1,5 @@
 import React from 'react'
+import { ScrollView } from 'react-native'
 import { action } from '@storybook/addon-actions'
 import { text } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
@@ -18,5 +19,7 @@ storiesOf('Post', module)
     </CenterView>
   ))
   .add('sample post', () => (
-    <Post id={20459} />
+    <ScrollView>
+      <Post id={20459} />
+    </ScrollView>
   ))
