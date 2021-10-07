@@ -27,7 +27,7 @@ export default function(props: {}) {
   )
 };
 
-const backgroundColor = (scheme: ColorSchemeName) => scheme === 'light' ? '#f6f3ff' : '#0d0319';
+const backgroundColor = (scheme: ColorSchemeName) => scheme === 'light' ? '#f6f3ff' : '#150527';
 const createStyles = (bgc: string) => StyleSheet.create({
   container: {
     backgroundColor: bgc,
