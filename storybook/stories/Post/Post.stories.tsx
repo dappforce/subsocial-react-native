@@ -25,6 +25,6 @@ storiesOf('Post', module)
   ))
   .add('sample short', () => (
     <ScrollView>
-      <Post id={20489} />
+      <Post id={20482} />
     </ScrollView>
   ))
