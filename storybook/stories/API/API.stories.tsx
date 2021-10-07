@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0
 import React from 'react'
 import { storiesOf } from '@storybook/react-native'
-import { SubstrateProvider, useSubstrate } from '../../../src/components/SubstrateContext'
-import { SubsocialProvider, useSubsocial } from '../../../src/components/SubsocialContext'
+import { SubstrateProvider, useSubstrate } from '~comps/SubstrateContext'
+import { SubsocialProvider, useSubsocial } from '~comps/SubsocialContext'
 import SubsocialText from '../SubsocialText'
 import CenterView from '../CenterView'
 

@@ -3,6 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "jsx": "react-native",
+    "paths": {
+      "~stories/*": ["./storybook/stories/*"],
+      "~comps/*": ["./src/components/*"]
+    }
   }
 }
