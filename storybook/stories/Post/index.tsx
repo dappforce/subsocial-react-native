@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, View, useColorScheme, ColorSchemeName } from 'react-native'
+import { Image } from 'react-native-elements'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useBackgroundColor } from '~comps/BackgroundColorContext'
 import { PostData } from '@subsocial/types/dto'
@@ -7,6 +8,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import SubsocialText from '../SubsocialText'
 import Markdown from 'react-native-markdown-display'
 import BN from 'bn.js'
+import config from 'config.json'
+import IpfsImage from '~comps/IpfsImage'
 
 export type PostProps = {
   id: number
@@ -72,7 +75,12 @@ function PostHead({job, data}: PostHeadProps) {
   const scheme = useColorScheme();
   const schemeStyle = useMemo(() => ({color: scheme === 'light' ? 'black' : 'white'}), [scheme]);
   
-  return <SubsocialText style={[styles.title, schemeStyle, isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</SubsocialText>
+  return (
+    <>
+      <SubsocialText style={[styles.title, schemeStyle, isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</SubsocialText>
+      <IpfsImage cid={data?.content?.image} />
+    </>
+  )
 }
 
 function PostBody({job, summary, data}: PostBodyProps) {
@@ -185,6 +193,7 @@ export const createMDStyles = (scheme: ColorSchemeName) => {
       marginBottom: 4,
     },
     hr: {
+      backgroundColor: '#c9046a',
       marginTop: 6,
       marginBottom: 6,
     },
