@@ -18,8 +18,13 @@ storiesOf('Post', module)
       <Post id={20459} summary />
     </CenterView>
   ))
-  .add('sample post', () => (
+  .add('sample long', () => (
     <ScrollView>
       <Post id={20459} />
+    </ScrollView>
+  ))
+  .add('sample short', () => (
+    <ScrollView>
+      <Post id={20489} />
     </ScrollView>
   ))
