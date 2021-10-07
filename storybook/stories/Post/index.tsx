@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from 'react'
-import { StyleSheet, View, Text, useColorScheme } from 'react-native'
+import React, { useCallback, useMemo, useState } from 'react'
+import { StyleSheet, View, useColorScheme, ColorSchemeName } from 'react-native'
 import { useSubsocial } from '../../../src/components/SubsocialContext'
+import { useBackgroundColor } from '../../../src/components/BackgroundColorContext'
 import { PostData } from '@subsocial/types/dto'
 import { LinearGradient } from 'expo-linear-gradient'
+import SubsocialText from '../SubsocialText'
 import Markdown from 'react-native-markdown-display'
 import BN from 'bn.js'
 
@@ -27,7 +29,6 @@ export class PostNotFoundError extends Error {
 export default function Post({id, summary}: PostProps) {
   const {api} = useSubsocial() ?? {};
   const [state, setState] = useState<PostState>({job: 'PENDING'});
-  const isLoading = state.job === 'PENDING' || state.job === 'LOADING';
   
   useCallback(async () => {
     if (!api) return;
@@ -49,13 +50,17 @@ export default function Post({id, summary}: PostProps) {
   
   return (
     <View style={styles.container}>
-      <Text style={[isLoading && styles.loading, styles.title]}>{state.data?.content?.title ?? 'loading ...'}</Text>
+      <PostHead job={state.job} data={state.data} />
       <PostBody summary={summary??false} job={state.job} data={state.data} />
     </View>
   )
 }
 
 
+type PostHeadProps = {
+  job: PostStateJob
+  data?: PostData
+}
 type PostBodyProps = {
   job: PostStateJob
   summary: boolean
@@ -63,32 +68,46 @@ type PostBodyProps = {
   data?: PostData
 }
 
+function PostHead({job, data}: PostHeadProps) {
+  const isLoading = job === 'PENDING' || job === 'LOADING';
+  const scheme = useColorScheme();
+  const schemeStyle = useMemo(() => ({color: scheme === 'light' ? 'black' : 'white'}), [scheme]);
+  
+  return <SubsocialText style={[styles.title, schemeStyle, isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</SubsocialText>
+}
+
 function PostBody({job, summary, fadeColor, data}: PostBodyProps) {
+  // State
   const isLoading = job === 'PENDING' || job === 'LOADING'
   const isError   = job === 'ERROR';
-  const scheme = useColorScheme();
   
+  // Styling + Schemes
+  const scheme = useColorScheme();
+  const bgc    = useBackgroundColor();
+  const mdStyles = useMemo(() => createMDStyles(scheme), [scheme]);
+  
+  // DOM
   if (isError) {
-    return <Text style={[styles.content, styles.error]}>An error occurred while loading the post's contents.</Text>
+    return <SubsocialText style={[styles.content, styles.error]}>An error occurred while loading the post's contents.</SubsocialText>
   }
   if (isLoading) {
-    return <Text style={[styles.content, styles.loading]}>loading ...</Text>
+    return <SubsocialText style={[styles.content, styles.loading]}>loading ...</SubsocialText>
   }
   else {
     let copy = data?.content?.body || '';
     if (summary) {
       return (
         <View style={styles.summary}>
-          <Markdown style={styles.content}>{copy}</Markdown>
+          <Markdown style={mdStyles}>{copy}</Markdown>
           <LinearGradient
-            colors={['transparent', fadeColor ?? (scheme === 'light' ? '#fff' : '#000')]}
+            colors={['transparent', bgc]}
             style={styles.fader}
           />
         </View>
       )
     }
     else {
-      return <Markdown style={styles.content}>{copy}</Markdown>
+      return <Markdown style={mdStyles}>{copy}</Markdown>
     }
   }
 }
@@ -98,10 +117,9 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 10,
-    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 16,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   content: {
@@ -125,3 +143,72 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
 });
+
+export const createMDStyles = (scheme: ColorSchemeName) => {
+  return StyleSheet.create({
+    body: {
+      color: scheme === 'light' ? 'black' : 'white',
+    },
+    heading1: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    heading2: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    heading3: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    heading4: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    heading5: {
+      fontSize: 10,
+      fontWeight: 'bold',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    heading6: {
+      fontSize: 10,
+      fontStyle: 'italic',
+      marginTop: 6,
+      marginBottom: 4,
+    },
+    hr: {
+      marginTop: 6,
+      marginBottom: 6,
+    },
+    list_item: {
+      marginTop: 2,
+      marginBottom: 2,
+    },
+    link: {
+      color: '#c9046a',
+      textDecorationLine: 'none',
+    },
+    code_block: {
+      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 20%)',
+      borderLeftColor: scheme === 'light' ? 'hsl(0, 0%, 60%)' : 'hsl(0, 0%, 40%)',
+      borderLeftWidth: 3,
+    },
+    code_inline: {
+      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 20%)',
+    },
+    blockquote: {
+      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 95%)' : 'hsl(0, 0%, 10%)',
+      borderLeftColor: scheme === 'light' ? 'hsl(0, 0%, 70%)' : 'hsl(0, 0%, 30%)',
+      borderLeftWidth: 3,
+    },
+  });
+};
