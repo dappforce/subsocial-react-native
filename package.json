@@ -13,7 +13,6 @@
     "@polkadot/types": "^6.0.5",
     "@subsocial/api": "0.6.4-rn.2",
     "@subsocial/types": "0.6.4-rn.2",
-    "bn.js": "^5.2.0",
     "constants-browserify": "^1.0.0",
     "crypto-browserify": "^3.12.0",
     "expo": "~42.0.1",
