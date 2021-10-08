@@ -1,14 +1,12 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { StyleSheet, View, useColorScheme, ColorSchemeName } from 'react-native'
-import { Image } from 'react-native-elements'
-import { useSubsocial } from '~comps/SubsocialContext'
+import { useSubsocialInitializer, SubsocialInitializerState } from '~comps/SubsocialContext'
 import { useBackgroundColor } from '~comps/BackgroundColorContext'
 import { PostData } from '@subsocial/types/dto'
 import { LinearGradient } from 'expo-linear-gradient'
 import SubsocialText from '../SubsocialText'
 import Markdown from 'react-native-markdown-display'
-import BN from 'bn.js'
-import config from 'config.json'
+import { BN } from '@polkadot/util'
 import IpfsImage from '~comps/IpfsImage'
 
 export type PostProps = {
@@ -16,62 +14,40 @@ export type PostProps = {
   summary?: boolean
 }
 
-type PostStateJob = 'PENDING' | 'LOADING' | 'READY' | 'ERROR'
-export type PostState = {
-  job: PostStateJob
-  data?: PostData
-  error?: any
-}
-
 export class PostNotFoundError extends Error {
   constructor(postId: number) {
-    super(`Post ${postId} not found`);
+    super(`Subsocial Post ${postId} not found`);
   }
 }
 
 export default function Post({id, summary}: PostProps) {
-  const {api} = useSubsocial() ?? {};
-  const [state, setState] = useState<PostState>({job: 'PENDING'});
-  
-  useCallback(async () => {
-    if (!api) return;
-    
-    if (state.job === 'PENDING') {
-      setState({...state, job: 'LOADING'});
-      try {
-        const data = await api.findPost({id: new BN(id)});
-        if (data)
-          setState({...state, job: 'READY', data});
-        else
-          setState({...state, job: 'ERROR', error: new PostNotFoundError(id)});
-      }
-      catch (err: any) {
-        setState({...state, job: 'ERROR', error: err});
-      }
-    }
-  }, [api, id, state, setState])();
+  const [state, data] = useSubsocialInitializer<PostData>(async api => {
+    const data = await api.findPost({id: new BN(id)});
+    if (!data) throw new PostNotFoundError(id);
+    return data;
+  }, [id]);
   
   return (
     <View style={styles.container}>
-      <PostHead job={state.job} data={state.data} />
-      <PostBody summary={summary??false} job={state.job} data={state.data} />
+      <PostHead state={state} data={data} />
+      <PostBody summary={summary??false} state={state} data={data} />
     </View>
   )
 }
 
 
 type PostHeadProps = {
-  job: PostStateJob
+  state: SubsocialInitializerState
   data?: PostData
 }
 type PostBodyProps = {
-  job: PostStateJob
+  state: SubsocialInitializerState
   summary: boolean
   data?: PostData
 }
 
-function PostHead({job, data}: PostHeadProps) {
-  const isLoading = job === 'PENDING' || job === 'LOADING';
+function PostHead({state, data}: PostHeadProps) {
+  const isLoading = state === 'PENDING' || state === 'LOADING';
   const scheme = useColorScheme();
   const schemeStyle = useMemo(() => ({color: scheme === 'light' ? 'black' : 'white'}), [scheme]);
   
@@ -83,10 +59,10 @@ function PostHead({job, data}: PostHeadProps) {
   )
 }
 
-function PostBody({job, summary, data}: PostBodyProps) {
+function PostBody({state, summary, data}: PostBodyProps) {
   // State
-  const isLoading = job === 'PENDING' || job === 'LOADING'
-  const isError   = job === 'ERROR';
+  const isLoading = state === 'PENDING' || state === 'LOADING'
+  const isError   = state === 'ERROR';
   
   // Styling + Schemes
   const scheme = useColorScheme();

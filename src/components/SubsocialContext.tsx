@@ -1,11 +1,14 @@
 //////////////////////////////////////////////////////////////////////
 // Simple Substrate API integration with RN
 // SPDX-License-Identifier: GPL-3.0
-import React, { useContext, useReducer } from 'react'
+import React, { useCallback, useContext, useMemo, useReducer, useState } from 'react'
 import { SubsocialApi } from '@subsocial/api'
 import { SubstrateState, useSubstrate } from './SubstrateContext'
 import config from 'config.json'
+
 export { SubstrateProvider, useSubstrate } from './SubstrateContext'
+
+// ===== Types =====
 
 type SubsocialConnectionState = 'PENDING' | 'CONNECTED' | 'ERROR'
 
@@ -24,6 +27,9 @@ type StateAction = {
 
 export const SubsocialContext = React.createContext<SubsocialState>(undefined as unknown as SubsocialState)
 export const useSubsocial = () => useContext(SubsocialContext);
+
+
+// ===== Provider =====
 
 export type SubsocialProviderProps = React.PropsWithChildren<{}>
 
@@ -71,4 +77,54 @@ function stateReducer(state: SubsocialState, action: StateAction): SubsocialStat
     }
     default: throw new Error(`unknown Subsocial context action ${action.type}`);
   }
+}
+
+
+// ===== QoL Hooks =====
+
+export type SubsocialInitializerState = 'PENDING' | 'LOADING' | 'READY' | 'ERROR'
+type InitializerData<T> = {
+  job: SubsocialInitializerState
+  data?: T
+  error?: any
+}
+
+interface SubsocialInitializerCallback<T> {
+  (api: SubsocialApi): T | Promise<T>
+}
+
+export function useSubsocialInitializer<T>(
+  callback: SubsocialInitializerCallback<T>,
+  deps: React.DependencyList
+): [SubsocialInitializerState, undefined | T]
+{
+  const subsocial = useSubsocial();
+  if (subsocial === undefined)
+    throw new Error('No Subsocial API context found - are you using SubsocialProvider?');
+  
+  const {api} = subsocial;
+  const [state, setState] = useState<InitializerData<T>>({job: 'PENDING'});
+  const {job} = state;
+  
+  // Abuse useMemo to auto-reset initializer when deps change
+  useMemo(() => {
+    setState({job: 'PENDING'});
+    return deps;
+  }, deps);
+  
+  // Need callback because api may be undefined
+  useCallback(async () => {
+    if (!api) return;
+    
+    if (job !== 'PENDING') return;
+    setState({job: 'LOADING'});
+    try {
+      setState({job: 'READY', data: await callback(api)});
+    }
+    catch (error) {
+      setState({job: 'ERROR', error});
+    }
+  }, [api, state])();
+  
+  return [state.job, state.data];
 }
