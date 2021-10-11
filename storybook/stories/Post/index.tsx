@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react'
-import { StyleSheet, View, useColorScheme, ColorSchemeName } from 'react-native'
+import { StyleSheet, View } from 'react-native'
+import { DefaultTheme, Text, Title, useTheme } from 'react-native-paper'
 import { useSubsocialInitializer, SubsocialInitializerState } from '~comps/SubsocialContext'
-import { useBackgroundColor } from '~comps/BackgroundColorContext'
 import { PostData } from '@subsocial/types/dto'
 import { LinearGradient } from 'expo-linear-gradient'
-import SubsocialText from '../SubsocialText'
 import Markdown from 'react-native-markdown-display'
 import { BN } from '@polkadot/util'
 import IpfsImage from '~comps/IpfsImage'
@@ -48,12 +47,10 @@ type PostBodyProps = {
 
 function PostHead({state, data}: PostHeadProps) {
   const isLoading = state === 'PENDING' || state === 'LOADING';
-  const scheme = useColorScheme();
-  const schemeStyle = useMemo(() => ({color: scheme === 'light' ? 'black' : 'white'}), [scheme]);
   
   return (
     <>
-      <SubsocialText style={[styles.title, schemeStyle, isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</SubsocialText>
+      <Title style={[isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</Title>
       <IpfsImage cid={data?.content?.image} />
     </>
   )
@@ -65,16 +62,15 @@ function PostBody({state, summary, data}: PostBodyProps) {
   const isError   = state === 'ERROR';
   
   // Styling + Schemes
-  const scheme = useColorScheme();
-  const bgc    = useBackgroundColor();
-  const mdStyles = useMemo(() => createMDStyles(scheme), [scheme]);
+  const theme = useTheme();
+  const mdStyles = useMemo(() => createMDStyles(theme), [theme]);
   
   // DOM
   if (isError) {
-    return <SubsocialText style={[styles.content, styles.error]}>An error occurred while loading the post's contents.</SubsocialText>
+    return <Text style={[styles.error]}>An error occurred while loading the post's contents.</Text>
   }
   if (isLoading) {
-    return <SubsocialText style={[styles.content, styles.loading]}>loading ...</SubsocialText>
+    return <Text style={[styles.loading]}>loading ...</Text>
   }
   else {
     let copy = data?.content?.body || '';
@@ -83,7 +79,7 @@ function PostBody({state, summary, data}: PostBodyProps) {
         <View style={styles.summary}>
           <Markdown style={mdStyles}>{copy}</Markdown>
           <LinearGradient
-            colors={['transparent', bgc]}
+            colors={['transparent', theme.colors.background]}
             style={styles.fader}
           />
         </View>
@@ -100,13 +96,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 10,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-  },
-  content: {
-    
   },
   summary: {
     maxHeight: 240,
@@ -127,49 +116,56 @@ const styles = StyleSheet.create({
   },
 });
 
-export const createMDStyles = (scheme: ColorSchemeName) => {
+export const createMDStyles = (theme: typeof DefaultTheme) => {
   return StyleSheet.create({
     body: {
-      color: scheme === 'light' ? 'black' : 'white',
+      ...theme.fonts.regular,
+      color: theme.colors.text,
     },
     heading1: {
+      ...theme.fonts.medium,
       fontSize: 18,
       fontWeight: 'bold',
       marginTop: 6,
       marginBottom: 4,
     },
     heading2: {
+      ...theme.fonts.medium,
       fontSize: 16,
       fontWeight: 'bold',
       marginTop: 6,
       marginBottom: 4,
     },
     heading3: {
+      ...theme.fonts.medium,
       fontSize: 14,
       fontWeight: 'bold',
       marginTop: 6,
       marginBottom: 4,
     },
     heading4: {
+      ...theme.fonts.medium,
       fontSize: 12,
       fontWeight: 'bold',
       marginTop: 6,
       marginBottom: 4,
     },
     heading5: {
+      ...theme.fonts.medium,
       fontSize: 10,
       fontWeight: 'bold',
       marginTop: 6,
       marginBottom: 4,
     },
     heading6: {
+      ...theme.fonts.medium,
       fontSize: 10,
       fontStyle: 'italic',
       marginTop: 6,
       marginBottom: 4,
     },
     hr: {
-      backgroundColor: '#c9046a',
+      backgroundColor: theme.colors.accent,
       marginTop: 6,
       marginBottom: 6,
     },
@@ -178,20 +174,20 @@ export const createMDStyles = (scheme: ColorSchemeName) => {
       marginBottom: 2,
     },
     link: {
-      color: '#c9046a',
+      color: theme.colors.accent,
       textDecorationLine: 'none',
     },
     code_block: {
-      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 20%)',
-      borderLeftColor: scheme === 'light' ? 'hsl(0, 0%, 60%)' : 'hsl(0, 0%, 40%)',
+      backgroundColor: theme.colors.surface,
+      borderLeftColor: theme.colors.onSurface,
       borderLeftWidth: 3,
     },
     code_inline: {
-      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 80%)' : 'hsl(0, 0%, 20%)',
+      backgroundColor: theme.colors.surface,
     },
     blockquote: {
-      backgroundColor: scheme === 'light' ? 'hsl(0, 0%, 95%)' : 'hsl(0, 0%, 10%)',
-      borderLeftColor: scheme === 'light' ? 'hsl(0, 0%, 70%)' : 'hsl(0, 0%, 30%)',
+      backgroundColor: theme.colors.surface,
+      borderLeftColor: theme.colors.onSurface,
       borderLeftWidth: 3,
     },
   });

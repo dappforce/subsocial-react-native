@@ -2,10 +2,9 @@
 // Stories for testing Substrate/Subsocial API connection
 // SPDX-License-Identifier: GPL-3.0
 import React from 'react'
+import { Text } from 'react-native-paper'
 import { storiesOf } from '@storybook/react-native'
-import { SubstrateProvider, useSubstrate } from '~comps/SubstrateContext'
-import { SubsocialProvider, useSubsocial } from '~comps/SubsocialContext'
-import SubsocialText from '../SubsocialText'
+import { SubsocialProvider, useSubsocial, useSubstrate } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 
 storiesOf('API', module)
@@ -22,10 +21,10 @@ function SubstrateConsumer() {
   const {connectionState} = useSubstrate();
   
   switch (connectionState) {
-    case 'PENDING': return <SubsocialText>pending ...</SubsocialText>;
-    case 'CONNECTING': return <SubsocialText>connecting ...</SubsocialText>;
-    case 'READY': return <SubsocialText>✔️ ready</SubsocialText>;
-    case 'ERROR': return <SubsocialText>❌ failed</SubsocialText>;
+    case 'PENDING': return <Text>pending ...</Text>;
+    case 'CONNECTING': return <Text>connecting ...</Text>;
+    case 'READY': return <Text>✔️ ready</Text>;
+    case 'ERROR': return <Text>❌ failed</Text>;
   }
 }
 
@@ -33,8 +32,8 @@ function SubsocialConsumer() {
   const {connectionState} = useSubsocial();
   
   switch (connectionState) {
-    case 'PENDING': return <SubsocialText>pending ...</SubsocialText>;
-    case 'CONNECTED': return <SubsocialText>✔️ ready</SubsocialText>;
-    case 'ERROR': return <SubsocialText>❌ failed</SubsocialText>;
+    case 'PENDING': return <Text>pending ...</Text>;
+    case 'CONNECTED': return <Text>✔️ ready</Text>;
+    case 'ERROR': return <Text>❌ failed</Text>;
   }
 }

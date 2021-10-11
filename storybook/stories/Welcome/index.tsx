@@ -1,45 +1,42 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import SubsocialText from '../SubsocialText';
+import { DefaultTheme, Text, Title, useTheme } from 'react-native-paper'
 
 export default function() {
+  const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
-      <SubsocialText style={styles.header}>Welcome to Subsocial RN</SubsocialText>
-      <SubsocialText style={styles.content}>
+      <Title>Welcome to Subsocial RN</Title>
+      <Text style={styles.content}>
         Subsocial RN is an example app built in
-        {' '}<SubsocialText style={styles.italic}>React Native</SubsocialText>{' '}
+        {' '}<Text style={styles.emphasis}>React Native</Text>{' '}
         for the Subsocial Ecosystem.
-      </SubsocialText>
-      <SubsocialText style={styles.content}>
+      </Text>
+      <Text style={styles.content}>
         The purpose of this app is to demonstrate how one would go
         about creating their own.
-      </SubsocialText>
-      <SubsocialText style={styles.content}>
+      </Text>
+      <Text style={styles.content}>
         This app was built with Storybook for React Native. It is
         not a requirement for your own Subsocial app.
-      </SubsocialText>
+      </Text>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
     justifyContent: 'center',
   },
-  header: {
-    fontSize: 18,
-    marginBottom: 18,
-  },
   content: {
-    fontSize: 12,
     marginBottom: 10,
     lineHeight: 18,
   },
-  italic: {
+  emphasis: {
     fontStyle: 'italic',
-    color: '#037fc6'
+    color: theme.colors.accent,
   },
 });

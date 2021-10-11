@@ -1,36 +1,37 @@
 import React, { useMemo } from 'react'
-import { ColorSchemeName, StyleSheet, useColorScheme } from 'react-native'
+import { StyleSheet, useColorScheme } from 'react-native'
+import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { SubstrateProvider } from '~comps/SubstrateContext'
-import { BackgroundColorProvider } from '~comps/BackgroundColorContext'
 import StorybookUI from './storybook'
 import config from 'config.json'
+
+import LightTheme from '~themes/light'
+import DarkTheme from '~themes/dark'
 
 
 export default function(props: {}) {
   const scheme = useColorScheme();
-  const bgc    = backgroundColor(scheme);
-  const styles = useMemo(() => createStyles(bgc), [scheme]);
+  const theme  = scheme === 'light' ? LightTheme : DarkTheme;
+  const bgc    = useMemo(() => theme.colors.background, [theme]);
   
   return (
-    <BackgroundColorProvider color={bgc}>
+    <PaperProvider theme={theme}>
       <SubstrateProvider endpoint={config.connections.ws.substrate}>
         <SafeAreaProvider>
-          <StatusBar backgroundColor={bgc} />
-          <SafeAreaView style={styles.container}>
+          <StatusBar backgroundColor={theme.colors.primary} />
+          <SafeAreaView style={[styles.container, {backgroundColor: bgc}]}>
             <StorybookUI {...props} />
           </SafeAreaView>
         </SafeAreaProvider>
       </SubstrateProvider>
-    </BackgroundColorProvider>
+    </PaperProvider>
   )
 };
 
-const backgroundColor = (scheme: ColorSchemeName) => scheme === 'light' ? '#f6f3ff' : '#150527';
-const createStyles = (bgc: string) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    backgroundColor: bgc,
     width: '100%',
     height: '100%',
   },
