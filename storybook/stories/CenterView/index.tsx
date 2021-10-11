@@ -1,13 +1,14 @@
 import React, { ReactNode } from 'react'
-import { StyleSheet } from 'react-native'
+import { StyleProp, StyleSheet, ViewStyle } from 'react-native'
 import { View } from 'react-native'
 
 export interface CenterViewProps {
-  children: ReactNode | ReactNode[];
+  children: ReactNode | ReactNode[]
+  style?: StyleProp<ViewStyle>
 }
 
-export default function CenterView({children}: CenterViewProps) {
-  return <View style={styles.container}>{children}</View>;
+export default function CenterView({children, style}: CenterViewProps) {
+  return <View style={[styles.container, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
