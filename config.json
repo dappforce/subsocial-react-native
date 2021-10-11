@@ -1,7 +1,7 @@
 {
   "connections": {
     "ws": {
-      "substrate": "wss://rpc.subsocial.network",
+      "substrate": "wss://pub.elara.patract.io/subsocial",
       "offchain": "wss://app.subsocial.network/notif-ws",
       "kusama": "wss://kusama-rpc.polkadot.io"
     },
