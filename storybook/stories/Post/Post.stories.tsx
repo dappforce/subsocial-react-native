@@ -13,17 +13,17 @@ storiesOf('Post', module)
       {getStory()}
     </SubsocialProvider>
   ))
-  .add('sample overview', () => (
+  .add('overview', () => (
     <CenterView>
       <Post id={20459} summary />
     </CenterView>
   ))
-  .add('sample long', () => (
+  .add('long', () => (
     <ScrollView>
       <Post id={20459} />
     </ScrollView>
   ))
-  .add('sample short', () => (
+  .add('short', () => (
     <ScrollView>
       <Post id={20482} />
     </ScrollView>
