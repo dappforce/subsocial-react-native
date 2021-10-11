@@ -8,6 +8,7 @@ const theme: typeof DefaultTheme = {
   roundness: 4,
   colors: {
     ...DefaultTheme.colors,
+    primary: 'rgba(107,17,107,0.80)',
     accent: '#c9046a',
     background: '#f6f3ff',
   },

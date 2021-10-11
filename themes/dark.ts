@@ -10,6 +10,7 @@ const theme: typeof DarkTheme = {
   roundness: LightTheme.roundness,
   colors: {
     ...DarkTheme.colors,
+    primary: LightTheme.colors.primary,
     accent: LightTheme.colors.accent,
     background: '#150527',
   },
