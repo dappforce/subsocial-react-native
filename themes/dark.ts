@@ -12,7 +12,8 @@ const theme: typeof DarkTheme = {
     ...DarkTheme.colors,
     primary: LightTheme.colors.primary,
     accent: LightTheme.colors.accent,
-    background: '#150527',
+    background: '#15202B',
+    text: 'white',
   },
 };
 

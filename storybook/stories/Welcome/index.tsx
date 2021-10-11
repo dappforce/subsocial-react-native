@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { DefaultTheme, Text, Title, useTheme } from 'react-native-paper'
+import { Span } from '~comps/Typography'
 
 export default function() {
   const theme = useTheme();
@@ -10,7 +11,7 @@ export default function() {
       <Title>Welcome to Subsocial RN</Title>
       <Text style={styles.content}>
         Subsocial RN is an example app built in
-        {' '}<Text style={styles.emphasis}>React Native</Text>{' '}
+        {' '}<Span>React Native</Span>{' '}
         for the Subsocial Ecosystem.
       </Text>
       <Text style={styles.content}>
@@ -34,9 +35,5 @@ const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
   content: {
     marginBottom: 10,
     lineHeight: 18,
-  },
-  emphasis: {
-    fontStyle: 'italic',
-    color: theme.colors.accent,
   },
 });

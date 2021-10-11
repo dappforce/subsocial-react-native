@@ -10,7 +10,8 @@ const theme: typeof DefaultTheme = {
     ...DefaultTheme.colors,
     primary: '#c9046a',
     accent: '#c9046a',
-    background: '#f6f3ff',
+    background: 'white',
+    text: '#222',
   },
 };
 
