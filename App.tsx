@@ -20,7 +20,7 @@ export default function(props: {}) {
     <PaperProvider theme={theme}>
       <SubstrateProvider endpoint={config.connections.ws.substrate}>
         <SafeAreaProvider>
-          <StatusBar backgroundColor={theme.colors.primary} />
+          <StatusBar backgroundColor={theme.colors.background} />
           <SafeAreaView style={[styles.container, {backgroundColor: bgc}]}>
             <StorybookUI {...props} />
           </SafeAreaView>
