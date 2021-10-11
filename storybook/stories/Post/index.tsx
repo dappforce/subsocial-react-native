@@ -6,7 +6,7 @@ import { PostData } from '@subsocial/types/dto'
 import { LinearGradient } from 'expo-linear-gradient'
 import Markdown from 'react-native-markdown-display'
 import { BN } from '@polkadot/util'
-import IpfsImage from '~comps/IpfsImage'
+import { IpfsBanner } from '~comps/IpfsImage'
 
 export type PostProps = {
   id: number
@@ -51,7 +51,7 @@ function PostHead({state, data}: PostHeadProps) {
   return (
     <>
       <Title style={[isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</Title>
-      <IpfsImage cid={data?.content?.image} />
+      <IpfsBanner cid={data?.content?.image} />
     </>
   )
 }
