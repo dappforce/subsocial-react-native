@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Simple Substrate API integration with RN
 // SPDX-License-Identifier: GPL-3.0
-import React, { useCallback, useContext, useMemo, useReducer, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react'
 import { SubsocialApi } from '@subsocial/api'
 import { SubstrateState, useSubstrate } from './SubstrateContext'
 import config from 'config.json'
@@ -106,10 +106,9 @@ export function useSubsocialInitializer<T>(
   const [state, setState] = useState<InitializerData<T>>({job: 'PENDING'});
   const {job} = state;
   
-  // Abuse useMemo to auto-reset initializer when deps change
-  useMemo(() => {
+  // Auto-reset initializer when deps change
+  useEffect(() => {
     setState({job: 'PENDING'});
-    return deps;
   }, deps);
   
   // Need callback because api may be undefined
@@ -123,6 +122,7 @@ export function useSubsocialInitializer<T>(
     }
     catch (error) {
       setState({job: 'ERROR', error});
+      throw error;
     }
   }, [api, state])();
   
