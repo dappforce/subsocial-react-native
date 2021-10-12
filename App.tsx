@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react'
 import { StyleSheet, useColorScheme } from 'react-native'
-import { Provider as PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { SubstrateProvider } from '~comps/SubstrateContext'
+import { ThemeProvider } from '~comps/Theming'
 import StorybookUI from './storybook'
 import config from 'config.json'
 
@@ -12,21 +12,21 @@ import DarkTheme from '~themes/dark'
 
 
 export default function(props: {}) {
-  const scheme = useColorScheme();
-  const theme  = scheme === 'light' ? LightTheme : DarkTheme;
-  const bgc    = useMemo(() => theme.colors.background, [theme]);
+  // const scheme = useColorScheme();
+  // const theme  = scheme === 'light' ? LightTheme : DarkTheme;
+  const theme = LightTheme
   
   return (
-    <PaperProvider theme={theme}>
+    <ThemeProvider theme={theme}>
       <SubstrateProvider endpoint={config.connections.ws.substrate}>
         <SafeAreaProvider>
-          <StatusBar backgroundColor={theme.colors.background} />
-          <SafeAreaView style={[styles.container, {backgroundColor: bgc}]}>
+          <StatusBar backgroundColor={theme.colors.appBar} />
+          <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
             <StorybookUI {...props} />
           </SafeAreaView>
         </SafeAreaProvider>
       </SubstrateProvider>
-    </PaperProvider>
+    </ThemeProvider>
   )
 };
 

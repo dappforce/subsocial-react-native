@@ -1,17 +1,28 @@
 //////////////////////////////////////////////////////////////////////
 // Default Light Mode Theme
-import { DefaultTheme } from "react-native-paper"
+import { Theme } from "~comps/Theming"
 
-const theme: typeof DefaultTheme = {
-  ...DefaultTheme,
-  dark: false,
-  roundness: 4,
+const theme: Theme = {
   colors: {
-    ...DefaultTheme.colors,
-    primary: '#c9046a',
-    accent: '#c9046a',
-    background: 'white',
-    text: '#222',
+    primary: '#eb2f96',
+    secondary: '#eb2f96',
+    textPrimary: '#222',
+    textSecondary: '#888',
+    textDisabled: '#cdc9c9',
+    link: '#bd018b',
+    background: '#fafafa',
+    backgroundMenu: '#eeecec',
+    backgroundMenuHover: '#FFF0F6',
+    backdrop: '#eeecec',
+    scaffold: '#fff',
+    appBar: '#c03494',
+    line: '#ddd',
+    divider: '#eeecec',
+    icon: '#262626',
+    socials: '#262626',
+  },
+  consts: {
+    roundness: 4,
   },
 };
 

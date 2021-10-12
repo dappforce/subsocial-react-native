@@ -4,17 +4,16 @@
 import React, { useState } from 'react'
 import { Falsy, GestureResponderEvent, ScrollView, StyleSheet, View } from 'react-native'
 import * as Linking from 'expo-linking'
-import { Button, Card, Chip, DefaultTheme, Menu, Text, useTheme } from 'react-native-paper'
+import { Card, Menu, Text } from 'react-native-paper'
 import { Icon } from 'react-native-elements'
 import { SubsocialSubstrateApi } from '@subsocial/api'
 import { SpaceId } from '@subsocial/types/substrate/interfaces'
 import { AnySpaceId, NamedLink, SpaceData } from '@subsocial/types'
 import { SubsocialInitializerState, useSubsocialInitializer } from '~comps/SubsocialContext'
-import { BN } from '@polkadot/util'
 import { IpfsAvatar } from '~comps/IpfsImage'
-import createMDStyles from '~themes/markdown'
-import Markdown from 'react-native-markdown-display'
-import { Link } from '~comps/Typography'
+import { Button, Chip, Link, Markdown } from '~comps/Typography'
+import { Theme, useTheme } from '~comps/Theming'
+import { BN } from '@polkadot/util'
 
 export class SpaceNotFoundError extends Error {
   constructor(query: SpaceId | number | string) {
@@ -80,11 +79,11 @@ function SpaceHeadActions({size}: SpaceHeadActionsProps) {
       <Menu
         visible={showMenu}
         onDismiss={() => setShowMenu(false)}
-        anchor={<Icon name="more-horizontal" type="feather" color={theme.colors.disabled} size={size} onPress={() => setShowMenu(true)} style={styles.action} />}
+        anchor={<Icon name="more-horizontal" type="feather" color={theme.colors.textSecondary} size={size} onPress={() => setShowMenu(true)} style={styles.action} />}
       >
         <Menu.Item icon="share" title="share" onPress={() => alert('not yet implemented, sorry')} />
       </Menu>
-      <Button mode="outlined" style={styles.action} onPress={() => alert('not yet implemented, sorry')}>
+      <Button mode="contained" style={styles.action} onPress={() => alert('not yet implemented, sorry')}>
         follow
       </Button>
     </View>
@@ -96,7 +95,6 @@ export type SpaceAboutProps = {
   data?: SpaceData
 }
 export function SpaceAbout({state, data}: SpaceAboutProps) {
-  const theme = useTheme();
   const isLoading = state === 'PENDING' || state === 'LOADING'
   const isError   = state === 'ERROR'
   
@@ -109,7 +107,7 @@ export function SpaceAbout({state, data}: SpaceAboutProps) {
   if (!data?.content?.about) {
     return <Text style={styles.italic}>no about info specified</Text>
   }
-  return <Markdown style={createMDStyles(theme)}>{data!.content!.about!}</Markdown>
+  return <Markdown>{data!.content!.about!}</Markdown>
 }
 
 export type SpaceLinkData = {
@@ -177,13 +175,13 @@ export function SpaceLink({url, name, onPress}: SpaceLinkProps) {
 
 export type SpaceIconLinkProps = SpaceLinkData & {
   onPress: (evt: GestureResponderEvent) => void
-  theme: typeof DefaultTheme
+  theme: Theme
 }
 export interface SpaceIconLinkFactory {
   (props: SpaceIconLinkProps): JSX.Element
 }
 SpaceLink.icons = {
-  'youtube.com': ({onPress, theme}) => <Icon name="logo-youtube" type="ionicon" onPress={onPress} color={theme.colors.text} size={24} />,
+  'youtube.com': ({onPress, theme}) => <Icon name="logo-youtube" type="ionicon" onPress={onPress} color={theme.colors.socials} size={24} />,
 } as Record<string, SpaceIconLinkFactory>;
 
 export type SpaceTagsProps = {
@@ -197,6 +195,7 @@ export function SpaceTags({tags, onPress}: SpaceTagsProps) {
   
   const children = tags.map(tag => (
     <Chip
+      mode="accent"
       onPress={()=>(onPress??defaultHandler)(tag)}
       key={tag}
       style={styles.tag}
@@ -205,7 +204,7 @@ export function SpaceTags({tags, onPress}: SpaceTagsProps) {
     </Chip>
   ));
 
-  return <ScrollView horizontal showsHorizontalScrollIndicator={false}>{children}</ScrollView>
+  return <ScrollView style={styles.tags} horizontal showsHorizontalScrollIndicator={false}>{children}</ScrollView>
 }
 
 
@@ -262,10 +261,11 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     width: '100%',
+    marginTop: 4,
   },
   tag: {
     marginHorizontal: 2,
-    opacity: 0.7,
+    marginVertical: 4,
   },
   actions: {
     display: 'flex',

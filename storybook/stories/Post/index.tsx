@@ -1,13 +1,12 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Text, Title, useTheme } from 'react-native-paper'
 import { useSubsocialInitializer, SubsocialInitializerState } from '~comps/SubsocialContext'
 import { PostData } from '@subsocial/types/dto'
 import { LinearGradient } from 'expo-linear-gradient'
-import Markdown from 'react-native-markdown-display'
 import { BN } from '@polkadot/util'
+import { Markdown } from '~comps/Typography'
 import { IpfsBanner } from '~comps/IpfsImage'
-import createMDStyles from '~themes/markdown'
 
 export type PostProps = {
   id: number
@@ -64,7 +63,6 @@ function PostBody({state, summary, data}: PostBodyProps) {
   
   // Styling + Schemes
   const theme = useTheme();
-  const mdStyles = useMemo(() => createMDStyles(theme), [theme]);
   
   // DOM
   if (isError) {
@@ -78,7 +76,7 @@ function PostBody({state, summary, data}: PostBodyProps) {
     if (summary) {
       return (
         <View style={styles.summary}>
-          <Markdown style={mdStyles}>{copy}</Markdown>
+          <Markdown>{copy}</Markdown>
           <LinearGradient
             colors={['transparent', theme.colors.background]}
             style={styles.fader}
@@ -87,7 +85,7 @@ function PostBody({state, summary, data}: PostBodyProps) {
       )
     }
     else {
-      return <Markdown style={mdStyles}>{copy}</Markdown>
+      return <Markdown>{copy}</Markdown>
     }
   }
 }
