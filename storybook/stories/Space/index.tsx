@@ -149,9 +149,9 @@ export function SocialLinks({links, onPress}: SocialLinksProps) {
   }
   
   return (
-    <View>
-      <View style={styles.links}>{iconChildren}</View>
-      <View style={styles.links}>{linkChildren}</View>
+    <View style={styles.links}>
+      {linkChildren}
+      {iconChildren}
     </View>
   )
 }
@@ -170,18 +170,32 @@ export function SocialLink({url, name, onPress}: SocialLinkProps) {
   if (domain && domain in SocialLink.icons) {
     return SocialLink.icons[domain]({url, name, onPress: _onPress, theme});
   }
-  return <Link url={url} style={styles.link} onPress={_onPress}>{domain}</Link>
+  return <SocialIcon {...{url, name, theme}} onPress={_onPress} name="globe-outline" family="ionicon" size={24} />
+  // return <Link url={url} style={styles.link} onPress={_onPress}>{domain}</Link>
 }
 
 export type SocialIconLinkProps = SocialLinkData & {
   onPress: (evt: GestureResponderEvent) => void
   theme: Theme
 }
+
+type SocialIconProps = SocialIconLinkProps & {
+  name: string
+  family: string
+  size: number
+}
+const SocialIcon = ({name, family, onPress, theme, size}: SocialIconProps) =>
+  <Icon name={name} type={family} onPress={onPress} color={theme.colors.socials} size={size} />
+
 export interface SocialIconLinkFactory {
   (props: SocialIconLinkProps): JSX.Element
-}
+}  
 SocialLink.icons = {
-  'youtube.com': ({onPress, theme}) => <Icon name="logo-youtube" type="ionicon" onPress={onPress} color={theme.colors.socials} size={24} />,
+  'github.com':  (props) => <SocialIcon {...props} name="logo-github"     family="ionicon"   size={24} />,
+  'medium.com':  (props) => <SocialIcon {...props} name="medium-monogram" family="antdesign" size={24} />,
+  't.me':        (props) => <SocialIcon {...props} name="sc-telegram"     family="evilicon"  size={30} />,
+  'twitter.com': (props) => <SocialIcon {...props} name="logo-twitter"    family="ionicon"   size={24} />,
+  'youtube.com': (props) => <SocialIcon {...props} name="logo-youtube"    family="ionicon"   size={24} />,
 } as Record<string, SocialIconLinkFactory>;
 
 export type TagsProps = {
