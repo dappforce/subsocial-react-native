@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'
 import { action } from '@storybook/addon-actions'
 import { text } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
-import { SpaceOverview, SpaceSummary } from './index'
+import * as Space from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 
@@ -13,12 +13,12 @@ storiesOf('Space', module)
   ))
   .add('summary', () => (
     <CenterView style={styles.padded}>
-      <SpaceSummary handle={text('handle', '@subsocial')} />
+      <Space.Summary handle={text('handle', '@subsocial')} />
     </CenterView>
   ))
   .add('overview', () => (
     <CenterView style={styles.padded}>
-      <SpaceOverview handle={text('handle', '@subsocial')} />
+      <Space.Overview handle={text('handle', '@subsocial')} />
     </CenterView>
   ))
 

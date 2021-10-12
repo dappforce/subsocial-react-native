@@ -21,56 +21,56 @@ export class SpaceNotFoundError extends Error {
   }
 }
 
-export type SpaceOverviewProps = {
+export type OverviewProps = {
   id?: AnySpaceId
   handle?: string
 }
-export function SpaceOverview({id, handle}: SpaceOverviewProps) {
+export function Overview({id, handle}: OverviewProps) {
   const [_, data] = useSpace(id, handle);
   return (
     <View style={styles.container}>
-      <SpaceSummary {...{id, handle}} />
-      <SpaceLinks links={data?.content?.links??[]} />
-      <SpaceTags tags={data?.content?.tags??[]} />
+      <Summary {...{id, handle}} />
+      <SocialLinks links={data?.content?.links??[]} />
+      <Tags tags={data?.content?.tags??[]} />
     </View>
   )
 }
 
-export type SpaceSummaryProps = {
+export type SummaryProps = {
   id?: AnySpaceId
   handle?: string
 }
-export function SpaceSummary({id, handle}: SpaceSummaryProps) {
+export function Summary({id, handle}: SummaryProps) {
   const [state, data] = useSpace(id, handle);
   const _id: string = id?.toString() || handle!;
   return (
     <View style={styles.container}>
-      <SpaceHead id={_id} data={data} />
-      <SpaceAbout state={state} data={data} />
+      <Head id={_id} data={data} />
+      <About state={state} data={data} />
     </View>
   )
 }
 
-export type SpaceHeadProps = {
+export type HeadProps = {
   id: AnySpaceId | string
   data?: SpaceData
 }
-export function SpaceHead({id, data}: SpaceHeadProps) {
+export function Head({id, data}: HeadProps) {
   const loading = !data;
   return (
     <Card.Title
       title={data?.content?.name ?? id}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
-      right={props => <SpaceHeadActions {...props} />}
+      right={props => <HeadActions {...props} />}
     />
   )
 }
 
-type SpaceHeadActionsProps = {
+type HeadActionsProps = {
   size: number
 }
-function SpaceHeadActions({size}: SpaceHeadActionsProps) {
+function HeadActions({size}: HeadActionsProps) {
   const [showMenu, setShowMenu] = useState(false);
   const theme = useTheme();
   
@@ -90,11 +90,11 @@ function SpaceHeadActions({size}: SpaceHeadActionsProps) {
   )
 }
 
-export type SpaceAboutProps = {
+export type AboutProps = {
   state: SubsocialInitializerState
   data?: SpaceData
 }
-export function SpaceAbout({state, data}: SpaceAboutProps) {
+export function About({state, data}: AboutProps) {
   const isLoading = state === 'PENDING' || state === 'LOADING'
   const isError   = state === 'ERROR'
   
@@ -110,16 +110,16 @@ export function SpaceAbout({state, data}: SpaceAboutProps) {
   return <Markdown>{data!.content!.about!}</Markdown>
 }
 
-export type SpaceLinkData = {
+export type SocialLinkData = {
   url: string
   name?: string
 }
-export type SpaceLinksProps = {
-  links: (string|SpaceLinkData|NamedLink|Falsy)[]
-  onPress?: (event: SpaceLinkResponderEvent) => void
+export type SocialLinksProps = {
+  links: (string|SocialLinkData|NamedLink|Falsy)[]
+  onPress?: (event: SocialLinkResponderEvent) => void
 }
-export function SpaceLinks({links, onPress}: SpaceLinksProps) {
-  const defaultHandler = ({link: {url}}: SpaceLinkResponderEvent) => Linking.openURL(url);
+export function SocialLinks({links, onPress}: SocialLinksProps) {
+  const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url);
   
   links.find(link => typeof link !== 'string') && console.error('no idea how to handle named links', links.filter(link => typeof link !== 'string'));
   const urls = links.filter(link => typeof link === 'string') as unknown as string[];
@@ -131,19 +131,19 @@ export function SpaceLinks({links, onPress}: SpaceLinksProps) {
       console.error('failed to extract domain from url', url);
       continue;
     }
-    mapping[domain] = <SpaceLink url={url} key={url} onPress={onPress??defaultHandler} />
+    mapping[domain] = <SocialLink url={url} key={url} onPress={onPress??defaultHandler} />
   }
   
   const iconChildren: JSX.Element[] = [];
   for (let domain in mapping) {
-    if (domain in SpaceLink.icons) {
+    if (domain in SocialLink.icons) {
       iconChildren.push(mapping[domain]);
     }
   }
   
   const linkChildren: JSX.Element[] = [];
   for (let domain in mapping) {
-    if (!(domain in SpaceLink.icons)) {
+    if (!(domain in SocialLink.icons)) {
       linkChildren.push(mapping[domain]);
     }
   }
@@ -156,42 +156,42 @@ export function SpaceLinks({links, onPress}: SpaceLinksProps) {
   )
 }
 
-export type SpaceLinkResponderEvent = GestureResponderEvent & {
-  link: SpaceLinkData
+export type SocialLinkResponderEvent = GestureResponderEvent & {
+  link: SocialLinkData
 }
-export type SpaceLinkProps = SpaceLinkData & {
-  onPress?: (event: SpaceLinkResponderEvent) => void
+export type SocialLinkProps = SocialLinkData & {
+  onPress?: (event: SocialLinkResponderEvent) => void
 }
-export function SpaceLink({url, name, onPress}: SpaceLinkProps) {
+export function SocialLink({url, name, onPress}: SocialLinkProps) {
   const theme = useTheme();
   const domain = extractDomain(url)?.toLowerCase?.();
   const _onPress = (evt: GestureResponderEvent) => onPress?.({...evt, link: {url, name}});
   
-  if (domain && domain in SpaceLink.icons) {
-    return SpaceLink.icons[domain]({url, name, onPress: _onPress, theme});
+  if (domain && domain in SocialLink.icons) {
+    return SocialLink.icons[domain]({url, name, onPress: _onPress, theme});
   }
   return <Link url={url} style={styles.link} onPress={_onPress}>{domain}</Link>
 }
 
-export type SpaceIconLinkProps = SpaceLinkData & {
+export type SocialIconLinkProps = SocialLinkData & {
   onPress: (evt: GestureResponderEvent) => void
   theme: Theme
 }
-export interface SpaceIconLinkFactory {
-  (props: SpaceIconLinkProps): JSX.Element
+export interface SocialIconLinkFactory {
+  (props: SocialIconLinkProps): JSX.Element
 }
-SpaceLink.icons = {
+SocialLink.icons = {
   'youtube.com': ({onPress, theme}) => <Icon name="logo-youtube" type="ionicon" onPress={onPress} color={theme.colors.socials} size={24} />,
-} as Record<string, SpaceIconLinkFactory>;
+} as Record<string, SocialIconLinkFactory>;
 
-export type SpaceTagsProps = {
+export type TagsProps = {
   tags: string[]
   onPress?: (tag: string) => void
 }
-export function SpaceTags({tags, onPress}: SpaceTagsProps) {
+export function Tags({tags, onPress}: TagsProps) {
   if (!tags.length) return null;
   
-  const defaultHandler: SpaceTagsProps['onPress'] = () => alert('not yet implemented, sorry')
+  const defaultHandler: TagsProps['onPress'] = () => alert('not yet implemented, sorry')
   
   const children = tags.map(tag => (
     <Chip
