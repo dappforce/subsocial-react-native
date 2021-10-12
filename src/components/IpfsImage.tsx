@@ -3,11 +3,13 @@
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
 import { Falsy, Image, ImageProps, ImageStyle, ImageSourcePropType, StyleProp, View, ViewStyle } from 'react-native'
-import { Avatar, DefaultTheme } from 'react-native-paper'
+import { Avatar } from 'react-native-paper'
 import config from 'config.json'
 
+type CID = string
+
 export type IpfsImageProps = Omit<ImageProps, 'source'> & {
-  cid?: string
+  cid?: CID
   style?: StyleProp<ImageStyle>
 }
 
@@ -19,10 +21,7 @@ export function IpfsImage({cid, ...props}: IpfsImageProps) {
 
 IpfsImage.getUri = (cid: Falsy|string) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
 
-export type IpfsBannerProps = IpfsImageProps & {
-  
-}
-
+export type IpfsBannerProps = IpfsImageProps
 export function IpfsBanner({cid, style}: IpfsBannerProps) {
   if (!cid) return null;
   
@@ -42,24 +41,31 @@ export function IpfsBanner({cid, style}: IpfsBannerProps) {
   );
 }
 
-export type IpfsAvatarProps = IpfsImageProps & {
+export type IpfsAvatarProps = {
+  cid?: CID
   source?: ImageSourcePropType
   size?: number
   style?: StyleProp<ViewStyle>
-  theme?: typeof DefaultTheme
+  imageStyle?: StyleProp<ImageStyle>
 }
-
 /**
  * Marriage of RNP-Avatar.Image x IpfsImage.
  * 
  * When `typeof source === 'number'`, prefers `source`. Otherwise, when `cid` is given, prefers `cid` (IPFS) over
  * `source` (Web2).
  */
-export function IpfsAvatar({source, cid, ...props}: IpfsAvatarProps) {
+export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
+  const [loaded, setLoaded] = useState(false);
+  const onLoad = () => setLoaded(true);
+  
+  useEffect(() => {
+    setLoaded(false);
+  }, [cid]);
+  
   return (
-    <Avatar.Image
+    <Avatar.Image style={[loaded && {backgroundColor: 'transparent'}, style]}
       {...props}
-      source={({size}) => <IpfsImage {...props} cid={cid} style={{width: size, height: size, borderRadius: 100}} />}
+      source={({size}) => <IpfsImage cid={cid} onLoad={onLoad} style={{width: size, height: size, borderRadius: 100}} />}
     />
   )
 }
