@@ -21,8 +21,10 @@ export function IpfsImage({cid, ...props}: IpfsImageProps) {
 
 IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
 
-export type IpfsBannerProps = IpfsImageProps
-export function IpfsBanner({cid, style}: IpfsBannerProps) {
+export type IpfsBannerProps = IpfsImageProps & {
+  containerStyle?: StyleProp<ViewStyle>
+}
+export function IpfsBanner({cid, style, containerStyle}: IpfsBannerProps) {
   if (!cid) return null;
   
   const [contW, setContentWidth] = useState(0);
@@ -35,8 +37,8 @@ export function IpfsBanner({cid, style}: IpfsBannerProps) {
   }, [cid]);
   
   return (
-    <View style={{width: '100%', ...(style as Object)}} onLayout={({nativeEvent}) => setContentWidth(nativeEvent.layout.width)}>
-      <IpfsImage cid={cid} style={{...(style as Object), width, height}} />
+    <View style={[{width: '100%'}, containerStyle]} onLayout={({nativeEvent}) => setContentWidth(nativeEvent.layout.width)}>
+      <IpfsImage cid={cid} style={[{width, height}, style]} />
     </View>
   );
 }
