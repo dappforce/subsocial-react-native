@@ -11,12 +11,12 @@ storiesOf('Space', module)
   .addDecorator((getStory) => (
     <SubsocialProvider>{getStory()}</SubsocialProvider>
   ))
-  .add('summary', () => (
+  .add('Summary', () => (
     <CenterView style={styles.padded}>
       <Space.Summary handle={text('handle', '@subsocial')} />
     </CenterView>
   ))
-  .add('overview', () => (
+  .add('Overview', () => (
     <CenterView style={styles.padded}>
       <Space.Overview handle={text('handle', '@subsocial')} />
     </CenterView>
