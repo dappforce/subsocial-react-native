@@ -45,7 +45,7 @@ export function IpfsBanner({cid, style, containerStyle, ...props}: IpfsBannerPro
   );
 }
 
-export type IpfsAvatarProps = React.ComponentProps<typeof Avatar.Image> & {
+export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 'source'> & {
   cid?: CID
   source?: ImageSourcePropType
   size?: number
