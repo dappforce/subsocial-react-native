@@ -10,7 +10,7 @@ import { IpfsBanner } from '~comps/IpfsImage'
 
 export type PostProps = {
   id: number
-  summary?: boolean
+  preview?: boolean
 }
 
 export class PostNotFoundError extends Error {
@@ -19,7 +19,7 @@ export class PostNotFoundError extends Error {
   }
 }
 
-export default function Post({id, summary}: PostProps) {
+export default function Post({id, preview}: PostProps) {
   const [state, data] = useSubsocialInitializer<PostData>(async api => {
     const data = await api.findPost({id: new BN(id)});
     if (!data) throw new PostNotFoundError(id);
@@ -29,7 +29,7 @@ export default function Post({id, summary}: PostProps) {
   return (
     <View style={styles.container}>
       <PostHead state={state} data={data} />
-      <PostBody summary={summary??false} state={state} data={data} />
+      <PostBody preview={preview??false} state={state} data={data} />
     </View>
   )
 }
@@ -41,7 +41,7 @@ type PostHeadProps = {
 }
 type PostBodyProps = {
   state: SubsocialInitializerState
-  summary: boolean
+  preview: boolean
   data?: PostData
 }
 
@@ -56,7 +56,7 @@ function PostHead({state, data}: PostHeadProps) {
   )
 }
 
-function PostBody({state, summary, data}: PostBodyProps) {
+function PostBody({state, preview, data}: PostBodyProps) {
   // State
   const isLoading = state === 'PENDING' || state === 'LOADING'
   const isError   = state === 'ERROR';
@@ -73,9 +73,9 @@ function PostBody({state, summary, data}: PostBodyProps) {
   }
   else {
     let copy = data?.content?.body || '';
-    if (summary) {
+    if (preview) {
       return (
-        <View style={styles.summary}>
+        <View style={styles.preview}>
           <Markdown>{copy}</Markdown>
           <LinearGradient
             colors={['transparent', theme.colors.background]}
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 10,
   },
-  summary: {
+  preview: {
     maxHeight: 240,
     overflow: 'hidden',
   },
