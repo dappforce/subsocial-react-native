@@ -13,10 +13,11 @@ import { Button, Markdown } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
+import { SpaceId } from './util'
 import Preview from '~src/components/Preview'
 
 export type SummaryProps = {
-  id: AnySpaceId | string
+  id: SpaceId
   showSocials?: boolean
   showTags?: boolean
   preview?: boolean
@@ -34,7 +35,7 @@ export default function Summary({id, showSocials, showTags, preview}: SummaryPro
 }
 
 export type HeadProps = {
-  id: AnySpaceId | string
+  id: SpaceId
   data?: SpaceData
 }
 export function Head({id, data}: HeadProps) {

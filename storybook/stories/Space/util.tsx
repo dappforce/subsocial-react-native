@@ -2,18 +2,22 @@
 // useSpace helper - a specialization of useSubsocialInitializer for
 // loading space data
 import { SubsocialSubstrateApi } from '@subsocial/api'
-import { SpaceId } from '@subsocial/types/substrate/interfaces'
 import { SubsocialInitializerState, useSubsocialInitializer } from '~comps/SubsocialContext'
 import { AnySpaceId, SpaceData } from '@subsocial/types'
 import { BN } from '@polkadot/util'
 
+/**
+ * Unified space ID, from numbers, BNs, number strings & handles.
+ */
+export type SpaceId = string | number | AnySpaceId
+
 export class SpaceNotFoundError extends Error {
-  constructor(query: SpaceId | number | string) {
+  constructor(query: SpaceId) {
     super(`Subsocial Space ${query} not found`);
   }
 }
 
-export function useSpace(id: AnySpaceId | string): [SubsocialInitializerState, SpaceData|undefined] {
+export function useSpace(id: SpaceId): [SubsocialInitializerState, SpaceData|undefined] {
   return useSubsocialInitializer(async api => {
     const bnid  = await getSpaceId(api.substrate, id);
     const data = await api.findSpace({id: bnid});
@@ -22,7 +26,7 @@ export function useSpace(id: AnySpaceId | string): [SubsocialInitializerState, S
   }, [id]);
 }
 
-export async function getSpaceId(substrate: SubsocialSubstrateApi, id: string | AnySpaceId): Promise<BN> {
+export async function getSpaceId(substrate: SubsocialSubstrateApi, id: SpaceId): Promise<BN> {
   if (isHandle(id)) {
     const handle = (id as string).substr(1).toLowerCase();
     const spaceid = await substrate.getSpaceIdByHandle(handle);
@@ -34,4 +38,4 @@ export async function getSpaceId(substrate: SubsocialSubstrateApi, id: string | 
   }
 }
 
-const isHandle = (id: string | AnySpaceId) => typeof id === 'string' && id.startsWith('@')
+const isHandle = (id: SpaceId) => typeof id === 'string' && id.startsWith('@')
