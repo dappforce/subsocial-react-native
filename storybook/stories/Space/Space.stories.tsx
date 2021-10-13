@@ -26,10 +26,11 @@ storiesOf('Space', module)
       <Space.Overview id={text('handle', '@subsocial')} />
     </CenterView>
   ))
-  .add('Explore', () => (
-    <ScrollView style={styles.padded}>
-      <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />
-    </ScrollView>
+  .add('Explore (Preview)', () => (
+    <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />
+  ))
+  .add('Explore (Infinite)', () => (
+    <Space.InfiniteExplorer />
   ))
 
 const styles = StyleSheet.create({
