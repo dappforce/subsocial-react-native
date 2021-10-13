@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { Falsy, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, View, ViewStyle } from 'react-native'
 import { Image as RNEImage, ImageProps } from 'react-native-elements'
 import { ActivityIndicator, Avatar } from 'react-native-paper'
+import { useTheme } from './Theming'
 import config from 'config.json'
 
 type CID = string
@@ -58,6 +59,7 @@ export type IpfsAvatarProps = React.ComponentProps<typeof Avatar.Image> & {
  * `source` (Web2).
  */
 export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
+  const theme = useTheme();
   const [loaded, setLoaded] = useState(false);
   const onLoad = () => setLoaded(true);
   
@@ -68,7 +70,14 @@ export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
   return (
     <Avatar.Image style={[loaded && {backgroundColor: 'transparent'}, style]}
       {...props}
-      source={({size}) => <IpfsImage cid={cid} onLoad={onLoad} style={{width: size, height: size, borderRadius: 100}} />}
+      source={({size}) =>
+        <IpfsImage
+          cid={cid}
+          onLoad={onLoad}
+          style={{width: size, height: size, borderRadius: 100}}
+          placeholderStyle={{backgroundColor: theme.colors.primary}}
+          PlaceholderContent={<ActivityIndicator color={theme.colors.background} />}
+        />}
     />
   )
 }
