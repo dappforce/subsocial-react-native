@@ -1,7 +1,7 @@
 import React from 'react'
 import { ScrollView, StyleSheet } from 'react-native'
 import { action } from '@storybook/addon-actions'
-import { array, text } from '@storybook/addon-knobs'
+import { array, boolean, text } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
 import * as Space from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
@@ -13,7 +13,12 @@ storiesOf('Space', module)
   ))
   .add('Summary', () => (
     <CenterView style={styles.padded}>
-      <Space.Summary id={text('handle', '@subsocial')} />
+      <Space.Summary
+        id={text('handle', '@subsocial')}
+        showSocials={boolean('Socials', true)}
+        showTags={boolean('Tags', true)}
+        preview={boolean('Preview', false)}
+      />
     </CenterView>
   ))
   .add('Overview', () => (
