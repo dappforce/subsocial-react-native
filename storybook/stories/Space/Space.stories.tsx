@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { ScrollView, StyleSheet } from 'react-native'
 import { action } from '@storybook/addon-actions'
 import { array, text } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
@@ -20,6 +20,11 @@ storiesOf('Space', module)
     <CenterView style={styles.padded}>
       <Space.Overview id={text('handle', '@subsocial')} />
     </CenterView>
+  ))
+  .add('Explore', () => (
+    <ScrollView style={styles.padded}>
+      <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />
+    </ScrollView>
   ))
 
 const styles = StyleSheet.create({
