@@ -18,7 +18,7 @@ export default function Preview({children, height, style, ...props}: PreviewProp
   }
   
   return (
-    <View {...props} style={[styles.preview, {height}, style]}>
+    <View {...props} style={[styles.preview, {maxHeight: height}, style]}>
       <View onLayout={onLayout}>
         {children}
       </View>
