@@ -2,8 +2,9 @@
 // Helper class to access images from Subsocial IPFS
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
-import { Falsy, Image, ImageProps, ImageStyle, ImageSourcePropType, StyleProp, View, ViewStyle } from 'react-native'
-import { Avatar } from 'react-native-paper'
+import { Falsy, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, View, ViewStyle } from 'react-native'
+import { Image as RNEImage, ImageProps } from 'react-native-elements'
+import { ActivityIndicator, Avatar } from 'react-native-paper'
 import config from 'config.json'
 
 type CID = string
@@ -13,10 +14,10 @@ export type IpfsImageProps = Omit<ImageProps, 'source'> & {
   style?: StyleProp<ImageStyle>
 }
 
-export function IpfsImage({cid, ...props}: IpfsImageProps) {
+export function IpfsImage({cid, PlaceholderContent, ...props}: IpfsImageProps) {
   if (!cid) return null;
   const uri = IpfsImage.getUri(cid);
-  return <Image {...props} source={{uri}} />
+  return <RNEImage {...props} source={{uri}} PlaceholderContent={PlaceholderContent ?? <ActivityIndicator />} />
 }
 
 IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
@@ -33,7 +34,7 @@ export function IpfsBanner({cid, style, containerStyle}: IpfsBannerProps) {
   const uri = IpfsImage.getUri(cid!)!;
   
   useEffect(() => {
-    Image.getSize(uri, (width, height) => setSize([width, height]));
+    RNImage.getSize(uri, (width, height) => setSize([width, height]));
   }, [cid]);
   
   return (
