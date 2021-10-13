@@ -13,18 +13,20 @@ import { Button, Markdown } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
+import Preview from '~src/components/Preview'
 
 export type SummaryProps = {
   id: AnySpaceId | string
   showSocials?: boolean
   showTags?: boolean
+  preview?: boolean
 }
-export default function Summary({id, showSocials, showTags}: SummaryProps) {
+export default function Summary({id, showSocials, showTags, preview}: SummaryProps) {
   const [state, data] = useSpace(id);
   return (
     <View style={{width: '100%'}}>
       <Head id={id} data={data} />
-      <About state={state} data={data} />
+      <About state={state} data={data} preview={!!preview} />
       {showSocials && <Socials links={data?.content?.links??[]} />}
       {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
     </View>
@@ -73,8 +75,9 @@ function Actions({size}: ActionsProps) {
 export type AboutProps = {
   state: SubsocialInitializerState
   data?: SpaceData
+  preview: boolean
 }
-export function About({state, data}: AboutProps) {
+export function About({state, data, preview}: AboutProps) {
   const isLoading = state === 'PENDING' || state === 'LOADING'
   const isError   = state === 'ERROR'
   
@@ -87,7 +90,12 @@ export function About({state, data}: AboutProps) {
   if (!data?.content?.about) {
     return <Text style={styles.italic}>no about info specified</Text>
   }
-  return <Markdown>{data!.content!.about!}</Markdown>
+  if (preview) {
+    return <Preview height={100}><Markdown>{data!.content!.about!}</Markdown></Preview>
+  }
+  else {
+    return <Markdown>{data!.content!.about!}</Markdown>
+  }
 }
 
 const styles = StyleSheet.create({
