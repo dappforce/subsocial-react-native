@@ -1,23 +1,18 @@
 //////////////////////////////////////////////////////////////////////
 // Space Explorer - a whole bunch of summaries
-import React from 'react'
-import { StyleSheet, View } from 'react-native'
-import { AnySpaceId } from '@subsocial/types'
+import React, { useEffect, useState } from 'react'
+import { FlatList, ListRenderItemInfo, StyleSheet, View } from 'react-native'
+import { SpaceId } from './util'
 import Summary from './Summary'
 
-export type PreviewExplorerProps = {
-  spaces: (string|AnySpaceId)[]
+export type PreviewExplorerType = {
+  spaces: SpaceId[]
 }
-export function PreviewExplorer({spaces}: PreviewExplorerProps) {
+export function PreviewExplorer({spaces}: PreviewExplorerType) {
+  const renderItem = ({item: id}: ListRenderItemInfo<SpaceId>) => {
+    return <Summary id={id} showTags preview />
+  }
   return (
-    <View style={styles.container}>
-      {spaces.map(space => <Summary key={space.toString()} id={space} showTags preview />)}
-    </View>
+    <FlatList data={spaces} renderItem={renderItem} />
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
-})
