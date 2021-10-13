@@ -25,7 +25,7 @@ IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${
 export type IpfsBannerProps = IpfsImageProps & {
   containerStyle?: StyleProp<ViewStyle>
 }
-export function IpfsBanner({cid, style, containerStyle}: IpfsBannerProps) {
+export function IpfsBanner({cid, style, containerStyle, ...props}: IpfsBannerProps) {
   if (!cid) return null;
   
   const [contW, setContentWidth] = useState(0);
@@ -39,12 +39,12 @@ export function IpfsBanner({cid, style, containerStyle}: IpfsBannerProps) {
   
   return (
     <View style={[{width: '100%'}, containerStyle]} onLayout={({nativeEvent}) => setContentWidth(nativeEvent.layout.width)}>
-      <IpfsImage cid={cid} style={[{width, height}, style]} />
+      <IpfsImage {...props} cid={cid} style={[{width, height}, style]} />
     </View>
   );
 }
 
-export type IpfsAvatarProps = {
+export type IpfsAvatarProps = React.ComponentProps<typeof Avatar.Image> & {
   cid?: CID
   source?: ImageSourcePropType
   size?: number
