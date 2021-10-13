@@ -5,7 +5,7 @@ import { Falsy, GestureResponderEvent, StyleSheet, View } from 'react-native'
 import * as Linking from 'expo-linking'
 import { Icon } from 'react-native-elements'
 import { NamedLink } from '@subsocial/types'
-import { Theme, useTheme } from '~comps/Theming'
+import { useTheme } from '~comps/Theming'
 import { partition } from '~src/util'
 
 type LinkRecord = {
@@ -21,8 +21,10 @@ export type SocialLinkData = {
 export type SocialLinksProps = {
   links: (string|SocialLinkData|NamedLink|Falsy)[]
   onPress?: (event: SocialLinkResponderEvent) => void
+  color?: string // color of social icons - defaults to theme
 }
-export default function SocialLinks({links, onPress}: SocialLinksProps) {
+export default function SocialLinks({links, onPress, color}: SocialLinksProps) {
+  const theme = useTheme();
   const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url);
   
   links.find(link => typeof link !== 'string') && console.error('no idea how to handle named links', links.filter(link => typeof link !== 'string'));
@@ -38,7 +40,7 @@ export default function SocialLinks({links, onPress}: SocialLinksProps) {
     children.push({
       url,
       hasIcon: domain in SocialLink.iconFactory,
-      component: <SocialLink url={url} key={url} onPress={onPress??defaultHandler} />
+      component: <SocialLink url={url} key={url} onPress={onPress??defaultHandler} color={color||theme.colors.socials} />
     })
   }
   
@@ -56,22 +58,22 @@ export type SocialLinkResponderEvent = GestureResponderEvent & {
 }
 export type SocialLinkProps = SocialLinkData & {
   onPress?: (event: SocialLinkResponderEvent) => void
+  color: string
 }
-export function SocialLink({url, name, onPress}: SocialLinkProps) {
-  const theme = useTheme();
+export function SocialLink({url, name, onPress, color}: SocialLinkProps) {
   const domain = extractDomain(url)?.toLowerCase?.();
   const _onPress = (evt: GestureResponderEvent) => onPress?.({...evt, link: {url, name}});
   
   if (domain && domain in SocialLink.iconFactory) {
-    return SocialLink.iconFactory[domain]({url, name, onPress: _onPress, theme});
+    return SocialLink.iconFactory[domain]({url, name, onPress: _onPress, color});
   }
-  return <SocialIcon {...{url, name, theme}} onPress={_onPress} name="globe-outline" family="ionicon" size={24} />
+  return <SocialIcon {...{url, name, color}} onPress={_onPress} name="globe-outline" family="ionicon" size={24} />
   // return <Link url={url} style={styles.link} onPress={_onPress}>{domain}</Link>
 }
 
 export type SocialIconLinkProps = SocialLinkData & {
   onPress: (evt: GestureResponderEvent) => void
-  theme: Theme
+  color: string
 }
 
 export type SocialIconProps = SocialIconLinkProps & {
@@ -79,8 +81,8 @@ export type SocialIconProps = SocialIconLinkProps & {
   family: string
   size: number
 }
-export const SocialIcon = ({name, family, onPress, theme, size}: SocialIconProps) =>
-  <Icon name={name} type={family} onPress={onPress} color={theme.colors.socials} size={size} />
+export const SocialIcon = ({name, family, onPress, size, color}: SocialIconProps) =>
+  <Icon {...{name, size, color, onPress}} type={family} />
 
 export interface SocialIconLinkFactory {
   (props: SocialIconLinkProps): JSX.Element

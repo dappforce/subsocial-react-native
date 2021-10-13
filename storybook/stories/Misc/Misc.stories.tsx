@@ -3,7 +3,7 @@
 import React from 'react'
 import CenterView from '~stories/CenterView'
 import { storiesOf } from '@storybook/react-native'
-import { array, boolean } from '@storybook/addon-knobs'
+import { array, boolean, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { Tags, Socials } from './index'
 
@@ -18,8 +18,9 @@ storiesOf('Misc', module)
   .add('Socials', () => (
     <CenterView style={{padding: 10}}>
       <Socials
-        links={array('links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
+        links={array('Links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
         onPress={action('onPress')}
+        color={text('Color', '')}
       />
     </CenterView>
   ))
