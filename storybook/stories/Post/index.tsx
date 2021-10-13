@@ -29,8 +29,8 @@ export default function Post({id, preview}: PostProps) {
   
   return (
     <View style={styles.container}>
-      <PostHead state={state} data={data} />
-      <PostBody preview={preview??false} state={state} data={data} />
+      <PostHead state={state} data={data} preview={!!preview} />
+      <PostBody preview={!!preview} state={state} data={data} />
     </View>
   )
 }
@@ -39,6 +39,7 @@ export default function Post({id, preview}: PostProps) {
 type PostHeadProps = {
   state: SubsocialInitializerState
   data?: PostData
+  preview: boolean
 }
 type PostBodyProps = {
   state: SubsocialInitializerState
@@ -46,13 +47,13 @@ type PostBodyProps = {
   data?: PostData
 }
 
-function PostHead({state, data}: PostHeadProps) {
+function PostHead({state, data, preview}: PostHeadProps) {
   const isLoading = state === 'PENDING' || state === 'LOADING';
   
   return (
     <>
       <Title style={[isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</Title>
-      <IpfsBanner cid={data?.content?.image} />
+      <IpfsBanner cid={data?.content?.image} style={[styles.banner, preview && {height: 200}]} />
     </>
   )
 }
@@ -98,5 +99,8 @@ const styles = StyleSheet.create({
   },
   error: {
     fontStyle: 'italic',
+  },
+  banner: {
+    borderRadius: 10,
   },
 });
