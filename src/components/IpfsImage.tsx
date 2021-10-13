@@ -19,7 +19,7 @@ export function IpfsImage({cid, ...props}: IpfsImageProps) {
   return <Image {...props} source={{uri}} />
 }
 
-IpfsImage.getUri = (cid: Falsy|string) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
+IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
 
 export type IpfsBannerProps = IpfsImageProps
 export function IpfsBanner({cid, style}: IpfsBannerProps) {
