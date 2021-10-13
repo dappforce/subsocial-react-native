@@ -26,7 +26,7 @@ export default function Summary({id, showSocials, showTags}: SummaryProps) {
       <Head id={id} data={data} />
       <About state={state} data={data} />
       {showSocials && <Socials links={data?.content?.links??[]} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
     </View>
   )
 }
