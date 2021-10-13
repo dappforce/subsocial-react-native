@@ -3,10 +3,9 @@ import { StyleSheet, View } from 'react-native'
 import { Text, Title, useTheme } from 'react-native-paper'
 import { useSubsocialInitializer, SubsocialInitializerState } from '~comps/SubsocialContext'
 import { PostData } from '@subsocial/types/dto'
-import { LinearGradient } from 'expo-linear-gradient'
 import { BN } from '@polkadot/util'
 import { Markdown } from '~comps/Typography'
-import { IpfsBanner } from '~comps/IpfsImage'
+import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import Preview from '~src/components/Preview'
 
 export type PostProps = {
@@ -53,7 +52,10 @@ function PostHead({state, data, preview}: PostHeadProps) {
   return (
     <>
       <Title style={[isLoading && styles.loading]}>{data?.content?.title ?? 'loading ...'}</Title>
-      <IpfsBanner cid={data?.content?.image} style={[styles.banner, preview && {height: 200}]} />
+      {preview
+      ? <IpfsImage cid={data?.content?.image} style={[styles.banner, {width: '100%', height: 200}]} />
+      : <IpfsBanner cid={data?.content?.image} style={styles.banner} />
+      }
     </>
   )
 }
