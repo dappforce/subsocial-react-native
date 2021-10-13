@@ -7,6 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { BN } from '@polkadot/util'
 import { Markdown } from '~comps/Typography'
 import { IpfsBanner } from '~comps/IpfsImage'
+import Preview from '~src/components/Preview'
 
 export type PostProps = {
   id: number
@@ -75,13 +76,9 @@ function PostBody({state, preview, data}: PostBodyProps) {
     let copy = data?.content?.body || '';
     if (preview) {
       return (
-        <View style={styles.preview}>
+        <Preview height={220}>
           <Markdown>{copy}</Markdown>
-          <LinearGradient
-            colors={['transparent', theme.colors.background]}
-            style={styles.fader}
-          />
-        </View>
+        </Preview>
       )
     }
     else {
@@ -95,17 +92,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 10,
-  },
-  preview: {
-    maxHeight: 240,
-    overflow: 'hidden',
-  },
-  fader: {
-    position: 'absolute',
-    height: 50,
-    bottom: 0,
-    left: 0,
-    right: 0,
   },
   loading: {
     fontStyle: 'italic',
