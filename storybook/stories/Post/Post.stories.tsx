@@ -1,7 +1,7 @@
 import React from 'react'
 import { ScrollView } from 'react-native'
 import { action } from '@storybook/addon-actions'
-import { text } from '@storybook/addon-knobs'
+import { number, boolean } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
 import Post from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
@@ -13,18 +13,13 @@ storiesOf('Post', module)
       {getStory()}
     </SubsocialProvider>
   ))
-  .add('Overview', () => (
-    <CenterView>
-      <Post id={20459} summary />
-    </CenterView>
-  ))
   .add('Long', () => (
     <ScrollView>
-      <Post id={20459} />
+      <Post id={number('Post ID', 20459)} preview={boolean('Preview?', false)} />
     </ScrollView>
   ))
   .add('Short', () => (
     <ScrollView>
-      <Post id={20482} />
+      <Post id={number('Post ID', 20482)} preview={boolean('Preview?', false)} />
     </ScrollView>
   ))
