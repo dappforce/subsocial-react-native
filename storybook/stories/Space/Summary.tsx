@@ -12,18 +12,23 @@ import { useTheme } from '~comps/Theming'
 import { Button, Markdown } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useSpace } from './util'
+import { Socials, Tags } from '~stories/Misc'
 
 export type SummaryProps = {
   id?: AnySpaceId
   handle?: string
+  showSocials?: boolean
+  showTags?: boolean
 }
-export default function Summary({id, handle}: SummaryProps) {
+export default function Summary({id, handle, showSocials, showTags}: SummaryProps) {
   const [state, data] = useSpace(id, handle);
   const _id: string = id?.toString() || handle!;
   return (
     <View style={{width: '100%'}}>
       <Head id={_id} data={data} />
       <About state={state} data={data} />
+      {showSocials && <Socials links={data?.content?.links??[]} />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} />}
     </View>
   )
 }
