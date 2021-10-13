@@ -16,8 +16,10 @@ storiesOf('Misc', module)
     />
   ))
   .add('Socials', () => (
-    <Socials
-      links={array('links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
-      onPress={action('onPress')}
-    />
+    <CenterView style={{padding: 10}}>
+      <Socials
+        links={array('links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
+        onPress={action('onPress')}
+      />
+    </CenterView>
   ))
