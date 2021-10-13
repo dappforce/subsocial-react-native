@@ -7,14 +7,13 @@ import Summary from './Summary'
 import { useSpace } from './util'
 
 export type OverviewProps = {
-  id?: AnySpaceId
-  handle?: string
+  id: string | AnySpaceId
 }
-export default function Overview({id, handle}: OverviewProps) {
-  const [_, data] = useSpace(id, handle);
+export default function Overview({id}: OverviewProps) {
+  const [_, data] = useSpace(id);
   return (
     <View style={{width: '100%'}}>
-      <Summary {...{id, handle}} showSocials showTags />
+      <Summary {...{id}} showSocials showTags />
     </View>
   )
 }

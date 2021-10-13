@@ -15,17 +15,15 @@ import { useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
 
 export type SummaryProps = {
-  id?: AnySpaceId
-  handle?: string
+  id: AnySpaceId | string
   showSocials?: boolean
   showTags?: boolean
 }
-export default function Summary({id, handle, showSocials, showTags}: SummaryProps) {
-  const [state, data] = useSpace(id, handle);
-  const _id: string = id?.toString() || handle!;
+export default function Summary({id, showSocials, showTags}: SummaryProps) {
+  const [state, data] = useSpace(id);
   return (
     <View style={{width: '100%'}}>
-      <Head id={_id} data={data} />
+      <Head id={id} data={data} />
       <About state={state} data={data} />
       {showSocials && <Socials links={data?.content?.links??[]} />}
       {showTags    && <Tags tags={data?.content?.tags??[]} />}

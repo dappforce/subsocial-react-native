@@ -13,31 +13,25 @@ export class SpaceNotFoundError extends Error {
   }
 }
 
-export function useSpace(id?: AnySpaceId, handle?: string): [SubsocialInitializerState, SpaceData|undefined] {
-  if (!id && !handle) throw new Error('require one of Space ID or Space Handle');
+export function useSpace(id: AnySpaceId | string): [SubsocialInitializerState, SpaceData|undefined] {
   return useSubsocialInitializer(async api => {
-    const _id  = await _getSpaceId(api.substrate, id, handle);
-    const data = await api.findSpace({id: _id});
-    if (!data) throw new SpaceNotFoundError(_id.toNumber());
+    const bnid  = await getSpaceId(api.substrate, id);
+    const data = await api.findSpace({id: bnid});
+    if (!data) throw new SpaceNotFoundError(bnid.toNumber());
     return data;
-  }, [id, handle]);
+  }, [id]);
 }
 
-async function _getSpaceId(substrate: SubsocialSubstrateApi, id: undefined | AnySpaceId, handle: undefined | string): Promise<BN> {
-  if (!id && !handle) throw new Error(`must provide either Subsocial Space ID or Subsocial Space Handle`);
-  
-  if (id) {
-    return new BN(id);
-  }
-  else if (handle) {
-    if (handle.startsWith('@')) handle = handle.substr(1);
-    
+export async function getSpaceId(substrate: SubsocialSubstrateApi, id: string | AnySpaceId): Promise<BN> {
+  if (isHandle(id)) {
+    const handle = (id as string).substr(1).toLowerCase();
     const spaceid = await substrate.getSpaceIdByHandle(handle);
     if (!spaceid) throw new SpaceNotFoundError(handle);
     return spaceid;
   }
   else {
-    throw new Error('should not enter');
+    return new BN(id);
   }
 }
 
+const isHandle = (id: string | AnySpaceId) => typeof id === 'string' && id.startsWith('@')
