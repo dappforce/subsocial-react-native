@@ -24,10 +24,22 @@ export type SummaryProps = {
 }
 export default function Summary({id, showSocials, showTags, preview}: SummaryProps) {
   const [state, data] = useSpace(id);
+  return <Summary.Data titlePlaceholder={id.toString()} {...{data, state, preview}} />
+}
+
+type DataProps = {
+  data?: SpaceData
+  state?: SubsocialInitializerState
+  titlePlaceholder?: string
+  showSocials?: boolean
+  showTags?: boolean
+  preview?: boolean
+};
+Summary.Data = function({data, state = 'READY', titlePlaceholder, showSocials, showTags, preview = false}: DataProps) {
   return (
     <View style={{width: '100%'}}>
-      <Head id={id} data={data} />
-      <About state={state} data={data} preview={!!preview} />
+      <Head {...{titlePlaceholder, data}} />
+      <About {...{state, data, preview}} />
       {showSocials && <Socials links={data?.content?.links??[]} />}
       {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
     </View>
@@ -35,14 +47,14 @@ export default function Summary({id, showSocials, showTags, preview}: SummaryPro
 }
 
 export type HeadProps = {
-  id: SpaceId
+  titlePlaceholder?: string
   data?: SpaceData
 }
-export function Head({id, data}: HeadProps) {
+export function Head({titlePlaceholder = '', data}: HeadProps) {
   const loading = !data;
   return (
     <Card.Title
-      title={data?.content?.name ?? id}
+      title={data?.content?.name ?? titlePlaceholder}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
       right={props => <Actions {...props} />}
