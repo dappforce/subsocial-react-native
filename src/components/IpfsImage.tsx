@@ -32,7 +32,7 @@ export function IpfsBanner({cid, style}: IpfsBannerProps) {
   
   useEffect(() => {
     Image.getSize(uri, (width, height) => setSize([width, height]));
-  }, []);
+  }, [cid]);
   
   return (
     <View style={{width: '100%', ...(style as Object)}} onLayout={({nativeEvent}) => setContentWidth(nativeEvent.layout.width)}>
