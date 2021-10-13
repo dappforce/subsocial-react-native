@@ -6,6 +6,13 @@ import * as Linking from 'expo-linking'
 import { Icon } from 'react-native-elements'
 import { NamedLink } from '@subsocial/types'
 import { Theme, useTheme } from '~comps/Theming'
+import { partition } from '~src/util'
+
+type LinkRecord = {
+  url: string
+  hasIcon: boolean
+  component: React.ReactNode
+}
 
 export type SocialLinkData = {
   url: string
@@ -21,34 +28,25 @@ export default function SocialLinks({links, onPress}: SocialLinksProps) {
   links.find(link => typeof link !== 'string') && console.error('no idea how to handle named links', links.filter(link => typeof link !== 'string'));
   const urls = links.filter(link => typeof link === 'string') as unknown as string[];
   
-  const mapping: Record<string, JSX.Element> = {};
+  const children: LinkRecord[] = [];
   for (let url of urls) {
     const domain = extractDomain(url);
     if (!domain) {
       console.error('failed to extract domain from url', url);
       continue;
     }
-    mapping[domain] = <SocialLink url={url} key={url} onPress={onPress??defaultHandler} />
+    children.push({
+      url,
+      hasIcon: domain in SocialLink.iconFactory,
+      component: <SocialLink url={url} key={url} onPress={onPress??defaultHandler} />
+    })
   }
   
-  const iconChildren: JSX.Element[] = [];
-  for (let domain in mapping) {
-    if (domain in SocialLink.iconFactory) {
-      iconChildren.push(mapping[domain]);
-    }
-  }
-  
-  const linkChildren: JSX.Element[] = [];
-  for (let domain in mapping) {
-    if (!(domain in SocialLink.iconFactory)) {
-      linkChildren.push(mapping[domain]);
-    }
-  }
-  
+  const [iconChildren, linkChildren] = partition(children, ({hasIcon}) => hasIcon);
   return (
     <View style={styles.links}>
-      {linkChildren}
-      {iconChildren}
+      {linkChildren.map(rec => rec.component)}
+      {iconChildren.map(rec => rec.component)}
     </View>
   )
 }
