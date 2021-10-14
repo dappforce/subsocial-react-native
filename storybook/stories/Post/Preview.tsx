@@ -58,7 +58,7 @@ export default function Preview({id, onPressMore, onPressSpace}: PostPreviewProp
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 20,
+    padding: 10,
   },
   italic: {
     fontStyle: 'italic',
