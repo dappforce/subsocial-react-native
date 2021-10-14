@@ -19,6 +19,7 @@ export class SpaceNotFoundError extends Error {
 
 export function useSpace(id: SpaceId): [SubsocialInitializerState, SpaceData|undefined] {
   return useSubsocialInitializer(async api => {
+    if (!id) return undefined;
     const bnid  = await getSpaceId(api.substrate, id);
     const data = await api.findSpace({id: bnid});
     if (!data) throw new SpaceNotFoundError(bnid.toNumber());
