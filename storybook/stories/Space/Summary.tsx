@@ -2,19 +2,18 @@
 // Space "Summary" - shortened version of the space with less details
 // for display in other locations, such as post details or space
 // explorer.
-import React, { useState } from 'react'
+import React, { useCallback } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Icon } from 'react-native-elements'
-import { Card, Menu, Text } from 'react-native-paper'
-import { AnySpaceId, SpaceData } from '@subsocial/types'
+import { Card } from 'react-native-paper'
+import { SpaceData } from '@subsocial/types'
 import { SubsocialInitializerState } from '~comps/SubsocialContext'
-import { useTheme } from '~comps/Theming'
-import { Button, Markdown } from '~comps/Typography'
+import { Button, Markdown, Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
 import { SpaceId } from './util'
-import Preview from '~src/components/Preview'
+import { Actions, PrimaryAction, SecondaryAction } from '~comps/Actions'
+import { summarizeMd } from '@subsocial/utils'
 
 export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId
@@ -52,38 +51,35 @@ export type HeadProps = {
 }
 export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps) {
   const loading = !data;
+  
+  const renderPrimaryActions = useCallback(() => {
+    return [
+      showFollowButton && (
+        <PrimaryAction>
+          <Button mode="contained" onPress={() => alert('not yet implemented, sorry')}>
+            Follow
+          </Button>
+        </PrimaryAction>
+      )
+    ]
+  }, []);
+  
+  const renderSecondaryActions = useCallback(() => {
+    return [
+      <SecondaryAction>
+        Test
+      </SecondaryAction>
+    ]
+  }, []);
+  
   return (
     <Card.Title
       title={data?.content?.name ?? titlePlaceholder}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
-      right={props => <Actions showFollowButton={!!showFollowButton} {...props} />}
+      right={props => <Actions {...props} primary={renderPrimaryActions} secondary={renderSecondaryActions} />}
       style={{paddingLeft: 0, paddingRight: 0}}
     />
-  )
-}
-
-type ActionsProps = {
-  size: number
-  showFollowButton: boolean
-}
-function Actions({size, showFollowButton}: ActionsProps) {
-  const [showMenu, setShowMenu] = useState(false);
-  const theme = useTheme();
-  
-  return (
-    <View style={styles.actions}>
-      <Menu
-        visible={showMenu}
-        onDismiss={() => setShowMenu(false)}
-        anchor={<Icon name="more-horizontal" type="feather" color={theme.colors.textSecondary} size={size} onPress={() => setShowMenu(true)} style={styles.action} />}
-      >
-        <Menu.Item icon="share" title="share" onPress={() => alert('not yet implemented, sorry')} />
-      </Menu>
-      {showFollowButton && <Button mode="contained" style={styles.action} onPress={() => alert('not yet implemented, sorry')}>
-        follow
-      </Button>}
-    </View>
   )
 }
 
@@ -106,7 +102,13 @@ export function About({state, data, preview}: AboutProps) {
     return <Text style={styles.italic}>no about info specified</Text>
   }
   if (preview) {
-    return <Preview height={100}><Markdown>{data!.content!.about!}</Markdown></Preview>
+    const {summary, isShowMore} = summarizeMd(data!.content!.about!);
+    return (
+      <Text>
+        {summary}
+        {isShowMore && <Text style={{fontWeight: 'bold'}}>{' '}Read more</Text>}
+      </Text>
+    )
   }
   else {
     return <Markdown>{data!.content!.about!}</Markdown>
@@ -117,13 +119,4 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   },
-  actions: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  action: {
-    marginHorizontal: 5,
-  },
 });
-
