@@ -16,11 +16,8 @@ import { Socials, Tags } from '~stories/Misc'
 import { SpaceId } from './util'
 import Preview from '~src/components/Preview'
 
-export type SummaryProps = {
+export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId
-  showSocials?: boolean
-  showTags?: boolean
-  preview?: boolean
 }
 export default function Summary({id, preview, ...props}: SummaryProps) {
   const [state, data] = useSpace(id);
@@ -31,15 +28,17 @@ type DataProps = {
   data?: SpaceData
   state?: SubsocialInitializerState
   titlePlaceholder?: string
+  showFollowButton?: boolean
+  showAbout?: boolean
   showSocials?: boolean
   showTags?: boolean
   preview?: boolean
 };
-Summary.Data = function({data, state = 'READY', titlePlaceholder, showSocials, showTags, preview = false}: DataProps) {
+Summary.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false}: DataProps) {
   return (
     <View style={{width: '100%'}}>
-      <Head {...{titlePlaceholder, data}} />
-      <About {...{state, data, preview}} />
+      <Head {...{titlePlaceholder, data, showFollowButton}} />
+      {showAbout   && <About {...{state, data, preview}} />}
       {showSocials && <Socials links={data?.content?.links??[]} />}
       {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
     </View>
@@ -49,23 +48,25 @@ Summary.Data = function({data, state = 'READY', titlePlaceholder, showSocials, s
 export type HeadProps = {
   titlePlaceholder?: string
   data?: SpaceData
+  showFollowButton?: boolean
 }
-export function Head({titlePlaceholder = '', data}: HeadProps) {
+export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps) {
   const loading = !data;
   return (
     <Card.Title
       title={data?.content?.name ?? titlePlaceholder}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
-      right={props => <Actions {...props} />}
+      right={props => <Actions showFollowButton={!!showFollowButton} {...props} />}
     />
   )
 }
 
 type ActionsProps = {
   size: number
+  showFollowButton: boolean
 }
-function Actions({size}: ActionsProps) {
+function Actions({size, showFollowButton}: ActionsProps) {
   const [showMenu, setShowMenu] = useState(false);
   const theme = useTheme();
   
@@ -78,9 +79,9 @@ function Actions({size}: ActionsProps) {
       >
         <Menu.Item icon="share" title="share" onPress={() => alert('not yet implemented, sorry')} />
       </Menu>
-      <Button mode="contained" style={styles.action} onPress={() => alert('not yet implemented, sorry')}>
+      {showFollowButton && <Button mode="contained" style={styles.action} onPress={() => alert('not yet implemented, sorry')}>
         follow
-      </Button>
+      </Button>}
     </View>
   )
 }

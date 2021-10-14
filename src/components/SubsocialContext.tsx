@@ -128,3 +128,16 @@ export function useSubsocialInitializer<T>(
   
   return [state.job, state.data];
 }
+
+export function isLoading(state: SubsocialInitializerState) {
+  switch (state) {
+    case 'PENDING':
+    case 'LOADING':
+      return true
+    default:
+      return false
+  }
+}
+
+export const isReady = (state: SubsocialInitializerState) => state === 'READY'
+export const isError = (state: SubsocialInitializerState) => state === 'ERROR'

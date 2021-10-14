@@ -3,14 +3,35 @@
 // RNP-equivalents.
 // Components here adhere to our custom extended theming.
 import React, { useMemo } from 'react'
-import { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextProps, TextStyle, ViewStyle } from 'react-native'
+import RN, { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import * as Linking from 'expo-linking'
 import * as Paper from 'react-native-paper'
 import Md, { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { reduceMarkdownTheme, Theme, useTheme } from './Theming'
 
+export type TextProps = RN.TextProps & React.PropsWithChildren<{
+  /** Defaults to 'primary' */
+  mode?: keyof Theme['fonts']
+  composeStyles?: boolean
+}>
+export function Text({children, mode = 'primary', composeStyles = false, style, ...props}: TextProps) {
+  const theme = useTheme();
+  const _style = useMemo(() => {
+    if (!composeStyles) return [theme.fonts[mode], style];
+    return StyleSheet.compose<TextStyle>(theme.fonts[mode], StyleSheet.flatten(style));
+  }, [style, theme, composeStyles])
+  return <RN.Text {...props} style={_style}>{children}</RN.Text>
+}
+
+export type TitleProps = Omit<TextProps, 'mode' | 'composeStyles'> & React.PropsWithChildren<{
+  preview?: boolean
+}>
+export function Title({preview = false, ...props}: TitleProps) {
+  return Text({...props, mode: preview ? 'titlePreview' : 'titleDetails', composeStyles: true})
+}
+
 export type ButtonProps = React.ComponentProps<typeof Paper.Button>
-export function Button({children, style, ...props}: ButtonProps) {
+export function Button({children, style, labelStyle, ...props}: ButtonProps) {
   let {mode, color} = props;
   const theme = useTheme();
   color = color ?? theme.colors.primary;
@@ -18,13 +39,12 @@ export function Button({children, style, ...props}: ButtonProps) {
   const _style = useMemo(() => StyleSheet.compose<ViewStyle>({
     borderColor: mode === 'outlined' ? color : 'transparent',
   }, style), [mode, color, style]);
+  const _labelStyle = useMemo(() => StyleSheet.compose<TextStyle>(theme.fonts.button, StyleSheet.flatten(labelStyle)), [theme, labelStyle])
   
-  return <Paper.Button {...props} style={_style}>{children}</Paper.Button>
+  return <Paper.Button {...props} style={_style} labelStyle={_labelStyle}>{children}</Paper.Button>
 }
 
-export type SpanProps = TextProps & React.PropsWithChildren<{
-  theme?: Theme
-}>
+export type SpanProps = Omit<RN.TextProps, 'theme'> & React.PropsWithChildren<{}>
 export function Span({children, style, ...props}: SpanProps) {
   const theme = Paper.useTheme();
   return <Paper.Text {...props} style={[{fontStyle: 'italic', color: theme.colors.accent}, style]}>{children}</Paper.Text>
@@ -33,9 +53,8 @@ export function Span({children, style, ...props}: SpanProps) {
 export type LinkResponderEvent = GestureResponderEvent & {
   url: string | undefined
 }
-export type LinkProps = Omit<TextProps, 'onPress'> & {
+export type LinkProps = Omit<RN.TextProps, 'onPress'> & {
   url?: string
-  theme?: Theme
   onPress?: (evt: LinkResponderEvent) => void
   children?: string | Falsy
 }

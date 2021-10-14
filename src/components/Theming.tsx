@@ -2,9 +2,12 @@
 // Custom theming solution reducing to themes of used 3P libraries
 // (e.g. RN-Elements, RN-Paper).
 import React, { useContext, useMemo } from 'react'
-import { StyleSheet, useColorScheme } from 'react-native'
+import { StyleSheet, TextStyle, useColorScheme } from 'react-native'
 import { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
+
+type PaperFontProps = 'fontFamily'
+type FontList<Keys extends string> = {[Key in Keys]: Required<Pick<TextStyle, PaperFontProps>> & Omit<TextStyle, PaperFontProps>}
 
 export type PaperTheme = typeof DefaultTheme
 export type Theme = {
@@ -29,6 +32,14 @@ export type Theme = {
   consts: {
     roundness: number
   }
+  fonts: FontList<
+    'primary' |
+    'secondary' |
+    'titleDetails' |
+    'titlePreview' |
+    'button' | 
+    'profileName'
+  >
 }
 export type DualismTheme = {
   light: Theme
@@ -67,7 +78,7 @@ export function ThemeProvider({children, theme, dark}: ThemeProviderProps) {
   )
 }
 
-export const reducePaperTheme = ({colors, consts}: Theme, dark: boolean): PaperTheme => ({
+export const reducePaperTheme = ({colors, consts, fonts}: Theme, dark: boolean): PaperTheme => ({
   dark,
   mode: 'adaptive',
   roundness: consts.roundness,

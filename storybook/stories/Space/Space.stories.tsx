@@ -15,6 +15,8 @@ storiesOf('Space', module)
     <CenterView style={styles.padded}>
       <Space.Summary
         id={text('handle', '@subsocial')}
+        showFollowButton={boolean('Follow Button', true)}
+        showAbout={boolean('About', true)}
         showSocials={boolean('Socials', true)}
         showTags={boolean('Tags', true)}
         preview={boolean('Preview', false)}
