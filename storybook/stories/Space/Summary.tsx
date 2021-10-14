@@ -22,9 +22,9 @@ export type SummaryProps = {
   showTags?: boolean
   preview?: boolean
 }
-export default function Summary({id, showSocials, showTags, preview}: SummaryProps) {
+export default function Summary({id, preview, ...props}: SummaryProps) {
   const [state, data] = useSpace(id);
-  return <Summary.Data titlePlaceholder={id.toString()} {...{data, state, preview}} />
+  return <Summary.Data {...props} titlePlaceholder={id.toString()} {...{data, state, preview}} />
 }
 
 type DataProps = {
