@@ -26,6 +26,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "~0.63.4",
+    "react-native-backdrop": "^2.1.2",
     "react-native-elements": "react-native-elements/react-native-elements#dist",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-markdown-display": "^7.0.0-alpha.2",
