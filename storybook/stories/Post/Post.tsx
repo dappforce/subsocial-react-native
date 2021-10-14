@@ -59,13 +59,11 @@ export function Body({content, previewStyle, preview = false}: BodyProps) {
   }
 }
 
-export function usePost(id: AnyPostId) {
-  return useSubsocialInitializer(async api => {
-    const data = await api.findPost({id: new BN(id)});
-    if (!data) throw new PostNotFoundError(id.toNumber());
-    return data;
-  }, [id]);
-}
+export const usePost = (id: AnyPostId) => useSubsocialInitializer(async api => {
+  const data = await api.findPost({id: new BN(id)});
+  if (!data) throw new PostNotFoundError(id.toNumber());
+  return data;
+}, [id]);
 
 const styles = StyleSheet.create({
   title: {
