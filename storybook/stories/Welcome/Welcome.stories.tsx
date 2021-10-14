@@ -4,4 +4,4 @@ import { storiesOf } from '@storybook/react-native'
 import Welcome from './index'
 
 storiesOf('Welcome', module)
-  .add('to Storybook', () => <Welcome showApp={linkTo('Button')} />)
+  .add('to Storybook', () => <Welcome />)
