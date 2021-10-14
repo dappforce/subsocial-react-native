@@ -25,43 +25,43 @@ export type BackdropProps = {
   visible: boolean
   
   /** Function to open backdrop (required, function) */
-  handleOpen: () => {}
+  handleOpen: () => void
   
   /** Function to close backdrop (required, function) */
-  handleClose: () => {}
+  handleClose: () => void
   
   /** Callback that is called before close animation */
-  beforeClose?: () => {}
+  beforeClose?: () => void
   
   /** Callback that is called after close animation */
-  afterClose?: () => {}
+  afterClose?: () => void
   
   /** Callback that is called before open animation */
-  beforeOpen?: () => {}
+  beforeOpen?: () => void
   
   /** Callback that is called after open animation */
-  afterOpen?: () => {}
+  afterOpen?: () => void
   
   /** Configures Open and Close Animation speed and bounciness */
-  animationConfig: AnimationConfig
+  animationConfig?: AnimationConfig
   
   /** Configures Swipe Gesture to close backdrop */
-  swipeConfig: SwipeConfig
+  swipeConfig?: SwipeConfig
   
   /** Style object for backdrop styling */
-  backdropStyle: RN.StyleProp<RN.ViewStyle>
+  backdropStyle?: RN.StyleProp<RN.ViewStyle>
   
   /** Style object for container styling */
-  containerStyle: RN.StyleProp<RN.ViewStyle>
+  containerStyle?: RN.StyleProp<RN.ViewStyle>
   
   /** Display custom header in backdrop */
-  header: () => React.ReactElement
+  header?: () => React.ReactElement
   
   /** Height of closed backdrop that will be visible and touchable. Default: 0 */
-  closedHeight: number
+  closedHeight?: number
   
   /** Close backdrop on back button press on android. Default: false */
-  closeOnBackButton: boolean
+  closeOnBackButton?: boolean
 }
 
-export type Backdrop = React.FC<BackdropProps> | React.Component<BackdropProps>
+export class Backdrop extends React.Component<BackdropProps> {}
