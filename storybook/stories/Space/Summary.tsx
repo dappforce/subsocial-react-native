@@ -58,6 +58,7 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
       right={props => <Actions showFollowButton={!!showFollowButton} {...props} />}
+      style={{paddingLeft: 0, paddingRight: 0}}
     />
   )
 }
