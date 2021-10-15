@@ -1,5 +1,6 @@
 import './Welcome/Welcome.stories'
 import './API/API.stories'
+import './Account/Account.stories'
 import './Post/Post.stories'
 import './Space/Space.stories'
 import './Misc/Misc.stories'
