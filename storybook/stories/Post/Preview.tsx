@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react'
 import { Pressable, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
 import { Card } from 'react-native-paper'
-import { Text, Title } from '~src/components/Typography'
+import { Text } from '~src/components/Typography'
 import { Head, Body, usePost } from './Post'
 import { ActionPanel } from './ActionPanel'
 import { IpfsAvatar } from '~src/components/IpfsImage'
@@ -50,7 +50,11 @@ export default function Preview({id, onPressMore, onPressOwner, onPressSpace}: P
   return (
     <View style={styles.container}>
       <Card.Title
-        title={<Title onPress={() => onPressOwner?.(bnid, ownerid)}>{ownerName}</Title>}
+        title={(
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title} onPress={() => onPressOwner?.(bnid, ownerid)}>{ownerName}</Text>
+          </View>
+        )}
         subtitle={<Text mode="secondary" onPress={() => onPressSpace?.(bnid, spaceid)}>{spaceName} · {age.toString()}</Text>}
         left={({size}) => <IpfsAvatar cid={avatar} size={size} />}
         right={({size}) => <ActionMenu secondary={renderActions} size={size} />}
@@ -128,6 +132,13 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     padding: 10,
+  },
+  titleWrapper: {
+    paddingTop: 6,
+  },
+  title: {
+    fontWeight: 'bold',
+    textAlignVertical: 'bottom',
   },
   italic: {
     fontStyle: 'italic',
