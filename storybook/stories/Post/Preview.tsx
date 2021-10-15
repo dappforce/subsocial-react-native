@@ -5,6 +5,7 @@ import { Pressable, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
 import { Card } from 'react-native-paper'
 import { Text, Title } from '~src/components/Typography'
 import { Head, Body, usePost } from './Post'
+import { ActionPanel } from './ActionPanel'
 import { IpfsAvatar } from '~src/components/IpfsImage'
 import { ActionMenu } from '~stories/Actions'
 import { SubsocialInitializerState } from '~src/components/SubsocialContext'
@@ -14,8 +15,8 @@ import { useSpace } from '~stories/Space'
 import { AccountId } from '@polkadot/types/interfaces'
 import { AnyPostId, PostData } from '@subsocial/types'
 import { SpaceId } from '@subsocial/types/substrate/interfaces'
-import BN from 'bn.js'
 import { Age } from '~src/util'
+import BN from 'bn.js'
 
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
@@ -59,6 +60,14 @@ export default function Preview({id, onPressMore, onPressOwner, onPressSpace}: P
         <Head {...{title, image, titleStyle}} preview />
         <Body content={content} previewStyle={contentPreviewStyle} preview />
       </Pressable>
+      <ActionPanel
+        liked={false}
+        numLikes={data?.struct?.upvotes_count?.toNumber?.() ?? 0}
+        numComments={data?.struct?.replies_count?.toNumber?.() ?? 0}
+        onPressLike={   () => alert('sorry, not yet implemented')}
+        onPressComment={() => alert('sorry, not yet implemented')}
+        onPressShare={  () => alert('sorry, not yet implemented')}
+      />
     </View>
   )
 }
