@@ -7,6 +7,11 @@ import { Text } from '~comps/Typography'
 import { IconFamily } from '~src/util'
 
 export type WithSize = {size: number}
+export type IconDescriptor = {
+  name: string
+  family: IconFamily
+  size?: number
+}
 
 export type ActionMenuProps = {
   primary?: ({size}: WithSize) => ReactNode
@@ -47,7 +52,7 @@ ActionMenu.Primary = function({children, style}: PrimaryProps) {
 
 export type SecondaryProps = {
   label: string
-  icon?: (() => ReactElement) | {name: string, family: IconFamily, size?: number}
+  icon?: (() => ReactElement) | IconDescriptor
   iconContainerStyle?: StyleProp<ViewStyle>
   onPress: () => void
   disabled?: boolean
