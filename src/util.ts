@@ -1,6 +1,11 @@
 //////////////////////////////////////////////////////////////////////
 // Simple utility functions independent from RN
 
+export type IconFamily = 'antdesign' | 'entypo' | 'evilicon' |
+  'feather' | 'font-awesome' | 'font-awesome-5' | 'fontisto' |
+  'ionicon' | 'material' | 'material-community' | 'octicon' |
+  'simple-line-icon' | 'zocial'
+
 /**
  * Partition the given array-like in two by the given predicate.
  * @param ary array-like to partition

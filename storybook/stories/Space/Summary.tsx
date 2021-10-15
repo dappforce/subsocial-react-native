@@ -9,10 +9,10 @@ import { SpaceData } from '@subsocial/types'
 import { SubsocialInitializerState } from '~comps/SubsocialContext'
 import { Button, Markdown, Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
-import { useSpace } from './util'
+import { useTheme } from '~src/components/Theming'
+import { SpaceId, useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
-import { SpaceId } from './util'
-import { Actions, PrimaryAction, SecondaryAction } from '~comps/Actions'
+import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
 export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
@@ -50,25 +50,28 @@ export type HeadProps = {
   showFollowButton?: boolean
 }
 export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps) {
+  const theme = useTheme();
   const loading = !data;
   
   const renderPrimaryActions = useCallback(() => {
     return <>
       {showFollowButton && (
-        <PrimaryAction>
-          <Button mode="contained" onPress={() => alert('not yet implemented, sorry')}>
-            Follow
-          </Button>
-        </PrimaryAction>
+        <ActionMenu.Primary>
+          <FollowButton
+            id={data?.struct?.id ?? 0}
+            isFollowing={false}
+            onPress={() => alert('not yet implemented, sorry!')}
+            hideIcon
+          />
+        </ActionMenu.Primary>
       )}
     </>
   }, []);
   
   const renderSecondaryActions = useCallback(() => {
     return <>
-      <SecondaryAction>
-        Test
-      </SecondaryAction>
+      <ActionMenu.Secondary label="Share Space"  icon={{name: 'share-social-outline', family: 'ionicon'}} onPress={() => {}} disabled />
+      <ActionMenu.Secondary label="View on IPFS" icon={{name: 'analytics-outline',    family: 'ionicon'}} onPress={() => {}} disabled />
     </>
   }, []);
   
@@ -76,8 +79,9 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
     <Card.Title
       title={data?.content?.name ?? titlePlaceholder}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
+      subtitleStyle={{...theme.fonts.secondary, fontSize: 12}}
       left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
-      right={props => <Actions {...props} primary={renderPrimaryActions} secondary={renderSecondaryActions} />}
+      right={props => <ActionMenu {...props} primary={renderPrimaryActions} secondary={renderSecondaryActions} />}
       style={{paddingLeft: 0, paddingRight: 0}}
     />
   )
