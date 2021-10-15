@@ -30,7 +30,7 @@ export function Title({preview = false, ...props}: TitleProps) {
   return Text({...props, mode: preview ? 'titlePreview' : 'titleDetails', composeStyles: true})
 }
 
-export type ButtonProps = React.ComponentProps<typeof Paper.Button>
+export type ButtonProps = Omit<React.ComponentProps<typeof Paper.Button>, "theme">
 export function Button({children, style, labelStyle, ...props}: ButtonProps) {
   let {mode, color} = props;
   const theme = useTheme();
