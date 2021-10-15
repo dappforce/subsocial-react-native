@@ -67,7 +67,7 @@ export const usePost = (id: AnyPostId) => useSubsocialInitializer(async api => {
 
 const styles = StyleSheet.create({
   title: {
-    marginVertical: 10,
+    marginVertical: 16,
   },
   previewBanner: {
     width: '100%',
