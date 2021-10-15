@@ -53,23 +53,23 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
   const loading = !data;
   
   const renderPrimaryActions = useCallback(() => {
-    return [
-      showFollowButton && (
+    return <>
+      {showFollowButton && (
         <PrimaryAction>
           <Button mode="contained" onPress={() => alert('not yet implemented, sorry')}>
             Follow
           </Button>
         </PrimaryAction>
-      )
-    ]
+      )}
+    </>
   }, []);
   
   const renderSecondaryActions = useCallback(() => {
-    return [
+    return <>
       <SecondaryAction>
         Test
       </SecondaryAction>
-    ]
+    </>
   }, []);
   
   return (

@@ -1,14 +1,13 @@
 import React, { ReactNode, useState } from 'react'
 import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { Text } from '~comps/Typography'
-import { Backdrop } from 'react-native-backdrop'
 import { Icon } from 'react-native-elements'
+import { Menu } from 'react-native-paper'
+import { Text } from '~comps/Typography'
 import { useTheme } from './Theming'
-import { Portal } from 'react-native-paper'
 
 export type ActionsProps = {
-  primary?: () => ReactNode[]
-  secondary?: () => ReactNode[]
+  primary?: () => ReactNode
+  secondary?: () => ReactNode
   style?: StyleProp<ViewStyle>
   size?: number
 }
@@ -18,15 +17,16 @@ export function Actions({primary, secondary, size = 24, style}: ActionsProps) {
   
   return (
     <View style={[styles.actions, style]}>
-      <Icon name="more-horizontal" type="feather" size={size} style={{color: theme.colors.textSecondary}} onPress={() => setShowSecondary(true)} />
+      {!!secondary &&
+        <Menu
+          visible={showSecondary}
+          onDismiss={() => setShowSecondary(false)}
+          anchor={<Icon name="more-horizontal" type="feather" size={size} style={{color: theme.colors.textSecondary}} onPress={() => setShowSecondary(true)} />}
+        >
+          {secondary?.()}
+        </Menu>
+      }
       {primary?.()}
-      <Portal>
-        <Backdrop visible={showSecondary} handleOpen={() => setShowSecondary(true)} handleClose={() => setShowSecondary(false)}>
-          <Text>Foo</Text>
-          <Text>Bar</Text>
-          <Text>Baz</Text>
-        </Backdrop>
-      </Portal>
     </View>
   )
 }

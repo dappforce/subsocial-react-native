@@ -1,6 +1,5 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
-import { Portal } from 'react-native-paper'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import { SubstrateProvider } from '~comps/SubstrateContext'
@@ -23,9 +22,7 @@ export default function(props: {}) {
         <SafeAreaProvider>
           <StatusBar backgroundColor={theme.colors.appBar} />
           <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
-            <Portal.Host>
-              <StorybookUI {...props} />
-            </Portal.Host>
+            <StorybookUI {...props} />
           </SafeAreaView>
         </SafeAreaProvider>
       </SubstrateProvider>
