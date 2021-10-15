@@ -2,7 +2,7 @@
 // Underlying Post from data Component
 import React from 'react'
 import { ImageStyle, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
-import { Link, Markdown, Text, Title } from '~comps/Typography'
+import { Markdown, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'
 import { AnyPostId } from '@subsocial/types'
@@ -34,7 +34,7 @@ export function Head({title, titleStyle, image, imageStyle, previewImageStyle, p
       ? <IpfsImage cid={image} style={[styles.previewBanner, previewImageStyle]} />
       : <IpfsBanner cid={image} style={[styles.banner, imageStyle]} />
       }
-      <Title style={[styles.title, titleStyle]}>{title}</Title>
+      <Title preview={preview} style={[styles.title, titleStyle]}>{title}</Title>
     </View>
   )
 }
