@@ -9,15 +9,15 @@ import { BN } from '@polkadot/util'
 /**
  * Unified space ID, from numbers, BNs, number strings & handles.
  */
-export type SpaceId = string | number | AnySpaceId
+export type UnifiedSpaceId = string | number | AnySpaceId
 
 export class SpaceNotFoundError extends Error {
-  constructor(query: SpaceId) {
+  constructor(query: UnifiedSpaceId) {
     super(`Subsocial Space ${query} not found`);
   }
 }
 
-export function useSpace(id: SpaceId): [SubsocialInitializerState, SpaceData|undefined] {
+export function useSpace(id: UnifiedSpaceId): [SubsocialInitializerState, SpaceData|undefined] {
   return useSubsocialInitializer(async api => {
     if (!id) return undefined;
     const bnid  = await getSpaceId(api.substrate, id);
@@ -27,7 +27,7 @@ export function useSpace(id: SpaceId): [SubsocialInitializerState, SpaceData|und
   }, [id]);
 }
 
-export async function getSpaceId(substrate: SubsocialSubstrateApi, id: SpaceId): Promise<BN> {
+export async function getSpaceId(substrate: SubsocialSubstrateApi, id: UnifiedSpaceId): Promise<BN> {
   if (isHandle(id)) {
     const handle = (id as string).substr(1).toLowerCase();
     const spaceid = await substrate.getSpaceIdByHandle(handle);
@@ -39,4 +39,4 @@ export async function getSpaceId(substrate: SubsocialSubstrateApi, id: SpaceId):
   }
 }
 
-const isHandle = (id: SpaceId) => typeof id === 'string' && id.startsWith('@')
+const isHandle = (id: UnifiedSpaceId) => typeof id === 'string' && id.startsWith('@')

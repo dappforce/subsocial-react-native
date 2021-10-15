@@ -10,13 +10,13 @@ import { SubsocialInitializerState } from '~comps/SubsocialContext'
 import { Button, Markdown, Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useTheme } from '~src/components/Theming'
-import { SpaceId, useSpace } from './util'
+import { UnifiedSpaceId, useSpace } from './util'
 import { Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
 export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
-  id: SpaceId
+  id: UnifiedSpaceId
 }
 export default function Summary({id, preview, ...props}: SummaryProps) {
   const [state, data] = useSpace(id);

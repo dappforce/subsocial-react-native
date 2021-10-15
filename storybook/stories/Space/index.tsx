@@ -5,4 +5,4 @@ export * from './Summary'
 
 export * from './Explorer'
 
-export { SpaceNotFoundError } from './util'
+export { SpaceNotFoundError, useSpace } from './util'

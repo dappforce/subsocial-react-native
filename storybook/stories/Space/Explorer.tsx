@@ -6,18 +6,18 @@ import { ActivityIndicator } from 'react-native-paper'
 import { SubsocialApi } from '@subsocial/api'
 import { SpaceData } from '@subsocial/types'
 import { useSubsocialInitializer } from '~src/components/SubsocialContext'
-import { SpaceId } from './util'
+import { UnifiedSpaceId } from './util'
 import Summary from './Summary'
 import { BN } from '@polkadot/util'
 
 export type PreviewExplorerType = {
-  spaces: SpaceId[]
+  spaces: UnifiedSpaceId[]
 }
 export function PreviewExplorer({spaces}: PreviewExplorerType) {
-  const renderItem = ({item: id}: ListRenderItemInfo<SpaceId>) => {
+  const renderItem = ({item: id}: ListRenderItemInfo<UnifiedSpaceId>) => {
     return <Summary id={id} preview />
   }
-  const keyExtractor = (item: SpaceId) => item.toString();
+  const keyExtractor = (item: UnifiedSpaceId) => item.toString();
   return (
     <FlatList data={spaces} {...{renderItem, keyExtractor}} />
   )
