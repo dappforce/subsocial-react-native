@@ -2,7 +2,7 @@
 // Underlying Post from data Component
 import React from 'react'
 import { ImageStyle, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
-import { Markdown, Text, Title } from '~comps/Typography'
+import { Link, Markdown, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'
 import { AnyPostId } from '@subsocial/types'
@@ -50,7 +50,7 @@ export function Body({content, previewStyle, preview = false}: BodyProps) {
     return (
       <Text style={previewStyle}>
         {summary}
-        {isShowMore && <Text style={{fontWeight: 'bold'}}>{' '}Read more</Text>}
+        {isShowMore && <Link style={{fontWeight: 'bold'}}> Read more</Link>}
       </Text>
     )
   }
