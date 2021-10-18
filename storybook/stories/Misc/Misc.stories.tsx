@@ -21,6 +21,7 @@ storiesOf('Misc', module)
         links={array('Links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
         onPress={action('onPress')}
         color={text('Color', '')}
+        rtl={boolean('Right to Left', false)}
       />
     </CenterView>
   ))

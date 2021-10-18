@@ -6,7 +6,7 @@ import * as Linking from 'expo-linking'
 import { Icon } from 'react-native-elements'
 import { NamedLink } from '@subsocial/types'
 import { useTheme } from '~comps/Theming'
-import { partition } from '~src/util'
+import { IconFamily, partition } from '~src/util'
 
 type LinkRecord = {
   url: string
@@ -22,8 +22,9 @@ export type SocialLinksProps = {
   links: (string|SocialLinkData|NamedLink|Falsy)[]
   onPress?: (event: SocialLinkResponderEvent) => void
   color?: string // color of social icons - defaults to theme
+  rtl?: boolean // right to left
 }
-export default function SocialLinks({links, onPress, color}: SocialLinksProps) {
+export default function SocialLinks({links, onPress, color, rtl = false}: SocialLinksProps) {
   const theme = useTheme();
   const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url);
   
@@ -39,14 +40,14 @@ export default function SocialLinks({links, onPress, color}: SocialLinksProps) {
     }
     children.push({
       url,
-      hasIcon: domain in SocialLink.iconFactory,
-      component: <SocialLink url={url} key={url} onPress={onPress??defaultHandler} color={color||theme.colors.socials} />
+      hasIcon: domain in SocialLink.icons,
+      component: <SocialLink link={{url}} key={url} onPress={onPress??defaultHandler} color={color||theme.colors.socials} rtl={rtl} />
     })
   }
   
   const [iconChildren, linkChildren] = partition(children, ({hasIcon}) => hasIcon);
   return (
-    <View style={styles.links}>
+    <View style={[styles.links, rtl && {flexDirection: 'row-reverse'}]}>
       {linkChildren.map(rec => rec.component)}
       {iconChildren.map(rec => rec.component)}
     </View>
@@ -56,44 +57,33 @@ export default function SocialLinks({links, onPress, color}: SocialLinksProps) {
 export type SocialLinkResponderEvent = GestureResponderEvent & {
   link: SocialLinkData
 }
-export type SocialLinkProps = SocialLinkData & {
+export type SocialLinkProps = {
+  link: SocialLinkData
   onPress?: (event: SocialLinkResponderEvent) => void
   color: string
+  rtl?: boolean
 }
-export function SocialLink({url, name, onPress, color}: SocialLinkProps) {
-  const domain = extractDomain(url)?.toLowerCase?.();
-  const _onPress = (evt: GestureResponderEvent) => onPress?.({...evt, link: {url, name}});
+export function SocialLink({link, onPress, color, rtl = false}: SocialLinkProps) {
+  const domain = extractDomain(link.url)?.toLowerCase?.();
+  const _onPress = (evt: GestureResponderEvent) => onPress?.({...evt, link});
   
-  if (domain && domain in SocialLink.iconFactory) {
-    return SocialLink.iconFactory[domain]({url, name, onPress: _onPress, color});
-  }
-  return <SocialIcon {...{url, name, color}} onPress={_onPress} name="globe-outline" family="ionicon" size={24} />
-  // return <Link url={url} style={styles.link} onPress={_onPress}>{domain}</Link>
+  const defaultIcon = {name: 'globe-outline', family: 'ionicon', size: 16};
+  const {name, family, size} = (domain && SocialLink.icons[domain]) || defaultIcon;
+  return <Icon {...{name, type: family, size, color}} onPress={_onPress} style={rtl ? {marginLeft: 6} : {marginRight: 6}} />
 }
 
-export type SocialIconLinkProps = SocialLinkData & {
-  onPress: (evt: GestureResponderEvent) => void
-  color: string
-}
-
-export type SocialIconProps = SocialIconLinkProps & {
+export type SocialIcon = {
   name: string
-  family: string
+  family: IconFamily
   size: number
-}
-export const SocialIcon = ({name, family, onPress, size, color}: SocialIconProps) =>
-  <Icon {...{name, size, color, onPress}} type={family} />
-
-export interface SocialIconLinkFactory {
-  (props: SocialIconLinkProps): JSX.Element
-}  
-SocialLink.iconFactory = {
-  'github.com':  (props) => <SocialIcon {...props} name="logo-github"     family="ionicon"   size={24} />,
-  'medium.com':  (props) => <SocialIcon {...props} name="medium-monogram" family="antdesign" size={24} />,
-  't.me':        (props) => <SocialIcon {...props} name="sc-telegram"     family="evilicon"  size={30} />,
-  'twitter.com': (props) => <SocialIcon {...props} name="logo-twitter"    family="ionicon"   size={24} />,
-  'youtube.com': (props) => <SocialIcon {...props} name="logo-youtube"    family="ionicon"   size={24} />,
-} as Record<string, SocialIconLinkFactory>;
+};
+SocialLink.icons = {
+  'github.com':  {name: "logo-github",     family: "ionicon",   size: 16},
+  'medium.com':  {name: "medium-monogram", family: "antdesign", size: 16},
+  't.me':        {name: "sc-telegram",     family: "evilicon",  size: 20},
+  'twitter.com': {name: "logo-twitter",    family: "ionicon",   size: 16},
+  'youtube.com': {name: "logo-youtube",    family: "ionicon",   size: 16},
+} as Record<string, SocialIcon>;
 
 
 function extractDomain(url: string) {
