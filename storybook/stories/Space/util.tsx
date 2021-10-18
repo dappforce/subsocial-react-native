@@ -20,14 +20,14 @@ export class SpaceNotFoundError extends Error {
 export function useSpace(id: UnifiedSpaceId): [SubsocialInitializerState, SpaceData|undefined] {
   return useSubsocialInitializer(async api => {
     if (!id) return undefined;
-    const bnid  = await getSpaceId(api.substrate, id);
+    const bnid  = await resolveSpaceId(api.substrate, id);
     const data = await api.findSpace({id: bnid});
     if (!data) throw new SpaceNotFoundError(bnid.toNumber());
     return data;
   }, [id]);
 }
 
-export async function getSpaceId(substrate: SubsocialSubstrateApi, id: UnifiedSpaceId): Promise<BN> {
+export async function resolveSpaceId(substrate: SubsocialSubstrateApi, id: UnifiedSpaceId): Promise<BN> {
   if (isHandle(id)) {
     const handle = (id as string).substr(1).toLowerCase();
     const spaceid = await substrate.getSpaceIdByHandle(handle);
