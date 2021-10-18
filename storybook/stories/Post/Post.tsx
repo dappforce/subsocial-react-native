@@ -34,7 +34,7 @@ export function Head({title, titleStyle, image, imageStyle, previewImageStyle, p
       ? <IpfsImage cid={image} style={[styles.previewBanner, previewImageStyle]} />
       : <IpfsBanner cid={image} style={[styles.banner, imageStyle]} />
       }
-      <Title preview={preview} style={[styles.title, titleStyle]}>{title}</Title>
+      {!!title && <Title preview={preview} style={[styles.title, titleStyle]}>{title}</Title>}
     </View>
   )
 }
