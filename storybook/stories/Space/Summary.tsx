@@ -3,11 +3,11 @@
 // for display in other locations, such as post details or space
 // explorer.
 import React, { useCallback } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { Card } from 'react-native-paper'
 import { SpaceData } from '@subsocial/types'
 import { SubsocialInitializerState } from '~comps/SubsocialContext'
-import { Button, Markdown, Text } from '~comps/Typography'
+import { Markdown, Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { useTheme } from '~src/components/Theming'
 import { UnifiedSpaceId, useSpace } from './util'
@@ -18,7 +18,7 @@ import { summarizeMd } from '@subsocial/utils'
 export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
   id: UnifiedSpaceId
 }
-export default function Summary({id, preview, ...props}: SummaryProps) {
+export function Summary({id, preview, ...props}: SummaryProps) {
   const [state, data] = useSpace(id);
   return <Summary.Data {...props} titlePlaceholder={id.toString()} {...{data, state, preview}} />
 }
@@ -32,10 +32,11 @@ type DataProps = {
   showSocials?: boolean
   showTags?: boolean
   preview?: boolean
+  containerStyle?: StyleProp<ViewStyle>
 };
-Summary.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false}: DataProps) {
+Summary.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
   return (
-    <View style={{width: '100%'}}>
+    <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} />
       {showAbout   && <About {...{state, data, preview}} />}
       {showSocials && <Socials links={data?.content?.links??[]} />}
