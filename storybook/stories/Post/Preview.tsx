@@ -21,16 +21,24 @@ import BN from 'bn.js'
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
 
-export type PostPreviewProps = {
+export type PostPreviewProps = Omit<PreviewDataProps, 'state' | 'data'> & {
   id: AnyPostId | number
+}
+export default function Preview({id, ...props}: PostPreviewProps) {
+  const bnid = useMemo(() => new BN(id), [id]);
+  const [state, data] = usePost(bnid);
+  return <Preview.Data {...props} {...{id: bnid, state, data}} />
+}
+
+type PreviewDataProps = {
+  id: BN
+  state: SubsocialInitializerState
+  data: PostData | undefined
   onPressMore?: (id: AnyPostId) => void
   onPressOwner?: (postId: AnyPostId, ownerId: AccountId | undefined) => void
   onPressSpace?: (postId: AnyPostId, spaceId: SpaceId   | undefined) => void
-}
-export default function Preview({id, onPressMore, onPressOwner, onPressSpace}: PostPreviewProps) {
-  const bnid = useMemo(() => new BN(id), [id]);
-  const [state, data] = usePost(bnid);
-  
+};
+Preview.Data = function({id, state, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) {
   const [ownerid, spaceid] = useMemo(() => {
     const {owner: _ownerid, space_id: _spaceid} = data?.struct ?? {};
     return [
@@ -52,15 +60,15 @@ export default function Preview({id, onPressMore, onPressOwner, onPressSpace}: P
       <Card.Title
         title={(
           <View style={styles.titleWrapper}>
-            <Text style={styles.title} onPress={() => onPressOwner?.(bnid, ownerid)}>{ownerName}</Text>
+            <Text style={styles.title} onPress={() => onPressOwner?.(id, ownerid)}>{ownerName}</Text>
           </View>
         )}
-        subtitle={<Text mode="secondary" onPress={() => onPressSpace?.(bnid, spaceid)}>{spaceName} · {age.toString()}</Text>}
+        subtitle={<Text mode="secondary" onPress={() => onPressSpace?.(id, spaceid)}>{spaceName} · {age.toString()}</Text>}
         left={({size}) => <IpfsAvatar cid={avatar} size={size} />}
         right={({size}) => <ActionMenu secondary={renderActions} size={size} />}
         style={{paddingLeft: 0}}
       />
-      <Pressable onPress={() => onPressMore?.(bnid)}>
+      <Pressable onPress={() => onPressMore?.(id)}>
         <Head {...{title, image, titleStyle}} preview />
         <Body content={content} previewStyle={contentPreviewStyle} preview />
       </Pressable>
