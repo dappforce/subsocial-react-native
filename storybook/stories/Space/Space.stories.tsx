@@ -29,9 +29,6 @@ storiesOf('Space', module)
   .add('Explore (Preview)', () => (
     <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />
   ))
-  .add('Explore (Infinite)', () => (
-    <Space.InfiniteExplorer />
-  ))
 
 const styles = StyleSheet.create({
   padded: {
