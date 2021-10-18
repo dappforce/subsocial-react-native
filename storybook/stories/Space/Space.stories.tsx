@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { action } from '@storybook/addon-actions'
 import { array, boolean, text } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
@@ -23,10 +23,8 @@ storiesOf('Space', module)
       />
     </CenterView>
   ))
-  .add('Overview', () => (
-    <CenterView style={styles.padded}>
-      <Space.Overview id={text('handle', '@subsocial')} />
-    </CenterView>
+  .add('Posts', () => (
+    <Space.Posts id={text('handle', '@subsocial')} />
   ))
   .add('Explore (Preview)', () => (
     <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />

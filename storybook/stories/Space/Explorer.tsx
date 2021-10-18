@@ -7,7 +7,7 @@ import { SubsocialApi } from '@subsocial/api'
 import { SpaceData } from '@subsocial/types'
 import { useSubsocialInitializer } from '~src/components/SubsocialContext'
 import { UnifiedSpaceId } from './util'
-import Summary from './Summary'
+import { Summary } from './Summary'
 import { BN } from '@polkadot/util'
 
 export type PreviewExplorerType = {

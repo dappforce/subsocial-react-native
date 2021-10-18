@@ -1,8 +1,5 @@
-export { default as Overview } from './Overview'
-
-export { default as Summary } from './Summary'
 export * from './Summary'
-
+export * from './Posts'
 export * from './Explorer'
 
 export { SpaceNotFoundError, useSpace } from './util'
