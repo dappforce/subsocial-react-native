@@ -2,23 +2,37 @@
 // Space Explorer - a whole bunch of summaries
 import React from 'react'
 import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native'
-import { UnifiedSpaceId } from './util'
+import { resolveSpaceId, UnifiedSpaceId } from './util'
 import { Summary } from './Summary'
 import { Divider } from '~src/components/Typography'
+import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
+import { useSubsocial } from '~src/components/SubsocialContext'
+import { SpaceData } from '@subsocial/types'
 
 export type SuggestedType = {
   spaces: UnifiedSpaceId[]
 }
 export function Suggested({spaces}: SuggestedType) {
-  const renderItem = ({item: id}: ListRenderItemInfo<UnifiedSpaceId>) => {
+  const {api} = useSubsocial();
+  const renderItem = (data: SpaceData) => {
     return <>
-      <Summary id={id} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
+      <Summary.Data data={data} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
       <Divider />
     </>
   }
-  const keyExtractor = (item: UnifiedSpaceId) => item.toString();
+  
+  async function expander(ids: UnifiedSpaceId[]) {
+    if (!api) throw new Error("No Subsocial Context");
+    const resolved = await Promise.all(ids.map(id => resolveSpaceId(api.substrate, id)));
+    const data = await api.findAllSpaces(resolved);
+    return data.map(s => ({id: s.struct.id, data: s}));
+  }
+  
   return (
-    <FlatList data={spaces} {...{renderItem, keyExtractor}} />
+    <DynamicExpansionList
+      ids={spaces}
+      {...{expander, renderItem}}
+    />
   )
 }
 

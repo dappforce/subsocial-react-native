@@ -87,6 +87,11 @@ export function DynamicExpansionList<ID, D>({
   useEffect(() => {
     dispatch({type: 'INIT'});
   }, [ids]);
+  useEffect(() => {
+    if (stage === 'READY') {
+      loadMore();
+    }
+  }, [stage]);
   
   const renderSectionHeader: SectionListSpec['renderSectionHeader'] = ({}) => renderHeader?.() || null
   const renderItem: SectionListSpec['renderItem'] = ({item: {data}}) => _renderItem(data);
