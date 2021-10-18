@@ -104,7 +104,7 @@ export function About({state, data, preview}: AboutProps) {
     return <Text style={styles.italic}>An error occurred while loading Space's About.</Text>
   }
   if (!data?.content?.about) {
-    return <Text style={styles.italic}>no about info specified</Text>
+    return null;
   }
   if (preview) {
     const {summary, isShowMore} = summarizeMd(data!.content!.about!);

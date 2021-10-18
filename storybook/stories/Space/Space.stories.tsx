@@ -6,6 +6,7 @@ import { storiesOf } from '@storybook/react-native'
 import * as Space from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
+import config from 'config.json'
 
 storiesOf('Space', module)
   .addDecorator((getStory) => (
@@ -26,8 +27,8 @@ storiesOf('Space', module)
   .add('Posts', () => (
     <Space.Posts id={text('handle', '@subsocial')} />
   ))
-  .add('Explore (Preview)', () => (
-    <Space.PreviewExplorer spaces={array('spaces', ['@subsocial', '@PolkaWarriors', '@PolkadotDigest', '@rmrkapp', '@DotMarketCap'])} />
+  .add('Explore Suggested', () => (
+    <Space.Suggested spaces={config.suggestedSpaces} />
   ))
 
 const styles = StyleSheet.create({
