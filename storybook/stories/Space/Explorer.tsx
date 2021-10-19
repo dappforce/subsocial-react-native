@@ -3,7 +3,7 @@
 import React from 'react'
 import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native'
 import { resolveSpaceId, UnifiedSpaceId } from './util'
-import { Summary } from './Summary'
+import { Preview } from './Preview'
 import { Divider } from '~src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
 import { useSubsocial } from '~src/components/SubsocialContext'
@@ -16,7 +16,7 @@ export function Suggested({spaces}: SuggestedType) {
   const {api} = useSubsocial();
   const renderItem = (data: SpaceData) => {
     return <>
-      <Summary.Data data={data} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
+      <Preview.Data data={data} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
       <Divider />
     </>
   }

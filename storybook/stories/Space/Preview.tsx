@@ -12,12 +12,12 @@ import { Header, Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
-export type SummaryProps = Omit<DataProps, 'data' | 'state'> & {
+export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
   id: UnifiedSpaceId
 }
-export function Summary({id, preview, ...props}: SummaryProps) {
+export function Preview({id, preview, ...props}: PreviewProps) {
   const [state, data] = useSpace(id);
-  return <Summary.Data {...props} titlePlaceholder={id.toString()} {...{data, state, preview}} />
+  return <Preview.Data {...props} titlePlaceholder={id.toString()} {...{data, state, preview}} />
 }
 
 type DataProps = {
@@ -31,7 +31,7 @@ type DataProps = {
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
 };
-Summary.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
+Preview.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
   return (
     <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} />

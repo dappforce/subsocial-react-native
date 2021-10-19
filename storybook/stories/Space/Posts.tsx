@@ -3,7 +3,7 @@
 import React from 'react'
 import { SectionList, SectionListProps, StyleSheet } from 'react-native'
 import { AnyPostId, PostData } from '@subsocial/types'
-import { Summary } from './Summary'
+import { Preview } from './Preview'
 import * as Post from '../Post'
 import { resolveSpaceId, UnifiedSpaceId } from './util'
 import { Divider } from '~src/components/Typography'
@@ -33,7 +33,7 @@ export function Posts({id: spaceid}: PostsProps) {
   
   const renderSpace: ListSpec['renderHeader'] = () => {
     return <>
-      <Summary id={spaceid} showTags showSocials showAbout showFollowButton containerStyle={styles.padded} />
+      <Preview id={spaceid} showTags showSocials showAbout showFollowButton containerStyle={styles.padded} />
       <Divider />
     </>
   }

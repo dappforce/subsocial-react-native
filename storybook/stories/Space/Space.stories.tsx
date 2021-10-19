@@ -12,9 +12,9 @@ storiesOf('Space', module)
   .addDecorator((getStory) => (
     <SubsocialProvider>{getStory()}</SubsocialProvider>
   ))
-  .add('Summary', () => (
+  .add('Preview', () => (
     <CenterView style={styles.padded}>
-      <Space.Summary
+      <Space.Preview
         id={text('handle', '@subsocial')}
         showFollowButton={boolean('Follow Button', true)}
         showAbout={boolean('About', true)}

@@ -1,4 +1,4 @@
-export * from './Summary'
+export * from './Preview'
 export * from './Posts'
 export * from './Explorer'
 
