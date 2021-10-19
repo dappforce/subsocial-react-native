@@ -100,45 +100,45 @@ export const reducePaperTheme = ({colors, consts, fonts}: Theme, dark: boolean):
 });
 
 const mdHeadingMargins = {marginTop: 6, marginBottom: 4};
-export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors}: Theme, paper: PaperTheme) => StyleSheet.create({
+export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors, fonts}: Theme) => StyleSheet.create({
   ...base,
   body: {
-    ...paper.fonts.regular,
+    ...fonts.primary,
     color: colors.textPrimary,
     ...base.body,
   },
   heading1: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 18,
     ...base.heading1,
   },
   heading2: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 16,
     ...base.heading2,
   },
   heading3: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 14,
     ...base.heading3,
   },
   heading4: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 12,
     ...base.heading4,
   },
   heading5: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 10,
     ...base.heading5,
   },
   heading6: {
-    ...paper.fonts.medium,
+    ...fonts.titleDetails,
     ...mdHeadingMargins,
     fontSize: 10,
     fontStyle: 'italic',

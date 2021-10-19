@@ -103,9 +103,8 @@ export type MarkdownProps = MdProps & {
 }
 export function Markdown({children, style, ...props}: MarkdownProps) {
   const theme = useTheme();
-  const paper = Paper.useTheme();
-  const rootstyles = useMemo(() => reduceMarkdownTheme(style??{}, theme, paper), [style, theme, paper]);
-  return <Md {...props} style={rootstyles}>{children}</Md>
+  const rootstyles = useMemo(() => reduceMarkdownTheme(style??{}, theme), [style, theme]);
+  return <Md {...props} style={rootstyles} mergeStyle={false}>{children}</Md>
 }
 
 type PaperChipProps = React.ComponentProps<typeof Paper.Chip>
