@@ -7,7 +7,7 @@ const theme: Theme = {
     primary: '#eb2f96',
     secondary: '#eb2f96',
     textPrimary: '#222',
-    textSecondary: '#888',
+    textSecondary: '#a0a0a0',
     textDisabled: '#cdc9c9',
     link: '#bd018b',
     background: '#fafafa',
