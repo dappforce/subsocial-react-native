@@ -99,8 +99,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     width: '100%',
+    marginVertical: 8,
   },
   link: {
-    marginHorizontal: 2,
+    paddingHorizontal: 2,
   },
 })

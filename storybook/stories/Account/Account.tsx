@@ -7,6 +7,7 @@ import { IpfsAvatar } from '~src/components/IpfsImage'
 import { ActionMenu, FollowButton } from '~stories/Actions'
 import { SubsocialApi } from '@subsocial/api'
 import { AnyAccountId } from '@subsocial/types/substrate'
+import { Header } from '~stories/Misc'
 
 export type UnifiedAccountID = number | AnyAccountId
 
@@ -41,12 +42,13 @@ export function Head({id, name, avatar, numFollowers, numFollowing, isFollowing}
   ), [id, isFollowing]);
   
   return (
-    <Card.Title
+    <Header
       title={name}
       subtitle={`${numFollowers} Followers · ${numFollowing} Following`}
-      left={({size}) => <IpfsAvatar cid={avatar} size={size} />}
-      right={() => <ActionMenu primary={renderPrimary} />}
-      style={{paddingLeft: 0}}
+      avatar={avatar}
+      actionMenuProps={{
+        primary: renderPrimary
+      }}
     />
   )
 }

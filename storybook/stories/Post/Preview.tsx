@@ -2,15 +2,12 @@
 // Post Preview - assembled from Post Base components
 import React, { useMemo } from 'react'
 import { Pressable, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
-import { Card } from 'react-native-paper'
-import { Text } from '~src/components/Typography'
+import { SubsocialInitializerState } from '~src/components/SubsocialContext'
 import { Head, Body, usePost } from './Post'
 import { ActionPanel } from './ActionPanel'
-import { IpfsAvatar } from '~src/components/IpfsImage'
-import { ActionMenu } from '~stories/Actions'
-import { SubsocialInitializerState } from '~src/components/SubsocialContext'
+import { ActionMenu, IconDescriptor } from '~stories/Actions'
 import { useAccount } from '~stories/Account'
-import { IconDescriptor } from '~stories/Actions/Menu'
+import { Header } from '~stories/Misc'
 import { useSpace } from '~stories/Space'
 import { AccountId } from '@polkadot/types/interfaces'
 import { AnyPostId, PostData } from '@subsocial/types'
@@ -57,16 +54,13 @@ Preview.Data = function({id, state, data, onPressMore, onPressOwner, onPressSpac
   
   return (
     <View style={styles.container}>
-      <Card.Title
-        title={(
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title} onPress={() => onPressOwner?.(id, ownerid)}>{ownerName}</Text>
-          </View>
-        )}
-        subtitle={<Text mode="secondary" onPress={() => onPressSpace?.(id, spaceid)}>{spaceName} · {age.toString()}</Text>}
-        left={({size}) => <IpfsAvatar cid={avatar} size={size} />}
-        right={({size}) => <ActionMenu secondary={renderActions} size={size} />}
-        style={{paddingLeft: 0}}
+      <Header
+        title={ownerName??''}
+        subtitle={`${spaceName} · ${age}`}
+        avatar={avatar}
+        actionMenuProps={{
+          secondary: renderActions
+        }}
       />
       <Pressable onPress={() => onPressMore?.(id)}>
         <Head {...{title, image, titleStyle}} preview />

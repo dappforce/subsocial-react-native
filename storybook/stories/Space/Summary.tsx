@@ -4,14 +4,11 @@
 // explorer.
 import React, { useCallback } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { Card } from 'react-native-paper'
 import { SpaceData } from '@subsocial/types'
 import { SubsocialInitializerState } from '~comps/SubsocialContext'
 import { Markdown, Text } from '~comps/Typography'
-import { IpfsAvatar } from '~comps/IpfsImage'
-import { useTheme } from '~src/components/Theming'
 import { UnifiedSpaceId, useSpace } from './util'
-import { Socials, Tags } from '~stories/Misc'
+import { Header, Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
@@ -51,7 +48,6 @@ export type HeadProps = {
   showFollowButton?: boolean
 }
 export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps) {
-  const theme = useTheme();
   const loading = !data;
   
   const renderPrimaryActions = useCallback(() => {
@@ -77,13 +73,14 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
   }, []);
   
   return (
-    <Card.Title
+    <Header
       title={data?.content?.name ?? titlePlaceholder}
       subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
-      subtitleStyle={{...theme.fonts.secondary, fontSize: 12}}
-      left={props => <IpfsAvatar {...props} cid={data?.content?.image} />}
-      right={props => <ActionMenu {...props} primary={renderPrimaryActions} secondary={renderSecondaryActions} />}
-      style={{paddingLeft: 0, paddingRight: 0}}
+      avatar={data?.content?.image}
+      actionMenuProps={{
+        primary: renderPrimaryActions,
+        secondary: renderSecondaryActions
+      }}
     />
   )
 }
@@ -116,7 +113,7 @@ export function About({state, data, preview}: AboutProps) {
     )
   }
   else {
-    return <Markdown>{data!.content!.about!}</Markdown>
+    return <Markdown style={mdStyles}>{data!.content!.about!}</Markdown>
   }
 }
 
@@ -124,4 +121,8 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   },
+});
+
+const mdStyles = StyleSheet.create({
+  paragraph: {},
 });

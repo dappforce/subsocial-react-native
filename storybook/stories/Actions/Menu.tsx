@@ -19,7 +19,7 @@ export type ActionMenuProps = {
   style?: StyleProp<ViewStyle>
   size?: number
 }
-export default function ActionMenu({primary, secondary, size = 24, style}: ActionMenuProps) {
+export function ActionMenu({primary, secondary, size = 24, style}: ActionMenuProps) {
   const theme = useTheme();
   const [showSecondary, setShowSecondary] = useState(false);
   

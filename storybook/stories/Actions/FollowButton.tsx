@@ -16,7 +16,7 @@ export type FollowButtonProps<T> = Omit<ButtonProps, 'children' | 'onPress'> & {
   loading?: boolean
   hideIcon?: boolean
 }
-export default function FollowButton<T>({
+export function FollowButton<T>({
   id,
   onPress,
   isFollowing,
