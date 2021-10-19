@@ -12,6 +12,7 @@
     "@polkadot/api": "^6.0.5",
     "@polkadot/types": "^6.0.5",
     "@polkadot/util": "^7.4.1",
+    "@reduxjs/toolkit": "^1.6.2",
     "@subsocial/api": "0.6.4-rn.2",
     "@subsocial/types": "0.6.4-rn.2",
     "@subsocial/utils": "^0.6.4-rn.2",
