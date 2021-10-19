@@ -12,15 +12,38 @@ import { reduceMarkdownTheme, Theme, useTheme } from './Theming'
 export type TextProps = RN.TextProps & React.PropsWithChildren<{
   /** Defaults to 'primary' */
   mode?: keyof Theme['fonts']
+  disabled?: boolean
   composeStyles?: boolean
 }>
-export function Text({children, mode = 'primary', composeStyles = false, style, ...props}: TextProps) {
+export function Text({
+  children,
+  mode = 'primary',
+  composeStyles = false,
+  disabled = false,
+  style,
+  ...props
+}: TextProps)
+{
   const theme = useTheme();
   const _style = useMemo(() => {
-    if (!composeStyles) return [theme.fonts[mode], style];
-    return StyleSheet.compose<TextStyle>(theme.fonts[mode], StyleSheet.flatten(style));
-  }, [style, theme, composeStyles])
+    const combinedStyle = {
+      ...theme.fonts[mode],
+      color: modeColor(mode, disabled, theme),
+    };
+    
+    if (!composeStyles) return [combinedStyle, style];
+    return StyleSheet.compose<TextStyle>(combinedStyle, StyleSheet.flatten(style));
+  }, [style, mode, theme, composeStyles])
+  
   return <RN.Text {...props} style={_style}>{children}</RN.Text>
+}
+
+function modeColor(mode: keyof Theme['fonts'], disabled: boolean, theme: Theme) {
+  if (disabled) return theme.colors.textDisabled;
+  switch (mode) {
+    case 'secondary': return theme.colors.textSecondary;
+    default: return theme.colors.textPrimary;
+  }
 }
 
 export type TitleProps = Omit<TextProps, 'mode' | 'composeStyles'> & React.PropsWithChildren<{
