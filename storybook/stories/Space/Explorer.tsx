@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // Space Explorer - a whole bunch of summaries
 import React from 'react'
-import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native'
-import { resolveSpaceId, UnifiedSpaceId } from './util'
+import { StyleSheet } from 'react-native'
+import { loadSpaces, UnifiedSpaceId } from './util'
 import { Preview } from './Preview'
 import { Divider } from '~src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
@@ -23,8 +23,7 @@ export function Suggested({spaces}: SuggestedType) {
   
   async function expander(ids: UnifiedSpaceId[]) {
     if (!api) throw new Error("No Subsocial Context");
-    const resolved = await Promise.all(ids.map(id => resolveSpaceId(api.substrate, id)));
-    const data = await api.findAllSpaces(resolved);
+    const data = await loadSpaces(api, ids);
     return data.map(s => ({id: s.struct.id, data: s}));
   }
   
