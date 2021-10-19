@@ -93,7 +93,7 @@ interface SubsocialInitializerCallback<T> {
   (api: SubsocialApi): T | Promise<T>
 }
 
-export function useSubsocialInitializer<T>(
+export function useSubsocialEffect<T>(
   callback: SubsocialInitializerCallback<T>,
   deps: React.DependencyList
 ): [SubsocialInitializerState, undefined | T]

@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying User Components
 import React, { useCallback } from 'react'
-import { useSubsocialInitializer } from '~comps/SubsocialContext'
+import { useSubsocialEffect } from '~comps/SubsocialContext'
 import { ActionMenu, FollowButton } from '~stories/Actions'
 import { SubsocialApi } from '@subsocial/api'
 import { AnyAccountId } from '@subsocial/types/substrate'
@@ -51,7 +51,7 @@ export function Head({id, name, avatar, numFollowers, numFollowing, isFollowing}
   )
 }
 
-export const useAccount = (id: AnyAccountId) => useSubsocialInitializer(async api => {
+export const useAccount = (id: AnyAccountId) => useSubsocialEffect(async api => {
   if (!id) return undefined;
   const data  = await api.findProfile(id);
   if (!data) throw new AccountNotFoundError(id);

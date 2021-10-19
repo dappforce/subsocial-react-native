@@ -7,7 +7,7 @@ import { Preview } from './Preview'
 import * as Post from '../Post'
 import { resolveSpaceId, UnifiedSpaceId } from './util'
 import { Divider } from '~src/components/Typography'
-import { useSubsocialInitializer, useSubsocial } from '~src/components/SubsocialContext'
+import { useSubsocialEffect, useSubsocial } from '~src/components/SubsocialContext'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
 
 export type PostsProps = {
@@ -55,7 +55,7 @@ export function Posts({id: spaceid}: PostsProps) {
   )
 }
 
-const usePostList = (spaceid: UnifiedSpaceId) => useSubsocialInitializer(async api => {
+const usePostList = (spaceid: UnifiedSpaceId) => useSubsocialEffect(async api => {
   if (!spaceid) return;
   const sid = await resolveSpaceId(api.substrate, spaceid);
   return await api.substrate.postIdsBySpaceId(sid);

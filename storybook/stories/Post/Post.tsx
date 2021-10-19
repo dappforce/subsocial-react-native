@@ -8,7 +8,7 @@ import { summarizeMd } from '@subsocial/utils'
 import { AnyPostId, PostData } from '@subsocial/types'
 import { SubsocialApi } from '@subsocial/api'
 import { Visibility } from '@subsocial/api/filters'
-import { useSubsocialInitializer } from '~comps/SubsocialContext'
+import { useSubsocialEffect } from '~comps/SubsocialContext'
 import { cachePosts, queryPostCache } from '~src/IpfsCache'
 import { keys, partition } from '~src/util'
 
@@ -62,7 +62,7 @@ export function Body({content, previewStyle, preview = false}: BodyProps) {
   }
 }
 
-export const usePost = (id: AnyPostId) => useSubsocialInitializer(async api => {
+export const usePost = (id: AnyPostId) => useSubsocialEffect(async api => {
   const [data] = await loadPosts(api, [id]);
   if (!data) throw new PostNotFoundError(id.toNumber());
   return data;

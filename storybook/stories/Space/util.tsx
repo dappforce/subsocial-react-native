@@ -1,8 +1,5 @@
-//////////////////////////////////////////////////////////////////////
-// useSpace helper - a specialization of useSubsocialInitializer for
-// loading space data
 import { SubsocialApi, SubsocialSubstrateApi } from '@subsocial/api'
-import { SubsocialInitializerState, useSubsocialInitializer } from '~comps/SubsocialContext'
+import { SubsocialInitializerState, useSubsocialEffect } from '~comps/SubsocialContext'
 import { AnySpaceId, SpaceData } from '@subsocial/types'
 import { Visibility } from '@subsocial/api/filters'
 import { partition } from '~src/util'
@@ -21,7 +18,7 @@ export class SpaceNotFoundError extends Error {
 }
 
 export function useSpace(id: UnifiedSpaceId): [SubsocialInitializerState, SpaceData|undefined] {
-  return useSubsocialInitializer(async api => {
+  return useSubsocialEffect(async api => {
     if (!id) return undefined;
     const [data] = await loadSpaces(api, [id]);
     if (!data) throw new SpaceNotFoundError(id);
