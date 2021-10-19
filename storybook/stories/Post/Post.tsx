@@ -76,7 +76,6 @@ export async function loadPosts(api: SubsocialApi, ids: AnyPostId[], {visibility
   }
   
   const cached = await queryPostCache(withCid.map(struct => struct.content.asIpfs.toString()));
-  console.log(keys(cached));
   
   // fetch uncached contents & cache them - if possible
   const missing = withCid.filter(struct => !(struct.content.asIpfs.toString() in cached));
