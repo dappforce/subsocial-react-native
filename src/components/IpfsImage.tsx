@@ -2,7 +2,7 @@
 // Helper class to access images from Subsocial IPFS
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
-import { Falsy, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, View, ViewStyle } from 'react-native'
+import { Falsy, GestureResponderEvent, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
 import { Image as RNEImage, ImageProps } from 'react-native-elements'
 import { ActivityIndicator, Avatar } from 'react-native-paper'
 import { useTheme } from './Theming'
@@ -51,6 +51,7 @@ export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 's
   size?: number
   style?: StyleProp<ViewStyle>
   imageStyle?: StyleProp<ImageStyle>
+  onPress?: (evt: GestureResponderEvent) => void
 }
 /**
  * Marriage of RNP-Avatar.Image x IpfsImage.
@@ -58,7 +59,7 @@ export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 's
  * When `typeof source === 'number'`, prefers `source`. Otherwise, when `cid` is given, prefers `cid` (IPFS) over
  * `source` (Web2).
  */
-export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
+export function IpfsAvatar({source, cid, style, onPress, ...props}: IpfsAvatarProps) {
   const theme = useTheme();
   const [loaded, setLoaded] = useState(false);
   const onLoad = () => setLoaded(true);
@@ -67,7 +68,7 @@ export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
     setLoaded(false);
   }, [cid]);
   
-  return (
+  const avatar = (
     <Avatar.Image style={[loaded && {backgroundColor: 'transparent'}, style]}
       {...props}
       source={({size}) =>
@@ -79,7 +80,14 @@ export function IpfsAvatar({source, cid, style, ...props}: IpfsAvatarProps) {
           PlaceholderContent={<ActivityIndicator color={theme.colors.background} />}
         />}
     />
-  )
+  );
+  
+  if (onPress) {
+    return <TouchableWithoutFeedback onPress={onPress}>{avatar}</TouchableWithoutFeedback>
+  }
+  else {
+    return avatar
+  }
 }
 
 function getScaledSize(wantW: undefined | number, realW: number, realH: number): [number, number] {
