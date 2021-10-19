@@ -1,9 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying User Components
 import React, { useCallback } from 'react'
-import { Card } from 'react-native-paper'
 import { useSubsocialInitializer } from '~comps/SubsocialContext'
-import { IpfsAvatar } from '~src/components/IpfsImage'
 import { ActionMenu, FollowButton } from '~stories/Actions'
 import { SubsocialApi } from '@subsocial/api'
 import { AnyAccountId } from '@subsocial/types/substrate'
