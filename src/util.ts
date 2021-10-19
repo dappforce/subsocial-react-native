@@ -24,6 +24,10 @@ export function partition<T>(ary: T[], predicate: (elem: T) => boolean) {
   }, [[], []]);
 }
 
+export const keys   = <T>(obj: T) => Object.keys(obj) as (keyof T)[];
+export const values = <T>(obj: T) => keys(obj).map(key => obj[key]);
+export const pairs  = <T>(obj: T) => keys(obj).map(key => [key, obj[key]] as [keyof T, T[keyof T]])
+
 export class Age {
   private timestamp: BN
   private now: BN
