@@ -18,7 +18,11 @@ export type IpfsImageProps = Omit<ImageProps, 'source'> & {
 export function IpfsImage({cid, PlaceholderContent, ...props}: IpfsImageProps) {
   if (!cid) return null;
   const uri = IpfsImage.getUri(cid);
-  return <RNEImage {...props} source={{uri}} PlaceholderContent={PlaceholderContent ?? <ActivityIndicator />} />
+  return <RNEImage
+    {...props}
+    source={{uri, cache: 'force-cache'}}
+    PlaceholderContent={PlaceholderContent ?? <ActivityIndicator />}
+  />
 }
 
 IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
