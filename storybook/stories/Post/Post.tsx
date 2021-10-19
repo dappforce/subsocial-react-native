@@ -5,9 +5,12 @@ import { ImageStyle, StyleProp, StyleSheet, TextStyle, View } from 'react-native
 import { Link, Markdown, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'
-import { AnyPostId } from '@subsocial/types'
-import { useSubsocialInitializer } from '~src/components/SubsocialContext'
-import BN from 'bn.js'
+import { AnyPostId, PostData } from '@subsocial/types'
+import { SubsocialApi } from '@subsocial/api'
+import { Visibility } from '@subsocial/api/filters'
+import { useSubsocialInitializer } from '~comps/SubsocialContext'
+import { cachePosts, queryPostCache } from '~src/IpfsCache'
+import { keys, partition } from '~src/util'
 
 const SUMMARY_LIMIT = 120
 const IMAGE_PREVIEW_HEIGHT = 160
@@ -60,10 +63,34 @@ export function Body({content, previewStyle, preview = false}: BodyProps) {
 }
 
 export const usePost = (id: AnyPostId) => useSubsocialInitializer(async api => {
-  const data = await api.findPost({id: new BN(id)});
+  const [data] = await loadPosts(api, [id]);
   if (!data) throw new PostNotFoundError(id.toNumber());
   return data;
 }, [id]);
+
+export async function loadPosts(api: SubsocialApi, ids: AnyPostId[], {visibility = 'onlyPublic'}: {visibility?: Visibility} = {}): Promise<PostData[]> {
+  const structs = await api.substrate.findPosts({ids, visibility});
+  const [withCid, withoutCid] = partition(structs, struct => struct.content.isIpfs);
+  if (withoutCid.length) {
+    console.warn('some posts have non-IPFS CIDs:', withoutCid);
+  }
+  
+  const cached = await queryPostCache(withCid.map(struct => struct.content.asIpfs.toString()));
+  console.log(keys(cached));
+  
+  // fetch uncached contents & cache them - if possible
+  const missing = withCid.filter(struct => !(struct.content.asIpfs.toString() in cached));
+  const fetched = await api.ipfs.findPosts(missing.map(struct => struct.content.asIpfs.toString()));
+  cachePosts(fetched);
+  
+  return withCid.map(struct => {
+    const cid = struct.content.asIpfs.toString();
+    return {
+      struct,
+      content: cached[cid] ?? fetched[cid], // note: both cached & fetched may be empty
+    }
+  })
+}
 
 const styles = StyleSheet.create({
   title: {
