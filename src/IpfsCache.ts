@@ -5,6 +5,7 @@
 // cache is global. If the content changes, so does its hash/address.
 // -----
 // TODO: Perhaps use multiformats module to better inspect CIDs?
+// TODO: Hot cache in memory?
 import * as fs from 'expo-file-system'
 import { CommentContent, CommonContent, PostContent, ProfileContent, SharedPostContent, SpaceContent } from '@subsocial/types';
 import { pairs } from './util';
