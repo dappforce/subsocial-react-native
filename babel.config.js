@@ -8,6 +8,7 @@ module.exports = function(api) {
         alias: {
           'crypto': 'crypto-browserify',
           'stream': 'stream-browserify',
+          '@emotion/core': '@emotion/react',
         },
       }],
     ],
