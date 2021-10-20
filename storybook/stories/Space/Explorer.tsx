@@ -1,36 +1,47 @@
 //////////////////////////////////////////////////////////////////////
 // Space Explorer - a whole bunch of summaries
-import React from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { loadSpaces, UnifiedSpaceId } from './util'
 import { Preview } from './Preview'
 import { Divider } from 'src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
-import { useSubsocial } from 'src/components/SubsocialContext'
-import { SpaceData } from '@subsocial/types'
+import { SpaceId } from 'src/types/subsocial'
+import { useCreateReloadPosts } from 'src/rtk/app/hooks'
 
 export type SuggestedType = {
-  spaces: UnifiedSpaceId[]
+  spaces: SpaceId[]
 }
 export function Suggested({spaces}: SuggestedType) {
-  const {api} = useSubsocial();
-  const renderItem = (data: SpaceData) => {
+  const [postponeIds, setPostponeIds] = useState<SpaceId[]>([])
+  const reloadPosts = useCreateReloadPosts()
+  const renderItem = (id: SpaceId) => {
+    console.log(id)
     return <>
-      <Preview.Data data={data} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
+      <Preview id={id} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
       <Divider />
     </>
   }
   
-  async function expander(ids: UnifiedSpaceId[]) {
-    if (!api) throw new Error("No Subsocial Context");
-    const data = await loadSpaces(api, ids);
-    return data.map(s => ({id: s.struct.id, data: s}));
-  }
+  const loader = useCallback(async (ids: SpaceId[]) => {
+    if (reloadPosts) {
+      reloadPosts({ids})
+    }
+    else {
+      setPostponeIds(postponeIds.concat(ids))
+    }
+    return ids.map(id => ({id, data: id}))
+  }, [reloadPosts])
+  
+  useEffect(() => {
+    if (reloadPosts && postponeIds.length) {
+      reloadPosts({ids: postponeIds})
+    }
+  }, [reloadPosts])
   
   return (
     <DynamicExpansionList
       ids={spaces}
-      {...{expander, renderItem}}
+      {...{loader, renderItem}}
     />
   )
 }

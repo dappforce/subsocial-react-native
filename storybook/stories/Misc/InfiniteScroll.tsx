@@ -3,53 +3,47 @@
 import React, { ReactElement, useEffect, useReducer, useState } from 'react'
 import { SectionList, SectionListData, SectionListProps } from 'react-native'
 
-export interface DynamicDataExpander<ID, D> {
-  (ids: ID[]): Promise<{id: ID, data: D}[]>
+export interface DynamicDataLoader<ID> {
+  (ids: ID[]): void
 }
 
 type ExpansionStage = 'INITIAL' | 'BUSY' | 'READY'
-type ExpansionData<ID, D> = {id: ID, data: D}
-type ExpansionState<ID, D> = {
+type ExpansionState = {
   stage: ExpansionStage
   lastIdx: number
-  data: ExpansionData<ID, D>[]
 }
 
-type ExpansionAction<ID, D> = {
-  type: 'INIT'
-} | {
-  type: 'BEGIN_EXPAND'
+type ExpansionAction = {
+  type: 'INIT' | 'BEGIN_EXPAND'
 } | {
   type: 'FINISH_EXPAND'
-  data: {id: ID, data: D}[]
   lastIdx: number
 }
 
-export type DynamicExpansionListProps<ID, D> = {
+export type DynamicExpansionListProps<ID> = {
   ids: ID[]
-  expander: DynamicDataExpander<ID, D>
-  renderItem: (data: D) => ReactElement
+  loader: DynamicDataLoader<ID>
+  renderItem: (id: ID) => ReactElement
   renderHeader?: () => ReactElement
   batchSize?: number
   onRefresh?: () => void
 }
-export function DynamicExpansionList<ID, D>({
+export function DynamicExpansionList<ID>({
   ids,
-  expander,
+  loader,
   renderItem: _renderItem,
   renderHeader,
   batchSize = 10,
-}: DynamicExpansionListProps<ID, D>)
+}: DynamicExpansionListProps<ID>)
 {
-  type SectionListSpec = SectionListProps<ExpansionData<ID, D>>
+  type SectionListSpec = SectionListProps<ID>
   
-  function reducer(state: ExpansionState<ID, D>, action: ExpansionAction<ID, D>): ExpansionState<ID, D> {
+  function reducer(state: ExpansionState, action: ExpansionAction): ExpansionState {
     switch (action.type) {
       case 'INIT': {
         return {
           stage: 'READY',
           lastIdx: ids.length,
-          data: [],
         };
       }
       case 'BEGIN_EXPAND': {
@@ -62,15 +56,15 @@ export function DynamicExpansionList<ID, D>({
         return {
           stage: 'READY',
           lastIdx: action.lastIdx,
-          data: state.data.concat(action.data),
         };
       }
     }
   }
   
-  const INIT_STATE: ExpansionState<ID, D> = {stage: 'INITIAL', lastIdx: 0, data: []};
-  const [{stage, data, lastIdx}, dispatch] = useReducer(reducer, INIT_STATE);
-  const sections: SectionListData<ExpansionData<ID, D>>[] = [{data}];
+  const INIT_STATE: ExpansionState = {stage: 'INITIAL', lastIdx: 0}
+  const [{stage, lastIdx}, dispatch] = useReducer(reducer, INIT_STATE)
+  const sections: SectionListData<ID>[] = [{data: stage !== 'INITIAL' ? ids.slice(lastIdx) : []}]
+  const [initializedList, setInitializedList] = useState(false)
   
   async function loadMore() {
     if (lastIdx === 0) return;
@@ -79,29 +73,31 @@ export function DynamicExpansionList<ID, D>({
     const newLastIdx = Math.max(lastIdx-batchSize, 0);
     const sublist = ids.slice(newLastIdx, lastIdx);
     
-    dispatch({type: 'BEGIN_EXPAND'});
-    const data = await expander(sublist);
-    dispatch({type: 'FINISH_EXPAND', data, lastIdx: newLastIdx});
+    dispatch({type: 'BEGIN_EXPAND'})
+    await loader(sublist)
+    dispatch({type: 'FINISH_EXPAND', lastIdx: newLastIdx})
   }
   
   useEffect(() => {
-    dispatch({type: 'INIT'});
-  }, [ids]);
+    dispatch({type: 'INIT'})
+    setInitializedList(false)
+  }, [ids])
   useEffect(() => {
-    if (stage === 'READY') {
-      loadMore();
+    if (stage === 'READY' && !initializedList) {
+      loadMore()
+      setInitializedList(true)
     }
-  }, [stage]);
+  }, [initializedList, stage])
   
   const renderSectionHeader: SectionListSpec['renderSectionHeader'] = ({}) => renderHeader?.() || null
-  const renderItem: SectionListSpec['renderItem'] = ({item: {data}}) => _renderItem(data);
+  const renderItem: SectionListSpec['renderItem'] = ({item: id}) => _renderItem(id);
   
   return (
     <SectionList
       {...{sections, renderItem, renderSectionHeader}}
       onEndReached={loadMore}
       onEndReachedThreshold={2}
-      keyExtractor={({id}) => id+''}
+      keyExtractor={(id) => id+''}
     />
   )
 }

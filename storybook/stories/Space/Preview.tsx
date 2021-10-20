@@ -15,7 +15,7 @@ import { summarizeMd } from '@subsocial/utils'
 export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId
 }
-export function Preview({id, preview, ...props}: PreviewProps) {
+export const Preview = React.memo(({id, preview, ...props}: PreviewProps) => {
   const resolvedId = useResolvedSpaceHandle(id)
   const reloadSpace = useCreateReloadSpace()
   const data = useSelectSpace(resolvedId)
@@ -27,8 +27,8 @@ export function Preview({id, preview, ...props}: PreviewProps) {
     return true
   }, [resolvedId], [reloadSpace])
   
-  return <Preview.Data {...props} titlePlaceholder={id.toString()} {...{data, preview}} />
-}
+  return <PreviewData {...props} titlePlaceholder={id.toString()} {...{data, preview}} />
+})
 
 type DataProps = {
   data?: SpaceWithSomeDetails
@@ -40,7 +40,7 @@ type DataProps = {
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
 };
-Preview.Data = function({data, titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
+function PreviewData({data, titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
   return (
     <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} />

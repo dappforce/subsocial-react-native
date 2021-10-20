@@ -1,34 +1,29 @@
 //////////////////////////////////////////////////////////////////////
 // All the details of a space
 import React from 'react'
-import { SectionList, SectionListProps, StyleSheet } from 'react-native'
-import { AnyPostId, PostData } from '@subsocial/types'
+import { StyleSheet } from 'react-native'
 import { Preview } from './Preview'
 import * as Post from '../Post'
-import { resolveSpaceId, UnifiedSpaceId } from './util'
+import { resolveSpaceId } from './util'
 import { Divider } from 'src/components/Typography'
-import { useSubsocialEffect, useSubsocial } from 'src/components/SubsocialContext'
+import { useSubsocialEffect } from 'src/components/SubsocialContext'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
+import { PostId, SpaceId } from 'src/types/subsocial'
+import BN from 'bn.js'
+import { useCreateReloadPosts } from 'src/rtk/app/hooks'
 
 export type PostsProps = {
-  id: UnifiedSpaceId
+  id: SpaceId
 }
 export function Posts({id: spaceid}: PostsProps) {
-  type ListSpec = DynamicExpansionListProps<AnyPostId, PostData>
+  type ListSpec = DynamicExpansionListProps<PostId>
   
-  const {api} = useSubsocial();
-  const [, posts] = usePostList(spaceid);
+  const reloadPosts = useCreateReloadPosts()
+  const [, posts] = usePostList(spaceid)
   
-  const expander: ListSpec['expander'] = async (ids) => {
-    if (!api) throw new Error("Subsocial API somehow uninitialized");
-    
-    console.log(`expanding post IDs ${ids}...`)
-    const data = await api.findAllPosts(ids);
-    if (data)
-      console.log(`post IDs ${ids} successfully expanded`)
-    else
-      console.log(`failed to expand post IDs ${ids}`)
-    return data.map(post => ({id: post.struct.id, data: post}));
+  const loader: ListSpec['loader'] = async (ids) => {
+    console.log(reloadPosts, ids)
+    reloadPosts?.({ids})
   }
   
   const renderSpace: ListSpec['renderHeader'] = () => {
@@ -38,9 +33,9 @@ export function Posts({id: spaceid}: PostsProps) {
     </>
   }
   
-  const renderItem: ListSpec['renderItem'] = (data) => {
+  const renderItem: ListSpec['renderItem'] = (id) => {
     return <>
-      <Post.Preview.Data id={data.struct.id} state='READY' data={data} />
+      <Post.Preview id={id} />
       <Divider />
     </>
   }
@@ -48,17 +43,18 @@ export function Posts({id: spaceid}: PostsProps) {
   return (
     <DynamicExpansionList
       ids={posts || []}
-      expander={expander}
+      loader={loader}
       renderHeader={renderSpace}
       renderItem={renderItem}
     />
   )
 }
 
-const usePostList = (spaceid: UnifiedSpaceId) => useSubsocialEffect(async api => {
+const usePostList = (spaceid: SpaceId) => useSubsocialEffect(async api => {
   if (!spaceid) return;
   const sid = await resolveSpaceId(api.substrate, spaceid);
-  return await api.substrate.postIdsBySpaceId(sid);
+  const bnids = await api.substrate.postIdsBySpaceId(new BN(sid));
+  return bnids.map(bn => bn+'')
 }, [spaceid]);
 
 const styles = StyleSheet.create({

@@ -12,7 +12,6 @@ import { ActionMenu, IconDescriptor } from '~stories/Actions'
 import { AccountId, PostId, SpaceId, PostWithSomeDetails } from 'src/types/subsocial'
 import { Age } from 'src/util'
 import BN from 'bn.js'
-import { ProfileData } from '@subsocial/types'
 
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
@@ -20,7 +19,8 @@ const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ioni
 export type PostPreviewProps = Omit<PreviewDataProps, 'id' | 'state' | 'data'> & {
   id: PostId
 }
-export default function Preview({id, ...props}: PostPreviewProps) {
+export const Preview = React.memo(({id, ...props}: PostPreviewProps) => {
+  console.log('render post id', id)
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
@@ -31,8 +31,9 @@ export default function Preview({id, ...props}: PostPreviewProps) {
     return true
   }, [id], [reloadPost])
   
-  return <Preview.Data {...props} {...{id, data}} />
-}
+  return <PreviewData {...props} {...{id, data}} />
+})
+
 
 type PreviewDataProps = {
   id: PostId
@@ -41,7 +42,7 @@ type PreviewDataProps = {
   onPressOwner?: (postId: PostId, ownerId: AccountId | undefined) => void
   onPressSpace?: (postId: PostId, spaceId: SpaceId   | undefined) => void
 };
-Preview.Data = function({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) {
+export function PreviewData({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) {
   const renderActions = ({size}: {size: number}) => <>
     <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
