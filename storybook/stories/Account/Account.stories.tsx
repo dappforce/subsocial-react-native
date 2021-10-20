@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native'
 import { boolean, text } from '@storybook/addon-knobs'
 import CenterView from '~stories/CenterView'
 import * as Account from './index'
-import { SubsocialProvider } from '~src/components/SubsocialContext'
+import { SubsocialProvider } from 'src/components/SubsocialContext'
 
 storiesOf('Accounts', module)
   .addDecorator(getStory => (

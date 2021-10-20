@@ -7,7 +7,6 @@
     "jsx": "react-native",
     "paths": {
       "~stories/*": ["./storybook/stories/*"],
-      "~src/*": ["./src/*"],
       "~comps/*": ["./src/components/*"],
       "~themes/*": ["./themes/*"]
     }

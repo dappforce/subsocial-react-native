@@ -4,9 +4,9 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { loadSpaces, UnifiedSpaceId } from './util'
 import { Preview } from './Preview'
-import { Divider } from '~src/components/Typography'
+import { Divider } from 'src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
-import { useSubsocial } from '~src/components/SubsocialContext'
+import { useSubsocial } from 'src/components/SubsocialContext'
 import { SpaceData } from '@subsocial/types'
 
 export type SuggestedType = {

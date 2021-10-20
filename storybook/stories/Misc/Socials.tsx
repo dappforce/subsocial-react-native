@@ -6,7 +6,7 @@ import * as Linking from 'expo-linking'
 import { Icon } from 'react-native-elements'
 import { NamedLink } from '@subsocial/types'
 import { useTheme } from '~comps/Theming'
-import { IconFamily, partition } from '~src/util'
+import { IconFamily, partition } from 'src/util'
 
 type LinkRecord = {
   url: string

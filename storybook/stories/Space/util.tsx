@@ -2,9 +2,9 @@ import { SubsocialApi, SubsocialSubstrateApi } from '@subsocial/api'
 import { SubsocialInitializerState, useSubsocialEffect } from '~comps/SubsocialContext'
 import { AnySpaceId, SpaceData } from '@subsocial/types'
 import { Visibility } from '@subsocial/api/filters'
-import { partition } from '~src/util'
+import { partition } from 'src/util'
 import { BN } from '@polkadot/util'
-import { cacheSpaces, querySpaceCache } from '~src/IpfsCache'
+import { cacheSpaces, querySpaceCache } from 'src/IpfsCache'
 
 /**
  * Unified space ID, from numbers, BNs, number strings & handles.

@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements'
 import { Menu, TouchableRipple } from 'react-native-paper'
 import { useTheme } from '../../../src/components/Theming'
 import { Text } from '~comps/Typography'
-import { IconFamily } from '~src/util'
+import { IconFamily } from 'src/util'
 
 export type WithSize = {size: number}
 export type IconDescriptor = {

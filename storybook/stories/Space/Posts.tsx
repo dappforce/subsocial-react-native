@@ -6,8 +6,8 @@ import { AnyPostId, PostData } from '@subsocial/types'
 import { Preview } from './Preview'
 import * as Post from '../Post'
 import { resolveSpaceId, UnifiedSpaceId } from './util'
-import { Divider } from '~src/components/Typography'
-import { useSubsocialEffect, useSubsocial } from '~src/components/SubsocialContext'
+import { Divider } from 'src/components/Typography'
+import { useSubsocialEffect, useSubsocial } from 'src/components/SubsocialContext'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
 
 export type PostsProps = {

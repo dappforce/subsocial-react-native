@@ -3,9 +3,9 @@
 import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Icon, IconProps } from 'react-native-elements'
-import { useTheme } from '~src/components/Theming'
-import { Text } from '~src/components/Typography'
-import { IconFamily } from '~src/util'
+import { useTheme } from 'src/components/Theming'
+import { Text } from 'src/components/Typography'
+import { IconFamily } from 'src/util'
 
 export type ActionPanelProps = {
   liked: boolean

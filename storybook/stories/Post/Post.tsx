@@ -9,8 +9,8 @@ import { AnyPostId, PostData } from '@subsocial/types'
 import { SubsocialApi } from '@subsocial/api'
 import { Visibility } from '@subsocial/api/filters'
 import { useSubsocialEffect } from '~comps/SubsocialContext'
-import { cachePosts, queryPostCache } from '~src/IpfsCache'
-import { keys, partition } from '~src/util'
+import { cachePosts, queryPostCache } from 'src/IpfsCache'
+import { keys, partition } from 'src/util'
 
 const SUMMARY_LIMIT = 120
 const IMAGE_PREVIEW_HEIGHT = 160

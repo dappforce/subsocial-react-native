@@ -2,7 +2,7 @@
 // Post Preview - assembled from Post Base components
 import React, { useMemo } from 'react'
 import { Pressable, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
-import { SubsocialInitializerState } from '~src/components/SubsocialContext'
+import { SubsocialInitializerState } from 'src/components/SubsocialContext'
 import { Head, Body, usePost } from './Post'
 import { ActionPanel } from './ActionPanel'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
@@ -12,13 +12,13 @@ import { useSpace } from '~stories/Space'
 import { AccountId } from '@polkadot/types/interfaces'
 import { AnyPostId, PostData } from '@subsocial/types'
 import { SpaceId } from '@subsocial/types/substrate/interfaces'
-import { Age } from '~src/util'
+import { Age } from 'src/util'
 import BN from 'bn.js'
 
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
 
-export type PostPreviewProps = Omit<PreviewDataProps, 'state' | 'data'> & {
+export type PostPreviewProps = Omit<PreviewDataProps, 'id' | 'state' | 'data'> & {
   id: AnyPostId | number
 }
 export default function Preview({id, ...props}: PostPreviewProps) {
@@ -61,6 +61,9 @@ Preview.Data = function({id, state, data, onPressMore, onPressOwner, onPressSpac
         actionMenuProps={{
           secondary: renderActions
         }}
+        onPressTitle={() => onPressOwner?.(id, ownerid)}
+        onPressSubtitle={() => onPressSpace?.(id, spaceid)}
+        onPressAvatar={() => onPressOwner?.(id, ownerid)}
       />
       <Pressable onPress={() => onPressMore?.(id)}>
         <Head {...{title, image, titleStyle}} preview />
