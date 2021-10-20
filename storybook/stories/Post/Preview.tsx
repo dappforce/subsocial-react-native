@@ -25,6 +25,7 @@ export default function Preview({id, ...props}: PostPreviewProps) {
   const data = useSelectPost(id)
   
   useInit(() => {
+    if (data) return true;
     if (!reloadPost) return false
     reloadPost({id})
     return true
