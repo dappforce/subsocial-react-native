@@ -47,7 +47,7 @@ export const useSelectPost = (postId?: PostId): PostWithSomeDetails | undefined 
 
 export const useCreateReloadPosts = () => {
   return useActions<SelectPostsArgs>(({ dispatch, api, args: { ids } }) =>
-    dispatch(fetchPosts({ api, ids: ids, reload: true })))
+    dispatch(fetchPosts({ api, ids, reload: true })))
 }
 
 export const useCreateReloadPost = () => {
