@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { useActions } from 'src/rtk/app/helpers'
 import { useFetch } from 'src/rtk/app/hooksCommon'
 import { fetchSpaces, SelectSpaceArgs, SelectSpacesArgs, selectSpaceStructById } from './spacesSlice'
 import { SpaceContent, SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { useAppSelector } from '../../app/store'
 import { selectSpaceContentById } from '../contents/contentsSlice'
-import { useSubsocial } from '~comps/SubsocialContext'
+import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
 import { isDef } from '@subsocial/utils'
+import { resolveSpaceIds } from '~stories/Space/util'
 
 export const useSelectSpace = (spaceId?: SpaceId): SpaceWithSomeDetails | undefined => {
   const struct = useAppSelector(state => spaceId
@@ -48,10 +50,6 @@ export function useSelectSpaces (ids: SpaceId[] = []): SpaceWithSomeDetails[] {
   return results
 }
 
-// export const useFetchSpace = (args: SelectSpaceArgs) => {
-//   return useFetchEntity(useSelectSpace, fetchSpaces, args)
-// }
-
 export const useFetchSpaces = (args: SelectSpacesArgs) => {
   return useFetch(fetchSpaces, args)
 }
@@ -72,4 +70,17 @@ export const useCreateReloadSpace = () => {
     const args = { api, ids: [ id ], reload: true }
     dispatch(fetchSpaces(args))
   })  
+}
+
+export const useResolvedSpaceHandle = (id: SpaceId) => {
+  const [resolved] = useResolvedSpaceHandles([id])
+  return resolved
+}
+
+export const useResolvedSpaceHandles = (ids: SpaceId[]) => {
+  const [resolved, setResolved] = useState<string[]>([])
+  useSubsocialEffect(async api => {
+    setResolved(await resolveSpaceIds(api.substrate, ids))
+  }, ids)
+  return resolved;
 }

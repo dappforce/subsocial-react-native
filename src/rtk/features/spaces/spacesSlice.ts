@@ -1,11 +1,13 @@
 import { createAsyncThunk, createEntityAdapter, createSlice, EntityId } from '@reduxjs/toolkit'
-import { getFirstOrUndefined } from '@subsocial/utils'
+import { asString, getFirstOrUndefined } from '@subsocial/utils'
 import BN from 'bn.js'
 import { createFetchOne, createSelectUnknownIds, FetchManyArgs, HasHiddenVisibility, SelectManyArgs, selectManyByIds, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from 'src/rtk/app/rootReducer'
 import { flattenSpaceStructs, getUniqueContentIds, getUniqueOwnerIds, SpaceId, SpaceStruct, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { fetchContents, selectSpaceContentById } from '../contents/contentsSlice'
 import { fetchProfiles } from '../profiles/profilesSlice'
+import { partition } from 'src/util'
+import { resolveSpaceIds } from '~stories/Space/util'
 
 const spacesAdapter = createEntityAdapter<SpaceStruct>()
 
@@ -41,31 +43,7 @@ const _selectSpacesByIds = (state: RootState, ids: EntityId[]) =>
 // TODO apply visibility filter
 export function selectSpaces (state: RootState, props: SelectSpacesArgs): SpaceWithSomeDetails[] {
   const { ids, /* withOwner = true */ } = props
-  const spaces = _selectSpacesByIds(state, ids)
-
-  // // TODO Fix copypasta. Places: selectSpaces & selectPosts
-  // const ownerByIdMap = new Map<EntityId, ProfileData>()
-  // if (withOwner) {
-  //   const ownerIds = getUniqueOwnerIds(spaces)
-  //   const profiles = selectProfiles(state, { ids: ownerIds })
-  //   profiles.forEach(profile => {
-  //     ownerByIdMap.set(profile.id, profile)
-  //   })
-  // }
-  
-  // const result: SpaceWithSomeDetails[] = []
-  // spaces.forEach(space => {
-  //   const { ownerId } = space.struct
-
-  //   // TODO Fix copypasta. Places: selectSpaces & selectPosts
-  //   let owner: ProfileData | undefined
-  //   if (ownerId) {
-  //     owner = ownerByIdMap.get(ownerId)
-  //   }
-
-  //   result.push({ ...space, owner })
-  // })
-  return spaces
+  return _selectSpacesByIds(state, ids)
 }
 
 // TODO extract a generic function

@@ -4,25 +4,34 @@
 // explorer.
 import React, { useCallback } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { SpaceData } from '@subsocial/types'
-import { SubsocialInitializerState } from '~comps/SubsocialContext'
+import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'src/rtk/app/hooks'
+import { useInit } from '~comps/hooks'
+import { SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { Markdown, Text } from '~comps/Typography'
-import { UnifiedSpaceId, useSpace } from './util'
 import { Header, Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
 export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
-  id: UnifiedSpaceId
+  id: SpaceId
 }
 export function Preview({id, preview, ...props}: PreviewProps) {
-  const [state, data] = useSpace(id);
-  return <Preview.Data {...props} titlePlaceholder={id.toString()} {...{data, state, preview}} />
+  const resolvedId = useResolvedSpaceHandle(id)
+  const reloadSpace = useCreateReloadSpace()
+  const data = useSelectSpace(resolvedId)
+  
+  useInit(() => {
+    if (data) return true
+    if (!reloadSpace) return false
+    reloadSpace({id: resolvedId})
+    return true
+  }, [resolvedId], [reloadSpace])
+  
+  return <Preview.Data {...props} titlePlaceholder={id.toString()} {...{data, preview}} />
 }
 
 type DataProps = {
-  data?: SpaceData
-  state?: SubsocialInitializerState
+  data?: SpaceWithSomeDetails
   titlePlaceholder?: string
   showFollowButton?: boolean
   showAbout?: boolean
@@ -31,11 +40,11 @@ type DataProps = {
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
 };
-Preview.Data = function({data, state = 'READY', titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
+Preview.Data = function({data, titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
   return (
     <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} />
-      {showAbout   && <About {...{state, data, preview}} />}
+      {showAbout   && <About {...{data, preview}} />}
       {showSocials && <Socials links={data?.content?.links??[]} />}
       {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
     </View>
@@ -44,7 +53,7 @@ Preview.Data = function({data, state = 'READY', titlePlaceholder, showFollowButt
 
 export type HeadProps = {
   titlePlaceholder?: string
-  data?: SpaceData
+  data?: SpaceWithSomeDetails
   showFollowButton?: boolean
 }
 export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps) {
@@ -75,7 +84,7 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
   return (
     <Header
       title={data?.content?.name ?? titlePlaceholder}
-      subtitle={loading ? 'loading...' : `${data?.struct?.posts_count || 0} Posts · ${data?.struct?.followers_count || 0} Followers`}
+      subtitle={loading ? 'loading...' : `${data?.struct?.postsCount || 0} Posts · ${data?.struct?.followersCount || 0} Followers`}
       avatar={data?.content?.image}
       actionMenuProps={{
         primary: renderPrimaryActions,
@@ -86,20 +95,10 @@ export function Head({titlePlaceholder = '', data, showFollowButton}: HeadProps)
 }
 
 export type AboutProps = {
-  state: SubsocialInitializerState
-  data?: SpaceData
+  data?: SpaceWithSomeDetails
   preview: boolean
 }
-export function About({state, data, preview}: AboutProps) {
-  const isLoading = state === 'PENDING' || state === 'LOADING'
-  const isError   = state === 'ERROR'
-  
-  if (isLoading) {
-    return <Text style={styles.italic}>loading ...</Text>
-  }
-  if (isError) {
-    return <Text style={styles.italic}>An error occurred while loading Space's About.</Text>
-  }
+export function About({data, preview}: AboutProps) {
   if (!data?.content?.about) {
     return null;
   }
@@ -117,12 +116,6 @@ export function About({state, data, preview}: AboutProps) {
   }
 }
 
-const styles = StyleSheet.create({
-  italic: {
-    fontStyle: 'italic',
-  },
-});
-
 const mdStyles = StyleSheet.create({
-  paragraph: {},
+  paragraph: {}, // Do not delete - this tells MarkdownIt to not apply any styles!
 });
