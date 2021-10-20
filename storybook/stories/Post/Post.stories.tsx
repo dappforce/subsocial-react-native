@@ -15,7 +15,7 @@ storiesOf('Post', module)
   .add('Preview', () => (
     <ScrollView>
       <Preview
-        id={number('Post ID', 20738)} // another good PostID is 20482
+        id={number('Post ID', 20738)+''} // another good PostID is 20482
         onPressMore={action('pressMore')}
       />
     </ScrollView>
