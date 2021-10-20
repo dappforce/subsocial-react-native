@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { newLogger, nonEmptyStr } from '@subsocial/utils'
-import { equalAddresses } from 'src/components/substrate'
-import { AccountId } from 'src/types'
+import { AccountId } from 'src/types/subsocial'
+import { Opt } from 'src/types'
+import { asAccountId } from '@subsocial/api'
 
 const log = newLogger('MyAccountSlice')
 
@@ -98,3 +99,9 @@ export const {
 } = myAccountSlice.actions
 
 export default myAccountSlice.reducer
+
+function equalAddresses(addr1: Opt<AccountId>, addr2: Opt<AccountId>): boolean {
+  if (!addr1 || !addr2) return false;
+  if (addr1 === addr2) return true;
+  return asAccountId(addr1)?.eq(asAccountId(addr2)) ?? false;
+}
