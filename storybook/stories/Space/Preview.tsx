@@ -40,7 +40,7 @@ type DataProps = {
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
 };
-function PreviewData({data, titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) {
+export const PreviewData = React.memo(({data, titlePlaceholder, showFollowButton, showAbout, showSocials, showTags, preview = false, containerStyle}: DataProps) => {
   return (
     <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} />
@@ -49,7 +49,7 @@ function PreviewData({data, titlePlaceholder, showFollowButton, showAbout, showS
       {showTags    && <Tags tags={data?.content?.tags??[]} />}
     </View>
   )
-}
+})
 
 export type HeadProps = {
   titlePlaceholder?: string
