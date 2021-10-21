@@ -60,7 +60,7 @@ export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPress
 export type HeadProps = {
   /** IPFS CID */
   image?: string
-  title: string
+  title?: string
   preview?: boolean
   imageStyle?: StyleProp<ImageStyle>
   previewImageStyle?: StyleProp<ImageStyle>
