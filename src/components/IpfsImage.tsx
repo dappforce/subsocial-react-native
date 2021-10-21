@@ -2,8 +2,8 @@
 // Helper class to access images from Subsocial IPFS
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
-import { Falsy, GestureResponderEvent, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
-import FastImage, { FastImageProps } from 'react-native-fast-image'
+import { Falsy, GestureResponderEvent, Image as RNImage, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
+import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image'
 import { Avatar } from 'react-native-paper'
 import config from 'config.json'
 

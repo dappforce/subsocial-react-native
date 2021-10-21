@@ -1,7 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying Post from data Component
 import React from 'react'
-import { ImageStyle, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { ImageStyle } from 'react-native-fast-image'
 import { Link, Markdown, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'

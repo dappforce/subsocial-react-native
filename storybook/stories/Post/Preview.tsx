@@ -46,7 +46,7 @@ export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onP
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
   </>;
   
-  const {title = 'loading', body: content = '', image} = data?.post?.content ?? {};
+  const {title = '', body: content = '', image} = data?.post?.content ?? {};
   const {avatar, ownerName, spaceName, age} = getTitle(data);
   
   return (
