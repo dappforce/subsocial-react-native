@@ -11,7 +11,7 @@ const theme: Theme = {
     textDisabled: '#cdc9c9',
     link: '#bd018b',
     background: '#fafafa',
-    backgroundMenu: '#eeecec',
+    backgroundMenu: '#f0f0f0',
     backgroundMenuHover: '#FFF0F6',
     backdrop: '#eeecec',
     scaffold: '#fff',

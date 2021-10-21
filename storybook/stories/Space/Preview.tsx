@@ -46,7 +46,7 @@ function PreviewData({data, titlePlaceholder, showFollowButton, showAbout, showS
       <Head {...{titlePlaceholder, data, showFollowButton}} />
       {showAbout   && <About {...{data, preview}} />}
       {showSocials && <Socials links={data?.content?.links??[]} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} accented />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} />}
     </View>
   )
 }
