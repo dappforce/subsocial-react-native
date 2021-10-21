@@ -3,25 +3,23 @@
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
 import { Falsy, GestureResponderEvent, Image as RNImage, ImageStyle, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
-import { Image as RNEImage, ImageProps } from 'react-native-elements'
-import { ActivityIndicator, Avatar } from 'react-native-paper'
-import { useTheme } from './Theming'
+import FastImage, { FastImageProps } from 'react-native-fast-image'
+import { Avatar } from 'react-native-paper'
 import config from 'config.json'
 
 type CID = string
 
-export type IpfsImageProps = Omit<ImageProps, 'source'> & {
+export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
   cid?: CID
   style?: StyleProp<ImageStyle>
 }
 
-export function IpfsImage({cid, PlaceholderContent, ...props}: IpfsImageProps) {
+export function IpfsImage({cid, ...props}: IpfsImageProps) {
   if (!cid) return null;
   const uri = IpfsImage.getUri(cid);
-  return <RNEImage
+  return <FastImage
     {...props}
-    source={{uri, cache: 'force-cache'}}
-    PlaceholderContent={PlaceholderContent ?? <ActivityIndicator />}
+    source={{uri}}
   />
 }
 
@@ -64,7 +62,6 @@ export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 's
  * `source` (Web2).
  */
 export function IpfsAvatar({source, cid, style, onPress, ...props}: IpfsAvatarProps) {
-  const theme = useTheme();
   const [loaded, setLoaded] = useState(false);
   const onLoad = () => setLoaded(true);
   
@@ -80,8 +77,6 @@ export function IpfsAvatar({source, cid, style, onPress, ...props}: IpfsAvatarPr
           cid={cid}
           onLoad={onLoad}
           style={{width: size, height: size, borderRadius: 100}}
-          placeholderStyle={{backgroundColor: theme.colors.primary}}
-          PlaceholderContent={<ActivityIndicator color={theme.colors.background} />}
         />}
     />
   );

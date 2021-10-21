@@ -32,6 +32,7 @@
     "react-dom": "16.13.1",
     "react-native": "~0.63.4",
     "react-native-elements": "react-native-elements/react-native-elements#dist",
+    "react-native-fast-image": "^8.5.11",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-markdown-display": "^7.0.0-alpha.2",
     "react-native-paper": "^4.9.2",
