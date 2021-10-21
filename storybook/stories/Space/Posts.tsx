@@ -22,7 +22,6 @@ export function Posts({id: spaceid}: PostsProps) {
   const [, posts] = usePostList(spaceid)
   
   const loader: ListSpec['loader'] = async (ids) => {
-    console.log(reloadPosts, ids)
     reloadPosts?.({ids})
   }
   
