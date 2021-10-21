@@ -6,37 +6,25 @@ import { Preview } from './Preview'
 import { Divider } from 'src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
-import { useCreateReloadPosts } from 'src/rtk/app/hooks'
+import { useCreateReloadSpace } from 'src/rtk/app/hooks'
 
 export type SuggestedType = {
   spaces: SpaceId[]
 }
 export function Suggested({spaces}: SuggestedType) {
-  const [postponeIds, setPostponeIds] = useState<SpaceId[]>([])
-  const reloadPosts = useCreateReloadPosts()
+  const reloadSpace = useCreateReloadSpace()
   const renderItem = (id: SpaceId) => {
-    console.log(id)
     return <>
       <Preview id={id} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
       <Divider />
     </>
   }
   
-  const loader = useCallback(async (ids: SpaceId[]) => {
-    if (reloadPosts) {
-      reloadPosts({ids})
-    }
-    else {
-      setPostponeIds(postponeIds.concat(ids))
-    }
-    return ids.map(id => ({id, data: id}))
-  }, [reloadPosts])
-  
-  useEffect(() => {
-    if (reloadPosts && postponeIds.length) {
-      reloadPosts({ids: postponeIds})
-    }
-  }, [reloadPosts])
+  const loader = async (ids: SpaceId[]) => {
+    ids.forEach(id => {
+      reloadSpace?.({id})
+    })
+  }
   
   return (
     <DynamicExpansionList
@@ -49,6 +37,5 @@ export function Suggested({spaces}: SuggestedType) {
 const styles = StyleSheet.create({
   padded: {
     padding: 10,
-    paddingTop: 0,
   },
 });
