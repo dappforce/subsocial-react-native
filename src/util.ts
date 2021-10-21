@@ -29,38 +29,40 @@ export const values = <T>(obj: T) => keys(obj).map(key => obj[key]);
 export const pairs  = <T>(obj: T) => keys(obj).map(key => [key, obj[key]] as [keyof T, T[keyof T]])
 
 export class Age {
-  private timestamp: BN
-  private now: BN
+  private timestamp: number
   
-  constructor(timestamp: BN) {
+  constructor(timestamp: number) {
     this.timestamp = timestamp;
-    this.now = new BN(Date.now());
   }
   
   toString(): string {
-    const diff = this.now.sub(this.timestamp);
-    if (diff.lt(BN_ZERO)) {
+    const diff = Date.now() - this.timestamp;
+    if (diff < 0) {
       return 'in the future'
     }
-    if (diff.lt(BN_1DAY)) {
-      return diff.divn(3600) + 'h'
+    if (diff < ONE_HOUR) {
+      return Math.floor(diff / 60000) + 'm'
     }
-    if (diff.lt(BN_1WEEK)) {
-      return diff.div(BN_1DAY) + 'd'
+    if (diff < ONE_DAY) {
+      return Math.floor(diff / 3600000) + 'h'
     }
-    if (diff.lt(BN_1MONTH)) {
-      return diff.div(BN_1WEEK) + 'w'
+    if (diff < ONE_WEEK) {
+      return Math.floor(diff / ONE_DAY) + 'd'
     }
-    if (diff.lt(BN_1YEAR)) {
-      return diff.div(BN_1MONTH) + 'M'
+    if (diff < ONE_MONTH) {
+      return Math.floor(diff / ONE_WEEK) + 'w'
+    }
+    if (diff < ONE_YEAR) {
+      return Math.floor(diff / ONE_MONTH) + 'M'
     }
     else {
-      return diff.div(BN_1YEAR) + 'y'
+      return Math.floor(diff / ONE_YEAR) + 'Y'
     }
   }
 }
 
-const BN_1DAY   = new BN(86400000)
-const BN_1WEEK  = BN_1DAY.muln(7)
-const BN_1MONTH = BN_1DAY.muln(30)
-const BN_1YEAR  = BN_1DAY.muln(365)
+const ONE_HOUR  = 3600000
+const ONE_DAY   = ONE_HOUR * 24
+const ONE_WEEK  = ONE_DAY * 7
+const ONE_MONTH = ONE_DAY * 30
+const ONE_YEAR  = ONE_DAY * 365
