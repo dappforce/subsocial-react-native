@@ -4,13 +4,10 @@ import React from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { useCreateReloadPost, useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
-import { Head, Body } from './Post'
-import { Header } from '~stories/Misc'
+import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { ActionPanel } from './ActionPanel'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
-import { AccountId, PostId, SpaceId, PostWithSomeDetails } from 'src/types/subsocial'
-import { Age } from 'src/util'
-import BN from 'bn.js'
+import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
@@ -37,30 +34,26 @@ type PreviewDataProps = {
   id: PostId
   data: PostWithSomeDetails | undefined
   onPressMore?: (id: PostId) => void
-  onPressOwner?: (postId: PostId, ownerId: AccountId | undefined) => void
-  onPressSpace?: (postId: PostId, spaceId: SpaceId   | undefined) => void
+  onPressOwner?: PostOwnerProps['onPressOwner']
+  onPressSpace?: PostOwnerProps['onPressSpace']
 };
 export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) => {
   const renderActions = ({size}: {size: number}) => <>
     <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
-  </>;
+  </>
   
-  const {title = '', body: content = '', image} = data?.post?.content ?? {};
-  const {avatar, ownerName, spaceName, age} = getTitle(data);
+  const {title = '', body: content = '', image} = data?.post?.content ?? {}
   
   return (
     <View style={styles.container}>
-      <Header
-        title={ownerName??''}
-        subtitle={`${spaceName} · ${age}`}
-        avatar={avatar}
+      <PostOwner
+        {...{onPressOwner, onPressSpace}}
+        postId={id}
+        postData={data?.post}
         actionMenuProps={{
           secondary: renderActions
         }}
-        onPressTitle={() => onPressOwner?.(id, data?.owner?.id)}
-        onPressSubtitle={() => onPressSpace?.(id, data?.space?.id)}
-        onPressAvatar={() => onPressOwner?.(id, data?.owner?.id)}
       />
       <Pressable onPress={() => onPressMore?.(id)}>
         <Head {...{title, image}} titleStyle={[!data && styles.italic]} preview />
@@ -77,22 +70,6 @@ export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onP
     </View>
   )
 })
-
-type TitleData = {
-  avatar: string | undefined // CID
-  ownerName: string | undefined
-  spaceName: string | undefined
-  age: Age
-}
-function getTitle(data: PostWithSomeDetails | undefined): TitleData {
-  const owner = useSelectProfile(data?.post?.struct?.createdByAccount)
-  return {
-    avatar: owner?.content?.avatar,
-    ownerName: owner?.content?.name,
-    spaceName: data?.space?.content?.name,
-    age: new Age(new BN(data?.post?.struct?.createdAtTime ?? 0)),
-  }
-}
 
 const styles = StyleSheet.create({
   container: {
