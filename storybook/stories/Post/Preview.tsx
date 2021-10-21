@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { useCreateReloadPost, useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
-import { ActionPanel } from './ActionPanel'
+import { Panel as ActionPanel } from '../Actions'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 
@@ -59,14 +59,18 @@ export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onP
         <Head {...{title, image}} titleStyle={[!data && styles.italic]} preview />
         <Body content={content} preview />
       </Pressable>
-      <ActionPanel
-        liked={false}
-        numLikes={data?.post?.struct?.upvotesCount ?? 0}
-        numComments={data?.post?.struct?.repliesCount ?? 0}
-        onPressLike={   () => alert('sorry, not yet implemented')}
-        onPressComment={() => alert('sorry, not yet implemented')}
-        onPressShare={  () => alert('sorry, not yet implemented')}
-      />
+      <ActionPanel>
+        <ActionPanel.LikeItem
+          liked={false}
+          likesCount={data?.post?.struct?.upvotesCount ?? 0}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+        <ActionPanel.ReplyItem
+          replyCount={data?.post?.struct?.visibleRepliesCount ?? 0}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+        <ActionPanel.ShareItem />
+      </ActionPanel>
     </View>
   )
 })

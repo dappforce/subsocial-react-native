@@ -151,6 +151,8 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors
     ...base.hr,
   },
   list_item: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
     marginTop: 2,
     marginBottom: 2,
     ...base.list_item,

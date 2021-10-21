@@ -2,7 +2,7 @@ import React from 'react'
 import { storiesOf } from '@storybook/react-native'
 import { boolean, number } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
-import { ActionMenu, FollowButton } from './index'
+import { ActionMenu, FollowButton, Panel } from './index'
 import CenterView from '~stories/CenterView'
 
 storiesOf('Actions', module)
@@ -29,3 +29,21 @@ storiesOf('Actions', module)
     </>;
     return <ActionMenu primary={renderPrimary} secondary={renderSecondary} />
   })
+  .add('Action Panel', () => (
+    <CenterView>
+      <Panel style={{width: '100%'}}>
+        <Panel.LikeItem
+          liked={boolean('Liked', false)}
+          likesCount={number('Likes Count', 0)}
+          onPress={action('pressLike')}
+        />
+        {boolean('Show Reply Item', true) && <Panel.ReplyItem
+          replyCount={number('Reply Count', 0)}
+          onPress={action('pressReply')}
+        />}
+        <Panel.ShareItem
+          onPress={action('pressShare')}
+        />
+      </Panel>
+    </CenterView>
+  ))

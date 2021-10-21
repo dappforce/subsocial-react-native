@@ -42,7 +42,6 @@ export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPress
     if (!spaceData && reloadSpace && spaceId) reloadSpace({id: spaceId})
     if (!ownerData && reloadOwner && ownerId) reloadOwner({id: ownerId})
   }, [postData, spaceData, reloadSpace, ownerData, reloadOwner])
-  console.log(postData)
   
   return (
     <Header

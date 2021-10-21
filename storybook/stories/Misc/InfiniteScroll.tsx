@@ -73,7 +73,6 @@ export function DynamicExpansionList<ID>({
     
     const newLastIdx = Math.max(lastIdx+batchSize, 0);
     const sublist = ids.slice(lastIdx, newLastIdx);
-    console.log(lastIdx, newLastIdx)
     
     dispatch({type: 'BEGIN_EXPAND'})
     await loader(sublist)

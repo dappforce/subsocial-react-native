@@ -1,9 +1,9 @@
 import React from 'react'
-import { ScrollView } from 'react-native'
+import { ScrollView, StyleSheet } from 'react-native'
 import { action } from '@storybook/addon-actions'
 import { number } from '@storybook/addon-knobs'
 import { storiesOf } from '@storybook/react-native'
-import { Preview } from './index'
+import { Preview, Details } from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 
 storiesOf('Post', module)
@@ -20,3 +20,12 @@ storiesOf('Post', module)
       />
     </ScrollView>
   ))
+  .add('Details', () => (
+    <Details id={number('Post ID', 20738)+''} containerStyle={styles.padded} />
+  ))
+
+const styles = StyleSheet.create({
+  padded: {
+    padding: 10,
+  },
+})
