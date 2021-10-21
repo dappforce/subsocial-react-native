@@ -19,7 +19,7 @@ const theme: Theme = {
     line: '#ddd',
     divider: '#eeecec',
     icon: '#262626',
-    socials: '#262626',
+    socials: '#757575',
   },
   consts: {
     roundness: 4,

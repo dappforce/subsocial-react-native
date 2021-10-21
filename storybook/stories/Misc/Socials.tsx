@@ -67,9 +67,9 @@ export function SocialLink({link, onPress, color, rtl = false}: SocialLinkProps)
   const domain = extractDomain(link.url)?.toLowerCase?.();
   const _onPress = (evt: GestureResponderEvent) => onPress?.({...evt, link});
   
-  const defaultIcon = {name: 'globe-outline', family: 'ionicon', size: 16};
+  const defaultIcon = {name: 'globe-outline', family: 'ionicon', size: 24};
   const {name, family, size} = (domain && SocialLink.icons[domain]) || defaultIcon;
-  return <Icon {...{name, type: family, size, color}} onPress={_onPress} style={rtl ? {marginLeft: 6} : {marginRight: 6}} />
+  return <Icon {...{name, type: family, size, color}} onPress={_onPress} style={rtl ? {marginLeft: 10} : {marginRight: 10}} />
 }
 
 export type SocialIcon = {
@@ -78,11 +78,17 @@ export type SocialIcon = {
   size: number
 };
 SocialLink.icons = {
-  'github.com':  {name: "logo-github",     family: "ionicon",   size: 16},
-  'medium.com':  {name: "medium-monogram", family: "antdesign", size: 16},
-  't.me':        {name: "sc-telegram",     family: "evilicon",  size: 20},
-  'twitter.com': {name: "logo-twitter",    family: "ionicon",   size: 16},
-  'youtube.com': {name: "logo-youtube",    family: "ionicon",   size: 16},
+  'discord.gg':     {name: "discord",         family: "font-awesome-5", size: 24},
+  'discordapp.com': {name: "discord",         family: "font-awesome-5", size: 24},
+  'facebook.com':   {name: "logo-facebook",   family: "ionicon",        size: 24},
+  'github.com':     {name: "logo-github",     family: "ionicon",        size: 24},
+  'instagram.com':  {name: "logo-instagram",  family: "ionicon",        size: 24},
+  'linkedin.com':   {name: "logo-linkedin",   family: "ionicon",        size: 24},
+  'linked.in':      {name: "logo-linkedin",   family: "ionicon",        size: 24},
+  'medium.com':     {name: "medium-monogram", family: "antdesign",      size: 24},
+  't.me':           {name: "sc-telegram",     family: "evilicon",       size: 32},
+  'twitter.com':    {name: "logo-twitter",    family: "ionicon",        size: 24},
+  'youtube.com':    {name: "logo-youtube",    family: "ionicon",        size: 24},
 } as Record<string, SocialIcon>;
 
 
@@ -100,8 +106,5 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     width: '100%',
     marginVertical: 8,
-  },
-  link: {
-    paddingHorizontal: 2,
   },
 })
