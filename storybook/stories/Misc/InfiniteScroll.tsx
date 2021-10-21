@@ -29,7 +29,7 @@ export type DynamicExpansionListProps<ID> = {
   onRefresh?: () => void
 }
 export function DynamicExpansionList<ID>({
-  ids,
+  ids: _ids,
   loader,
   renderItem: _renderItem,
   renderHeader,
@@ -43,7 +43,7 @@ export function DynamicExpansionList<ID>({
       case 'INIT': {
         return {
           stage: 'READY',
-          lastIdx: ids.length,
+          lastIdx: 0,
         };
       }
       case 'BEGIN_EXPAND': {
@@ -62,6 +62,7 @@ export function DynamicExpansionList<ID>({
   }
   
   const INIT_STATE: ExpansionState = {stage: 'INITIAL', lastIdx: 0}
+  const [ids, setIds] = useState<ID[]>([])
   const [{stage, lastIdx}, dispatch] = useReducer(reducer, INIT_STATE)
   const sections: SectionListData<ID>[] = [{data: stage !== 'INITIAL' ? ids.slice(lastIdx) : []}]
   const [initializedList, setInitializedList] = useState(false)
@@ -70,8 +71,9 @@ export function DynamicExpansionList<ID>({
     if (lastIdx === 0) return;
     if (stage !== 'READY') return;
     
-    const newLastIdx = Math.max(lastIdx-batchSize, 0);
-    const sublist = ids.slice(newLastIdx, lastIdx);
+    const newLastIdx = Math.max(lastIdx+batchSize, 0);
+    const sublist = ids.slice(lastIdx, newLastIdx);
+    console.log(lastIdx, newLastIdx)
     
     dispatch({type: 'BEGIN_EXPAND'})
     await loader(sublist)
@@ -79,13 +81,18 @@ export function DynamicExpansionList<ID>({
   }
   
   useEffect(() => {
-    dispatch({type: 'INIT'})
-    setInitializedList(false)
-  }, [ids])
+    const idsetNew = new Set(_ids)
+    const idsetOld = new Set( ids)
+    if (ids.find(id => !idsetNew.has(id)) || _ids.find(id => !idsetOld.has(id))) {
+      dispatch({type: 'INIT'})
+      setIds([...idsetNew].sort((a, b) => Number(b) - Number(a)))
+      setInitializedList(false)
+    }
+  }, [_ids])
   useEffect(() => {
     if (stage === 'READY' && !initializedList) {
-      loadMore()
       setInitializedList(true)
+      loadMore()
     }
   }, [initializedList, stage])
   
