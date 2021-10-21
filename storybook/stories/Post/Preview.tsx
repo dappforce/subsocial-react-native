@@ -1,9 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // Post Preview - assembled from Post Base components
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { useCreateReloadPost, useSelectPost, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
-import { useAccount } from '~stories/Account'
+import { useCreateReloadPost, useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { Head, Body } from './Post'
 import { Header } from '~stories/Misc'
@@ -20,7 +19,6 @@ export type PostPreviewProps = Omit<PreviewDataProps, 'id' | 'state' | 'data'> &
   id: PostId
 }
 export const Preview = React.memo(({id, ...props}: PostPreviewProps) => {
-  console.log('render post id', id)
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
@@ -42,7 +40,7 @@ type PreviewDataProps = {
   onPressOwner?: (postId: PostId, ownerId: AccountId | undefined) => void
   onPressSpace?: (postId: PostId, spaceId: SpaceId   | undefined) => void
 };
-export function PreviewData({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) {
+export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) => {
   const renderActions = ({size}: {size: number}) => <>
     <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
@@ -78,7 +76,7 @@ export function PreviewData({id, data, onPressMore, onPressOwner, onPressSpace}:
       />
     </View>
   )
-}
+})
 
 type TitleData = {
   avatar: string | undefined // CID
