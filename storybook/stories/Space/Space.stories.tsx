@@ -7,6 +7,7 @@ import * as Space from './index'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 import config from 'config.json'
+import { asString } from '@subsocial/utils'
 
 storiesOf('Space', module)
   .addDecorator((getStory) => (
@@ -28,7 +29,7 @@ storiesOf('Space', module)
     <Space.Posts id={text('handle', '@subsocial')} />
   ))
   .add('Explore Suggested', () => (
-    <Space.Suggested spaces={config.suggestedSpaces} />
+    <Space.Suggested spaces={config.suggestedSpaces.map(asString)} />
   ))
 
 const styles = StyleSheet.create({

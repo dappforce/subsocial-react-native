@@ -24,9 +24,35 @@ export function partition<T>(ary: T[], predicate: (elem: T) => boolean) {
   }, [[], []]);
 }
 
+export function intersection<T>(it1: Iterable<T>, it2: Iterable<T>): Set<T> {
+  const set1 = new Set(it1)
+  const set2 = new Set(it2)
+  const result = new Set<T>()
+  
+  for (let item of set1) {
+    if (set2.has(item)) {
+      result.add(item)
+    }
+  }
+  
+  for (let item of set2) {
+    if (set1.has(item)) {
+      result.add(item)
+    }
+  }
+  
+  return result
+}
+
+export function union<T>(it1: Iterable<T>, it2: Iterable<T>): Set<T> {
+  return new Set([...it1, ...it2])
+}
+
 export const keys   = <T>(obj: T) => Object.keys(obj) as (keyof T)[];
 export const values = <T>(obj: T) => keys(obj).map(key => obj[key]);
 export const pairs  = <T>(obj: T) => keys(obj).map(key => [key, obj[key]] as [keyof T, T[keyof T]])
+
+export const descending = <T>(a: T, b: T) => Number(b) - Number(a)
 
 export class Age {
   private timestamp: number

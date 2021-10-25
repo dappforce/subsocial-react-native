@@ -12,9 +12,7 @@ import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
 
-export type PostPreviewProps = Omit<PreviewDataProps, 'id' | 'state' | 'data'> & {
-  id: PostId
-}
+export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
 export const Preview = React.memo(({id, ...props}: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)

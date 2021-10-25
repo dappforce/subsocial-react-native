@@ -84,7 +84,7 @@ export function DynamicExpansionList<ID>({
     const idsetOld = new Set( ids)
     if (ids.find(id => !idsetNew.has(id)) || _ids.find(id => !idsetOld.has(id))) {
       dispatch({type: 'INIT'})
-      setIds([...idsetNew].sort((a, b) => Number(b) - Number(a)))
+      setIds([..._ids])
       setInitializedList(false)
     }
   }, [_ids])

@@ -1,16 +1,13 @@
 //////////////////////////////////////////////////////////////////////
 // All the details of a space
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
+import { PostId, SpaceId } from 'src/types/subsocial'
+import { useCreateReloadPosts, useRefreshSpacePosts, useResolvedSpaceHandle, useSelectSpacePosts } from 'src/rtk/app/hooks'
+import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
 import { Preview } from './Preview'
 import * as Post from '../Post'
-import { resolveSpaceId } from './util'
 import { Divider } from 'src/components/Typography'
-import { useSubsocialEffect } from 'src/components/SubsocialContext'
-import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
-import { PostId, SpaceId } from 'src/types/subsocial'
-import BN from 'bn.js'
-import { useCreateReloadPosts } from 'src/rtk/app/hooks'
 
 export type PostsProps = {
   id: SpaceId
@@ -18,8 +15,10 @@ export type PostsProps = {
 export function Posts({id: spaceid}: PostsProps) {
   type ListSpec = DynamicExpansionListProps<PostId>
   
+  const resolvedId = useResolvedSpaceHandle(spaceid)
+  const posts = useSelectSpacePosts(resolvedId) ?? []
   const reloadPosts = useCreateReloadPosts()
-  const [, posts] = usePostList(spaceid)
+  const refreshPosts = useRefreshSpacePosts()
   
   const loader: ListSpec['loader'] = async (ids) => {
     reloadPosts?.({ids})
@@ -39,22 +38,19 @@ export function Posts({id: spaceid}: PostsProps) {
     </>
   }
   
+  useEffect(() => {
+    refreshPosts?.({id: resolvedId})
+  }, [resolvedId])
+  
   return (
     <DynamicExpansionList
-      ids={posts || []}
+      ids={posts}
       loader={loader}
       renderHeader={renderSpace}
       renderItem={renderItem}
     />
   )
 }
-
-const usePostList = (spaceid: SpaceId) => useSubsocialEffect(async api => {
-  if (!spaceid) return;
-  const sid = await resolveSpaceId(api.substrate, spaceid);
-  const bnids = await api.substrate.postIdsBySpaceId(new BN(sid));
-  return bnids.map(bn => bn+'')
-}, [spaceid]);
 
 const styles = StyleSheet.create({
   padded: {

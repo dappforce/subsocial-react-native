@@ -1,13 +1,11 @@
 import { createAsyncThunk, createEntityAdapter, createSlice, EntityId } from '@reduxjs/toolkit'
-import { asString, getFirstOrUndefined } from '@subsocial/utils'
-import BN from 'bn.js'
+import { getFirstOrUndefined } from '@subsocial/utils'
 import { createFetchOne, createSelectUnknownIds, FetchManyArgs, HasHiddenVisibility, SelectManyArgs, selectManyByIds, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from 'src/rtk/app/rootReducer'
 import { flattenSpaceStructs, getUniqueContentIds, getUniqueOwnerIds, SpaceId, SpaceStruct, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { fetchContents, selectSpaceContentById } from '../contents/contentsSlice'
 import { fetchProfiles } from '../profiles/profilesSlice'
-import { partition } from 'src/util'
-import { resolveSpaceIds } from '~stories/Space/util'
+import BN from 'bn.js'
 
 const spacesAdapter = createEntityAdapter<SpaceStruct>()
 
