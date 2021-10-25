@@ -48,6 +48,16 @@ export function union<T>(it1: Iterable<T>, it2: Iterable<T>): Set<T> {
   return new Set([...it1, ...it2])
 }
 
+export function setEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
+  for (let item of set1) {
+    if (!set2.has(item)) return false
+  }
+  for (let item of set2) {
+    if (!set1.has(item)) return false
+  }
+  return true
+}
+
 export const keys   = <T>(obj: T) => Object.keys(obj) as (keyof T)[];
 export const values = <T>(obj: T) => keys(obj).map(key => obj[key]);
 export const pairs  = <T>(obj: T) => keys(obj).map(key => [key, obj[key]] as [keyof T, T[keyof T]])

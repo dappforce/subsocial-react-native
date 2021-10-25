@@ -1,13 +1,15 @@
 //////////////////////////////////////////////////////////////////////
 // All the details of a space
-import React, { useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
 import { PostId, SpaceId } from 'src/types/subsocial'
-import { useCreateReloadPosts, useRefreshSpacePosts, useResolvedSpaceHandle, useSelectSpacePosts } from 'src/rtk/app/hooks'
+import { useCreateReloadPosts, useRefreshSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
+import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
 import { Preview } from './Preview'
 import * as Post from '../Post'
 import { Divider } from 'src/components/Typography'
+import { descending } from 'src/util'
 
 export type PostsProps = {
   id: SpaceId
@@ -16,9 +18,14 @@ export function Posts({id: spaceid}: PostsProps) {
   type ListSpec = DynamicExpansionListProps<PostId>
   
   const resolvedId = useResolvedSpaceHandle(spaceid)
-  const posts = useSelectSpacePosts(resolvedId) ?? []
   const reloadPosts = useCreateReloadPosts()
   const refreshPosts = useRefreshSpacePosts()
+  
+  const loadIds = useCallback(async () => {
+    const res = await (refreshPosts?.({id: resolvedId}))
+    const raw = (res?.payload as RefreshPayload)?.posts ?? []
+    return [...raw].sort(descending)
+  }, [refreshPosts, resolvedId])
   
   const loader: ListSpec['loader'] = async (ids) => {
     reloadPosts?.({ids})
@@ -38,13 +45,9 @@ export function Posts({id: spaceid}: PostsProps) {
     </>
   }
   
-  useEffect(() => {
-    refreshPosts?.({id: resolvedId})
-  }, [resolvedId])
-  
   return (
     <DynamicExpansionList
-      ids={posts}
+      ids={loadIds}
       loader={loader}
       renderHeader={renderSpace}
       renderItem={renderItem}

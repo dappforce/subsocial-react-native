@@ -8,7 +8,7 @@ import { asString } from '@subsocial/utils'
 
 type SpacePostMap = Record<EntityId, PostId[]>
 
-type RefreshPayload = {
+export type RefreshPayload = {
   id: EntityId
   posts: PostId[]
 }
@@ -40,7 +40,6 @@ const spacePosts = createSlice({
   extraReducers: (builder) => {
     builder.addCase(refreshSpacePosts.fulfilled, (state, action) => {
       const {id, posts} = action.payload
-      console.log('fulfilled', id, posts)
       
       if (!id) return
       

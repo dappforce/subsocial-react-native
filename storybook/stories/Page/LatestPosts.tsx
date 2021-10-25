@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////
 // Latest posts preloaded from suggested spaces
-import React, { useState } from 'react'
-import { useCreateReloadPosts, useSelectSpacesPosts } from 'src/rtk/app/hooks'
-import { useSubsocialEffect } from '~comps/SubsocialContext'
+import React, { useCallback } from 'react'
+import { useCreateReloadPosts } from 'src/rtk/app/hooks'
+import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
+import { RefreshPayload, refreshSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import { useAppDispatch } from 'src/rtk/app/store'
-import { refreshSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import * as Post from '../Post'
-import { asString } from '@subsocial/utils'
+import { descending } from 'src/util'
 import config from 'config.json'
 
 export type LatestPostsProps = {
@@ -17,14 +17,30 @@ export type LatestPostsProps = {
 export function LatestPosts({}: LatestPostsProps) {
   type ListProps = DynamicExpansionListProps<PostId>
   
+  const spaceIds = config.suggestedSpaces
+  const { api } = useSubsocial()
   const dispatch = useAppDispatch()
-  const postIds = useSelectSpacesPosts(config.suggestedSpaces.map(asString))
   const reloadPosts = useCreateReloadPosts()
   
-  const renderItem: ListProps['renderItem'] = (id) => <Post.Preview id={id} />
+  const loadIds = useCallback(async () => {
+    if (!api) return []
+    
+    const thunkResults = await Promise.all(spaceIds.map( id => dispatch(refreshSpacePosts({ api, id })) ))
+    let result = [] as PostId[]
+    
+    for (let thunkResult of thunkResults) {
+      result = result.concat((thunkResult.payload as RefreshPayload).posts)
+    }
+    result.sort(descending)
+    
+    return result
+  }, [ api, dispatch, spaceIds ])
+  
   const loader: ListProps['loader'] = (ids) => {
     reloadPosts?.({ids})
   }
+  
+  const renderItem: ListProps['renderItem'] = (id) => <Post.Preview id={id} />
   
   useSubsocialEffect(async api => {
     if (!api || !dispatch) return
@@ -35,6 +51,6 @@ export function LatestPosts({}: LatestPostsProps) {
   }, [ dispatch ])
   
   return (
-    <DynamicExpansionList ids={postIds} {...{renderItem, loader}} />
+    <DynamicExpansionList ids={loadIds} {...{renderItem, loader}} />
   )
 }

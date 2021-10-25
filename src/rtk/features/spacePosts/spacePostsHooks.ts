@@ -1,5 +1,6 @@
-import { useActions } from 'src/rtk/app/helpers'
-import { useAppSelector } from 'src/rtk/app/store'
+import { useMemo } from 'react'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch, useAppSelector } from 'src/rtk/app/store'
 import { PostId, SpaceId } from 'src/types/subsocial'
 import { refreshSpacePosts } from './spacePostsSlice'
 import { descending } from 'src/util'
@@ -22,6 +23,14 @@ export type RefreshSpacePostsArgs = {
   id: SpaceId
 }
 
-export const useRefreshSpacePosts = () => useActions<RefreshSpacePostsArgs>(({ api, dispatch, args: { id } }) => {
-  dispatch(refreshSpacePosts({ api, id }))
-})
+export const useRefreshSpacePosts = () => {
+  const dispatch = useAppDispatch()
+  const { api } = useSubsocial()
+  
+  return useMemo(() => {
+    if (!api) return undefined
+    return ({ id }: RefreshSpacePostsArgs) => {
+      return dispatch(refreshSpacePosts({ api, id }))
+    }
+  }, [ api ])
+}
