@@ -13,7 +13,6 @@ const theme: Theme = {
     background: '#121c26',
     scaffold: '#15202b',
     line: '#36404d',
-    divider: '#153043',
     icon: '#8899a6',
   },
 };

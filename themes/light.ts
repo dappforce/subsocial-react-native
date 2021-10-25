@@ -17,7 +17,6 @@ const theme: Theme = {
     scaffold: '#fff',
     appBar: '#c03494',
     line: '#ddd',
-    divider: '#eeecec',
     icon: '#262626',
     socials: '#757575',
   },

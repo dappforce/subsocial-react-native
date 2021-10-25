@@ -25,7 +25,6 @@ export type Theme = {
     scaffold: string
     appBar: string
     line: string
-    divider: string
     icon: string
     socials: string
   }
@@ -146,7 +145,7 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors
     ...base.heading6,
   },
   hr: {
-    backgroundColor: colors.divider,
+    backgroundColor: colors.line,
     marginVertical: 6,
     ...base.hr,
   },

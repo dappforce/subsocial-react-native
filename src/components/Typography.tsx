@@ -142,5 +142,5 @@ export type DividerProps = {
 }
 export function Divider({style, ...props}: DividerProps) {
   const {colors} = useTheme();
-  return <Paper.Divider {...props} style={[{backgroundColor: colors.divider}, style]} />
+  return <Paper.Divider {...props} style={[{backgroundColor: colors.line}, style]} />
 }
