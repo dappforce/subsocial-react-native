@@ -7,6 +7,7 @@ import { PostId } from 'src/types/subsocial'
 import { RefreshPayload, refreshSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import { useAppDispatch } from 'src/rtk/app/store'
+import { Divider } from '~comps/Typography'
 import * as Post from '../Post'
 import { descending } from 'src/util'
 import config from 'config.json'
@@ -40,7 +41,12 @@ export function LatestPosts({}: LatestPostsProps) {
     reloadPosts?.({ids})
   }
   
-  const renderItem: ListProps['renderItem'] = (id) => <Post.Preview id={id} />
+  const renderItem: ListProps['renderItem'] = (id) => {
+    return <>
+      <Post.Preview id={id} />
+      <Divider />
+    </>
+  }
   
   useSubsocialEffect(async api => {
     if (!api || !dispatch) return
