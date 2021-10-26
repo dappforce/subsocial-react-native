@@ -6,6 +6,7 @@ import React, { useMemo } from 'react'
 import RN, { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native'
 import * as Linking from 'expo-linking'
 import * as Paper from 'react-native-paper'
+import * as Elements from 'react-native-elements'
 import Md, { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { reduceMarkdownTheme, Theme, useTheme } from './Theming'
 
@@ -26,7 +27,7 @@ export function Text({
 {
   const theme = useTheme();
   const _style = useMemo(() => {
-    const combinedStyle = {
+    const combinedStyle: TextStyle = {
       ...theme.fonts[mode],
       color: modeColor(mode, disabled, theme),
     };
@@ -137,10 +138,8 @@ Chip.paperMode = {
   'outlined': 'outlined',
 } as Record<string, NonNullable<PaperChipProps['mode']>>
 
-export type DividerProps = {
-  style?: StyleProp<ViewStyle>
-}
-export function Divider({style, ...props}: DividerProps) {
-  const {colors} = useTheme();
-  return <Paper.Divider {...props} style={[{backgroundColor: colors.line}, style]} />
+export type DividerProps = Elements.DividerProps
+export function Divider(props: DividerProps) {
+  const {colors} = useTheme()
+  return <Elements.Divider color={colors.line} {...props} />
 }

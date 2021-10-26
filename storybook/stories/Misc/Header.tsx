@@ -44,18 +44,19 @@ export function Header({
         />
       </View>
       <View style={styles.center}>
-        <View style={styles.title}>
-          <Title
-            style={{fontWeight: 'bold'}}
-            preview={preview}
+        <View style={styles.titleContainer}>
+          <Text
+            style={styles.title}
+            mode="primary"
             onPress={onPressTitle}
             numberOfLines={1}
           >
             {title}
-          </Title>
+          </Text>
         </View>
-        <View style={styles.subtitle}>
+        <View style={styles.subtitleContainer}>
           <Text
+            style={styles.subtitle}
             mode="secondary"
             onPress={onPressSubtitle}
             numberOfLines={1}
@@ -90,7 +91,13 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
   },
+  titleContainer: {
+    
+  },
   title: {
+    fontFamily: 'Roboto500',
+  },
+  subtitleContainer: {
     
   },
   subtitle: {

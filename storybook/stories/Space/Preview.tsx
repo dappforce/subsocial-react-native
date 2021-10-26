@@ -12,6 +12,8 @@ import { Header, Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
+const SUMMARY_LIMIT = 120
+
 export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId
 }
@@ -103,7 +105,7 @@ export function About({data, preview}: AboutProps) {
     return null;
   }
   if (preview) {
-    const {summary, isShowMore} = summarizeMd(data!.content!.about!);
+    const {summary, isShowMore} = summarizeMd(data!.content!.about!, {limit: SUMMARY_LIMIT});
     return (
       <Text>
         {summary}
