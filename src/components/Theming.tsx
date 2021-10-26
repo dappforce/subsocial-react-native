@@ -25,6 +25,7 @@ export type Theme = {
     scaffold: string
     appBar: string
     line: string
+    divider: string
     icon: string
     socials: string
   }

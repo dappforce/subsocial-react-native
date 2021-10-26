@@ -1,5 +1,4 @@
 import { Action, configureStore } from '@reduxjs/toolkit'
-import { useMemo } from 'react'
 import { createSelectorHook, useDispatch } from 'react-redux'
 import { ThunkAction } from 'redux-thunk'
 import rootReducer, { RootState } from './rootReducer'

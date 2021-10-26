@@ -7,7 +7,7 @@ import { useInit } from '~comps/hooks'
 import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId } from 'src/types/subsocial'
 import { Head, Body, PostOwner } from './Post'
-import { Preview as SpacePreview } from '../Space'
+import { Preview as SpacePreview } from '../Space/Preview'
 import { Divider } from '~comps/Typography'
 import { Panel as ActionPanel } from '../Actions'
 import { Tags } from '~stories/Misc'
@@ -15,8 +15,10 @@ import { Tags } from '~stories/Misc'
 export type DetailsProps = {
   id: PostId
   containerStyle?: StyleProp<TextStyle>
+  onPressOwner?: () => void
+  onPressSpace?: () => void
 }
-export function Details({id, containerStyle}: DetailsProps) {
+export function Details({id, containerStyle, onPressOwner, onPressSpace}: DetailsProps) {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
@@ -39,8 +41,7 @@ export function Details({id, containerStyle}: DetailsProps) {
         <PostOwner
           postId={id}
           postData={data?.post}
-          onPressOwner={() => alert('not yet implemented, sorry')}
-          onPressSpace={() => alert('not yet implemented, sorry')}
+          {...{onPressOwner, onPressSpace}}
         />
         <Head
           title={data?.post?.content?.title}

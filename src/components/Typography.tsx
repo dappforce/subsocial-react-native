@@ -141,5 +141,5 @@ Chip.paperMode = {
 export type DividerProps = Elements.DividerProps
 export function Divider(props: DividerProps) {
   const {colors} = useTheme()
-  return <Elements.Divider color={colors.line} {...props} />
+  return <Elements.Divider color={colors.divider} {...props} />
 }

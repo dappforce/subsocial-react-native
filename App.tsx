@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
+import { NavigationContainer } from '@react-navigation/native'
 import { StatusBar } from 'expo-status-bar'
 import AppLoading from 'expo-app-loading'
 import { SubstrateProvider } from '~comps/SubstrateContext'
@@ -34,10 +35,12 @@ export default function(props: {}) {
       <ThemeProvider theme={theme}>
         <SubstrateProvider endpoint={config.connections.ws.substrate}>
           <SafeAreaProvider>
-            <StatusBar backgroundColor={theme.colors.appBar} />
-            <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
-              <StorybookUI {...props} />
-            </SafeAreaView>
+            <NavigationContainer>
+              <StatusBar backgroundColor={theme.colors.appBar} />
+              <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
+                <StorybookUI {...props} />
+              </SafeAreaView>
+            </NavigationContainer>
           </SafeAreaProvider>
         </SubstrateProvider>
       </ThemeProvider>
