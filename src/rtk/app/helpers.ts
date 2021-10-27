@@ -1,12 +1,12 @@
 import { SubsocialApi } from '@subsocial/api'
 import { useSubsocial } from 'src/components/SubsocialContext'
-import { AsyncThunk, Dispatch, EntityId } from '@reduxjs/toolkit'
+import { AsyncThunk, EntityId } from '@reduxjs/toolkit'
 import { getFirstOrUndefined, isEmptyArray, nonEmptyStr } from '@subsocial/utils'
-import { useDispatch } from 'react-redux'
 import { CommonContent, EntityData, FlatSuperCommon, HasId } from 'src/types/subsocial'
 import { asString } from '@subsocial/utils'
 import { RootState } from './rootReducer'
 import { AppDispatch, AppThunk } from './store'
+import { useAppDispatch } from './hooksCommon'
 
 export type ThunkApiConfig = {
   state: RootState
@@ -142,16 +142,16 @@ export function selectOneById<
 }
 
 type CommonDispatchCallbackProps<T> = {
-  dispatch: Dispatch<any>,
+  dispatch: AppDispatch,
   api: SubsocialApi,
   args: T
 }
 
-type CommonDispatchCallbackFn<T> = (props: CommonDispatchCallbackProps<T>) => void
+type CommonDispatchCallbackFn<T> = (props: CommonDispatchCallbackProps<T>) => any | Promise<any>
 
 // ? Change cb on actions[]. And use actions.forEach(action => dispatch(action))
-export const useActions = <T = undefined>(cb: CommonDispatchCallbackFn<T>) => {
-  const dispatch = useDispatch()
+export const useActions = <T>(cb: CommonDispatchCallbackFn<T>) => {
+  const dispatch = useAppDispatch()
   const { api } = useSubsocial()
   
   if (!api) return undefined

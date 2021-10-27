@@ -4,7 +4,7 @@ import React from 'react'
 import { ScrollView, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useInit } from '~comps/hooks'
-import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
+import { useCreateReloadPost, useCreateReloadProfile, useCreateReloadSpace, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId } from 'src/types/subsocial'
 import { Head, Body, PostOwner } from './Post'
 import { Preview as SpacePreview } from '../Space/Preview'
@@ -19,14 +19,29 @@ export type DetailsProps = {
   onPressSpace?: () => void
 }
 export function Details({id, containerStyle, onPressOwner, onPressSpace}: DetailsProps) {
-  const reloadPost = useCreateReloadPost()
+  const reloadPost    = useCreateReloadPost()
+  const reloadProfile = useCreateReloadProfile()
+  const reloadSpace   = useCreateReloadSpace()
+  
   const data = useSelectPost(id)
   
-  useInit(() => {
-    if (!reloadPost) return false
-    reloadPost({id})
+  useInit(async () => {
+    if (!reloadPost || !reloadProfile || !reloadSpace) return false
+    
+    if (!data) {
+      reloadPost({id})
+      return false
+    }
+    
+    const {spaceId, ownerId} = data.post.struct
+    
+    await Promise.all([
+      spaceId && reloadSpace({id: spaceId}),
+      ownerId && reloadProfile({id: ownerId}),
+    ])
+    
     return true
-  }, [id], [reloadPost])
+  }, [ id ], [ data, reloadPost, reloadProfile, reloadSpace ])
   
   if (!data) {
     return (
@@ -78,5 +93,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    padding: 10,
   },
 })

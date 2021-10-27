@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Space Explorer - a whole bunch of summaries
-import React, { useCallback, useEffect, useState } from 'react'
+import React from 'react'
 import { StyleSheet } from 'react-native'
 import { Preview } from './Preview'
 import { Divider } from 'src/components/Typography'
@@ -8,14 +8,21 @@ import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
 import { useCreateReloadSpace } from 'src/rtk/app/hooks'
 
-export type SuggestedType = {
+export type SuggestedProps = {
   spaces: SpaceId[]
 }
-export function Suggested({spaces}: SuggestedType) {
+export function Suggested({spaces}: SuggestedProps) {
   const reloadSpace = useCreateReloadSpace()
   const renderItem = (id: SpaceId) => {
     return <>
-      <Preview id={id} showAbout showFollowButton showTags preview containerStyle={styles.padded} />
+      <Preview
+        id={id}
+        showAbout
+        showFollowButton
+        showTags
+        preview
+        containerStyle={styles.padded}
+      />
       <Divider />
     </>
   }

@@ -74,6 +74,7 @@ function WrappedPost({id, onPressMore: _onPressMore, onPressOwner: _onPressOwner
   return (
     <Post.Preview id={id}
       {...{onPressMore, onPressOwner}}
+      onPressSpace={()=>{}}
     />
   )
 }

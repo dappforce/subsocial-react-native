@@ -43,7 +43,7 @@ const createStyles = ({colors}: Theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFF',
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: colors.line,
   },
   titleContainer: {

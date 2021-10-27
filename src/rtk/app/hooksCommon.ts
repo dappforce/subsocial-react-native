@@ -1,11 +1,11 @@
 import { AsyncThunkAction } from '@reduxjs/toolkit'
 import { isEmptyArray, newLogger } from '@subsocial/utils'
 import { useState } from 'react'
-import { shallowEqual } from 'react-redux'
+import { createSelectorHook, shallowEqual, useDispatch } from 'react-redux'
 import { useSubsocialEffect } from '~comps/SubsocialContext'
 import { ApiArg, FetchManyArgs, FetchOneArgs, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from './rootReducer'
-import { useAppDispatch, useAppSelector } from 'src/rtk/app/store'
+import { AppDispatch } from 'src/rtk/app/store'
 
 const log = newLogger('useFetchEntities')
 
@@ -130,3 +130,6 @@ export function useFetchEntity<Args, Struct, Entity> (
     entity
   }
 }
+
+export const useAppDispatch = () => useDispatch<AppDispatch>()
+export const useAppSelector = createSelectorHook<RootState>()

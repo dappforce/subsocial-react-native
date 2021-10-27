@@ -1,10 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying Post from data Component
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import { ImageStyle } from 'react-native-fast-image'
 import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
+import { SuperStackNavigationProp } from '~comps/SuperStackNav'
 import { Header } from '~stories/Misc'
 import { ActionMenuProps } from '~stories/Actions'
 import { Link, Markdown, Text, Title } from '~comps/Typography'
@@ -25,10 +27,11 @@ export type PostOwnerProps = {
   postId: PostId
   postData?: PostData
   actionMenuProps?: ActionMenuProps
-  onPressOwner?: (id: PostId, ownerId: ProfileId | undefined) => void
-  onPressSpace?: (id: PostId, spaceId: SpaceId   | undefined) => void
+  onPressOwner?: (id: PostId, ownerId: ProfileId) => void
+  onPressSpace?: (id: PostId, spaceId: SpaceId) => void
 }
-export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPressOwner, onPressSpace}: PostOwnerProps) => {
+export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPressOwner: _onPressOwner, onPressSpace: _onPressSpace}: PostOwnerProps) => {
+  const nav = useNavigation<SuperStackNavigationProp | undefined>()
   const reloadSpace = useCreateReloadSpace()
   const reloadOwner = useCreateReloadProfile()
   
@@ -37,6 +40,28 @@ export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPress
   const spaceData = useSelectSpace(spaceId)
   const ownerData = useSelectProfile(ownerId)
   const age = new Age(postData?.struct?.createdAtTime ?? 0)
+  
+  const onPressOwner = useCallback(() => {
+    if (ownerId) {
+      if (_onPressOwner) {
+        _onPressOwner(postId, ownerId)
+      }
+      else if (nav?.push) {
+        nav.push('Account', { accountId: ownerId })
+      }
+    }
+  }, [ _onPressOwner, ownerId ])
+  
+  const onPressSpace = useCallback(() => {
+    if (spaceId) {
+      if (_onPressSpace) {
+        _onPressSpace(postId, spaceId)
+      }
+      else if (nav?.push) {
+        nav.push('Space', { spaceId })
+      }
+    }
+  }, [ _onPressSpace, spaceId ])
   
   useEffect(() => {
     if (!spaceData && reloadSpace && spaceId) reloadSpace({id: spaceId})
@@ -49,9 +74,9 @@ export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPress
       subtitle={`${spaceData?.content?.name??'some space'} · ${age}`}
       avatar={ownerData?.content?.avatar}
       actionMenuProps={actionMenuProps}
-      onPressTitle={() => onPressOwner?.(postId, ownerId)}
-      onPressSubtitle={() => onPressSpace?.(postId, spaceId)}
-      onPressAvatar={() => onPressOwner?.(postId, ownerId)}
+      onPressTitle={() => onPressOwner()}
+      onPressSubtitle={() => onPressSpace()}
+      onPressAvatar={() => onPressOwner()}
     />
   )
 })

@@ -1,2 +1,1 @@
-export * from './LatestPosts'
-export * from './DotsamaSpaces'
+export * from './ExploreScreen'

@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useActions } from 'src/rtk/app/helpers'
-import { useFetch } from 'src/rtk/app/hooksCommon'
+import { useAppSelector, useFetch } from 'src/rtk/app/hooksCommon'
 import { fetchSpaces, SelectSpaceArgs, SelectSpacesArgs, selectSpaceStructById } from './spacesSlice'
 import { PostId, SpaceContent, SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { SubsocialSubstrateApi } from '@subsocial/api'
-import { useAppSelector } from '../../app/store'
 import { selectSpaceContentById } from '../contents/contentsSlice'
 import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
 import { isDef } from '@subsocial/utils'
@@ -68,7 +67,7 @@ export const useFetchSpacesWithMyPermissions = (spaceIds: SpaceId[]) => {
 export const useCreateReloadSpace = () => {
   return useActions<SelectSpaceArgs>(({ dispatch, api, args: { id } }) => {
     const args = { api, ids: [ id ], reload: true }
-    dispatch(fetchSpaces(args))
+    return dispatch(fetchSpaces(args))
   })  
 }
 

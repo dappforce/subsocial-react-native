@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useSubsocial } from '~comps/SubsocialContext'
-import { useAppDispatch, useAppSelector } from 'src/rtk/app/store'
+import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, SpaceId } from 'src/types/subsocial'
 import { refreshSpacePosts } from './spacePostsSlice'
 import { descending } from 'src/util'

@@ -1,5 +1,5 @@
 import { useActions } from 'src/rtk/app/helpers'
-import { useAppSelector } from 'src/rtk/app/store'
+import { useAppSelector } from 'src/rtk/app/hooksCommon'
 import { asCommentStruct, PostId, PostStruct, PostWithSomeDetails } from 'src/types/subsocial'
 import {
   fetchPosts,
@@ -46,16 +46,19 @@ export const useSelectPost = (postId?: PostId): PostWithSomeDetails | undefined 
 }
 
 export const useCreateReloadPosts = () => {
-  return useActions<SelectPostsArgs>(({ dispatch, api, args: { ids } }) =>
-    dispatch(fetchPosts({ api, ids, reload: true })))
+  return useActions<SelectPostsArgs>(({ dispatch, api, args: { ids } }) => {
+    return dispatch(fetchPosts({ api, ids, reload: true }))
+  })
 }
 
 export const useCreateReloadPost = () => {
-  return useActions<SelectPostArgs>(({ dispatch, api, args: { id } }) =>
-    dispatch(fetchPosts({ api, ids: [ id ], reload: true })))
+  return useActions<SelectPostArgs>(({ dispatch, api, args: { id } }) => {
+    return dispatch(fetchPosts({ api, ids: [ id ], reload: true }))
+  })
 }
 
 export const useCreateUpsertPost = () => {
-  return useActions<PostStruct>(({ dispatch, args }) =>
-    dispatch(upsertPost(args)))
+  return useActions<PostStruct>(({ dispatch, args }) => {
+    return dispatch(upsertPost(args))
+  })
 }

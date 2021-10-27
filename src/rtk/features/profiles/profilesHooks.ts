@@ -1,6 +1,5 @@
 import { useActions } from 'src/rtk/app/helpers'
-import { useFetch, useFetchEntity, useFetchOneEntity } from 'src/rtk/app/hooksCommon'
-import { useAppSelector } from 'src/rtk/app/store'
+import { useAppSelector, useFetch, useFetchEntity, useFetchOneEntity } from 'src/rtk/app/hooksCommon'
 import { AccountId, ProfileData } from 'src/types/subsocial'
 import { selectProfileContentById } from '../contents/contentsSlice'
 import { selectEntityOfAccountIdsByFollower, fetchEntityOfAccountIdsByFollower } from './followedAccountIdsSlice'
@@ -36,8 +35,9 @@ export const useFetchProfiles = (args: SelectProfilesArgs) => {
 }
 
 export const useCreateReloadProfile = () => {
-  return useActions<SelectProfileArgs>(({ dispatch, api, args: { id } }) =>
-    dispatch(fetchProfiles({ api, ids: [ id ], reload: true })))
+  return useActions<SelectProfileArgs>(({ dispatch, api, args: { id } }) => {
+    return dispatch(fetchProfiles({ api, ids: [ id ], reload: true }))
+  })
 }
 
 export const useFetchAccountIdsByFollower = (follower: AccountId) => {
@@ -50,6 +50,6 @@ export const useFetchAccountIdsByFollower = (follower: AccountId) => {
 
 export const useCreateReloadAccountIdsByFollower = () => {
   return useActions<AccountId>(({ dispatch, args: id, ...props }) => {
-    dispatch(fetchEntityOfAccountIdsByFollower({ id, reload: true, ...props }))
+    return dispatch(fetchEntityOfAccountIdsByFollower({ id, reload: true, ...props }))
   })
 }

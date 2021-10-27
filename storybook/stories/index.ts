@@ -1,5 +1,5 @@
 import './Welcome/Welcome.stories'
-import './Screens/Page.stories'
+import './Screens/Screen.stories'
 import './Account/Account.stories'
 import './Post/Post.stories'
 import './Space/Space.stories'

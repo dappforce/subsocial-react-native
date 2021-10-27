@@ -11,7 +11,7 @@ export type TagsProps = {
   style?: StyleProp<ViewStyle>
   tagStyle?: StyleProp<ViewStyle>
 }
-export default function Tags({tags, accented, onPress, style, tagStyle}: TagsProps) {
+export function Tags({tags, accented, onPress, style, tagStyle}: TagsProps) {
   if (!tags.length) return null;
   
   const _tagStyle = useMemo(() => StyleSheet.compose<ViewStyle>(styles.tag, tagStyle), [tagStyle]);

@@ -3,7 +3,7 @@
 import { DependencyList, useEffect, useState } from 'react'
 
 export interface InitCallback {
-  (): boolean
+  (): boolean | Promise<boolean>
 }
 
 /**

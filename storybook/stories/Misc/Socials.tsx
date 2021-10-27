@@ -24,7 +24,7 @@ export type SocialLinksProps = {
   color?: string // color of social icons - defaults to theme
   rtl?: boolean // right to left
 }
-export default function SocialLinks({links, onPress, color, rtl = false}: SocialLinksProps) {
+export function SocialLinks({links, onPress, color, rtl = false}: SocialLinksProps) {
   const theme = useTheme();
   const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url);
   

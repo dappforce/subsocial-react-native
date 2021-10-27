@@ -1,4 +1,4 @@
-import { useAppSelector } from 'src/rtk/app/store'
+import { useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, PostStruct, PostData } from 'src/types/subsocial'
 import { upsertContent } from '../contents/contentsSlice'
 import { removePost, upsertPost } from '../posts/postsSlice'

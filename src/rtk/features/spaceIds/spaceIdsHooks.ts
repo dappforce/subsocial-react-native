@@ -4,7 +4,7 @@ import { useFetchOneEntity } from 'src/rtk/app/hooksCommon'
 import { AccountId } from 'src/types/subsocial'
 import { fetchEntityOfSpaceIdsByFollower, selectEntityOfSpaceIdsByFollower } from './followedSpaceIdsSlice'
 import { fetchSpaceIdsOwnedByAccount, selectEntityOfSpaceIdsByOwner, selectSpaceIdsByOwner } from './ownSpaceIdsSlice'
-import { useAppSelector } from 'src/rtk/app/store'
+import { useAppSelector } from 'src/rtk/app/hooksCommon'
 import { shallowEqual } from 'react-redux'
 
 export const useFetchSpaceIdsByOwner = (owner: AccountId) => {
@@ -35,7 +35,7 @@ export const useFetchSpaceIdsByFollower = (follower: AccountId) => {
 
 export const useCreateReloadSpaceIdsRelatedToAccount = () => {
   return useActions<AccountId>(({ dispatch, args: id, ...props }) => {
-    dispatch(fetchSpaceIdsOwnedByAccount({ id, reload: true, ...props }))
+    return dispatch(fetchSpaceIdsOwnedByAccount({ id, reload: true, ...props }))
   })
 }
 

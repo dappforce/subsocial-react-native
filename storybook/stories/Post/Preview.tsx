@@ -1,13 +1,15 @@
 //////////////////////////////////////////////////////////////////////
 // Post Preview - assembled from Post Base components
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
-import { useCreateReloadPost, useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
+import { useNavigation } from '@react-navigation/native'
+import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
+import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
+import { SuperStackNavigationProp } from '~comps/SuperStackNav'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { Panel as ActionPanel } from '../Actions'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
-import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 
 const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
 const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
@@ -35,13 +37,30 @@ type PreviewDataProps = {
   onPressOwner?: PostOwnerProps['onPressOwner']
   onPressSpace?: PostOwnerProps['onPressSpace']
 };
-export const PreviewData = React.memo(({id, data, onPressMore, onPressOwner, onPressSpace}: PreviewDataProps) => {
+export const PreviewData = React.memo(({
+  id,
+  data,
+  onPressMore: _onPressMore,
+  onPressOwner,
+  onPressSpace,
+}: PreviewDataProps) =>
+{
+  const nav = useNavigation<SuperStackNavigationProp | undefined>()
   const renderActions = ({size}: {size: number}) => <>
     <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
   </>
   
   const {title = '', body: content = '', image} = data?.post?.content ?? {}
+  
+  const onPressMore = useCallback((id: PostId) => {
+    if (_onPressMore) {
+      _onPressMore(id)
+    }
+    else if (nav?.push) {
+      nav.push('Post', { postId: id })
+    }
+  }, [ _onPressMore ])
   
   return (
     <View style={styles.container}>
