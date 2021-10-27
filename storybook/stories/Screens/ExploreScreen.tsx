@@ -84,16 +84,11 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
     return result
   }, [ api, dispatch, spaceIds ])
   
-  const loader: ListProps['loader'] = (ids) => {
-    reloadPosts?.({ids})
+  const loader: ListProps['loader'] = async (ids) => {
+    await reloadPosts?.({ids})
   }
   
-  const renderItem: ListProps['renderItem'] = (id) => {
-    return <>
-      <Post.Preview id={id} />
-      <Divider />
-    </>
-  }
+  const renderItem: ListProps['renderItem'] = (id) => <WrappedPost id={id} />
   
   useSubsocialEffect(async api => {
     if (!api || !dispatch) return
@@ -107,3 +102,13 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
     <DynamicExpansionList ids={loadIds} {...{renderItem, loader}} />
   )
 }
+
+type WrappedPostProps = {
+  id: PostId
+}
+const WrappedPost = React.memo(({id}: WrappedPostProps) => {
+  return <>
+    <Post.Preview id={id} />
+    <Divider />
+  </>
+})

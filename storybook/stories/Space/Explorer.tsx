@@ -13,19 +13,7 @@ export type SuggestedProps = {
 }
 export function Suggested({spaces}: SuggestedProps) {
   const reloadSpace = useCreateReloadSpace()
-  const renderItem = (id: SpaceId) => {
-    return <>
-      <Preview
-        id={id}
-        showAbout
-        showFollowButton
-        showTags
-        preview
-        containerStyle={styles.padded}
-      />
-      <Divider />
-    </>
-  }
+  const renderItem = (id: SpaceId) => <WrappedSpace id={id} />
   
   const loader = async (ids: SpaceId[]) => {
     ids.forEach(id => {
@@ -40,6 +28,23 @@ export function Suggested({spaces}: SuggestedProps) {
     />
   )
 }
+
+type WrappedSpaceProps = {
+  id: SpaceId
+}
+const WrappedSpace = React.memo(({id}: WrappedSpaceProps) => {
+  return <>
+    <Preview
+      id={id}
+      showAbout
+      showFollowButton
+      showTags
+      preview
+      containerStyle={styles.padded}
+    />
+    <Divider />
+  </>
+})
 
 const styles = StyleSheet.create({
   padded: {
