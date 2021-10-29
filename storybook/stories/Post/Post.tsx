@@ -109,7 +109,8 @@ export type BodyProps = {
 }
 export function Body({content, previewStyle, preview = false}: BodyProps) {
   if (preview) {
-    const {summary, isShowMore} = summarizeMd(content, {limit: SUMMARY_LIMIT});
+    const {summary, isShowMore} = summarizeAndStrip(content, {limit: SUMMARY_LIMIT})
+    
     return (
       <Text style={previewStyle}>
         {summary}
@@ -119,6 +120,18 @@ export function Body({content, previewStyle, preview = false}: BodyProps) {
   }
   else {
     return <Markdown>{content}</Markdown>
+  }
+}
+
+function summarizeAndStrip(content: string, opts?: {limit: number}): {summary: string, isShowMore: boolean} {
+  let {summary, isShowMore} = summarizeMd(content, opts)
+  
+  if (summary)
+    summary = summary.replace(/(\n\r|\r\n|\n|\r)+/g, ' ')
+  
+  return {
+    summary,
+    isShowMore,
   }
 }
 
