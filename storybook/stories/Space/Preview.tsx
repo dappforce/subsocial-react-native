@@ -14,7 +14,7 @@ import { Header, SocialLinks as Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
 import { summarizeMd } from '@subsocial/utils'
 
-const SUMMARY_LIMIT = 120
+const SUMMARY_LIMIT = 200
 
 export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId

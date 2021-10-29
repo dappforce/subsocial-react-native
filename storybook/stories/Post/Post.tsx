@@ -14,7 +14,7 @@ import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'
 import { Age } from 'src/util'
 
-const SUMMARY_LIMIT = 120
+const SUMMARY_LIMIT = 200
 const IMAGE_PREVIEW_HEIGHT = 160
 
 export class PostNotFoundError extends Error {
@@ -127,7 +127,7 @@ function summarizeAndStrip(content: string, opts?: {limit: number}): {summary: s
   let {summary, isShowMore} = summarizeMd(content, opts)
   
   if (summary)
-    summary = summary.replace(/(\n\r|\r\n|\n|\r)+/g, ' ')
+    summary = summary.replace(/(\n\r|\r\n|\n|\r)+/g, '  ')
   
   return {
     summary,
