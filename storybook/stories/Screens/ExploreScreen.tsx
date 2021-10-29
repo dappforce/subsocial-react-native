@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Screen with top tabs for Latest Posts & Dotsama Spaces
 import React, { useCallback } from 'react'
-import { createMaterialTopTabNavigator, MaterialTopTabNavigationOptions, MaterialTopTabNavigationProp, MaterialTopTabScreenProps } from '@react-navigation/material-top-tabs'
+import { createMaterialTopTabNavigator, MaterialTopTabNavigationProp, MaterialTopTabScreenProps } from '@react-navigation/material-top-tabs'
 import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
@@ -43,10 +43,13 @@ export function ExploreScreen({}: ExploreScreenProps) {
           ...theme.fonts.secondary,
           textTransform: 'none',
         },
+        tabBarItemStyle: {
+          padding: 0,
+          minHeight: 40,
+        },
         tabBarStyle: {
           height: 40,
         },
-        swipeEnabled: false,
         lazy: true,
       }}
     >

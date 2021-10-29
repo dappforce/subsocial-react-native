@@ -4,12 +4,14 @@
 import React, { useContext, useMemo } from 'react'
 import { StyleSheet, TextStyle, useColorScheme } from 'react-native'
 import { MarkdownProps as MdProps } from 'react-native-markdown-display'
-import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper'
+import { DefaultTheme as DefaultPaperTheme, Provider as PaperProvider } from 'react-native-paper'
+import { DefaultTheme as DefaultNavigationTheme } from '@react-navigation/native'
 
 type PaperFontProps = 'fontFamily'
 type FontList<Keys extends string> = {[Key in Keys]: Required<Pick<TextStyle, PaperFontProps>> & Omit<TextStyle, PaperFontProps>}
 
-export type PaperTheme = typeof DefaultTheme
+export type PaperTheme = typeof DefaultPaperTheme
+export type NavigationTheme = typeof DefaultNavigationTheme
 export type Theme = {
   colors: {
     primary: string
@@ -59,16 +61,16 @@ export type ThemeProviderProps = React.PropsWithChildren<{
   dark?: boolean
 }>
 export function ThemeProvider({children, theme, dark}: ThemeProviderProps) {
-  const scheme = useColorScheme() || 'light';
-  let _theme: Theme, dualism = theme as DualismTheme;
+  const scheme = useColorScheme() || 'light'
+  let _theme: Theme, dualism = theme as DualismTheme
   if (dualism.light && dualism.dark) {
-    _theme = dualism[scheme];
+    _theme = dualism[scheme]
   }
   else {
-    _theme = theme as Theme;
+    _theme = theme as Theme
   }
   
-  const paperTheme = useMemo(() => reducePaperTheme(_theme, dark??false), [_theme]);
+  const paperTheme = useMemo(() => reducePaperTheme(_theme, !!dark), [ _theme ])
   return (
     <ThemeContext.Provider value={_theme}>
       <PaperProvider theme={paperTheme}>
@@ -77,6 +79,17 @@ export function ThemeProvider({children, theme, dark}: ThemeProviderProps) {
     </ThemeContext.Provider>
   )
 }
+
+export const reduceNavigationTheme = ({colors}: Theme, dark: boolean): NavigationTheme => ({
+  dark,
+  colors: {
+    ...DefaultNavigationTheme.colors,
+    primary:    colors.primary,
+    background: colors.background,
+    text:       colors.textPrimary,
+    border:     colors.line,
+  }
+})
 
 export const reducePaperTheme = ({colors, consts, fonts}: Theme, dark: boolean): PaperTheme => ({
   dark,
@@ -90,13 +103,13 @@ export const reducePaperTheme = ({colors, consts, fonts}: Theme, dark: boolean):
     onSurface: colors.line,
     text: colors.textPrimary,
     disabled: colors.textDisabled,
-    placeholder: DefaultTheme.colors.disabled,
+    placeholder: colors.textDisabled,
     backdrop: colors.backdrop,
     notification: colors.primary,
-    error: DefaultTheme.colors.error,
+    error: DefaultPaperTheme.colors.error,
   },
-  fonts: DefaultTheme.fonts,
-  animation: DefaultTheme.animation,
+  fonts: DefaultPaperTheme.fonts,
+  animation: DefaultPaperTheme.animation,
 });
 
 const mdHeadingMargins = {marginTop: 6, marginBottom: 4};

@@ -69,16 +69,7 @@ type WrappedPostProps = Omit<Post.PostPreviewProps, 'onPressMore' | 'onPressSpac
   onPressMore?: (id: PostId) => void
   onPressOwner?: (id: PostId, ownerId: AccountId) => void
 }
-const WrappedPost = React.memo(({id, onPressMore: _onPressMore, onPressOwner: _onPressOwner}: WrappedPostProps) => {
-  const data = useSelectPost(id)
-  const ownerId = data?.post?.struct?.ownerId
-  
-  const onPressMore  = useCallback(() => _onPressMore?.(id), [ id, _onPressMore ])
-  const onPressOwner = useMemo(() => {
-    if (!ownerId) return undefined
-    return () => _onPressOwner?.(id, ownerId)
-  }, [ ownerId, _onPressOwner ])
-  
+const WrappedPost = React.memo(({id, onPressMore, onPressOwner}: WrappedPostProps) => {
   return (
     <>
       <Post.Preview id={id}

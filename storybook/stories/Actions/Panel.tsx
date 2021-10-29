@@ -45,12 +45,13 @@ type PanelLikeItemProps = {
   onPress?: () => void
 };
 Panel.LikeItem = ({liked, likesCount, onPress}: PanelLikeItemProps) => {
+  const theme = useTheme()
   return (
     <Panel.Item
       icon={liked ? 'heart' : 'heart-outline'}
       iconFamily="ionicon"
       label={likesCount}
-      color={liked ? 'red' : undefined} // undefined defaults to theme color
+      color={liked ? theme.colors.primary : undefined} // undefined defaults to theme color
       onPress={onPress}
     />
   )

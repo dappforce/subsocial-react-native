@@ -1,42 +1,69 @@
 //////////////////////////////////////////////////////////////////////
 // NavHeader component to be used with stack navigators
-import React, { useMemo } from 'react'
+import React from 'react'
 import { StyleSheet, View } from 'react-native'
-import { StackHeaderProps as BaseProps } from '@react-navigation/stack'
+import { StackHeaderProps as StackBaseProps } from '@react-navigation/stack'
+import { BottomTabHeaderProps as BottomTabBaseProps } from '@react-navigation/bottom-tabs'
 import { getHeaderTitle } from '@react-navigation/elements'
 import { Icon } from 'react-native-elements'
 import { Title } from '~comps/Typography'
-import { Theme, useTheme } from '~comps/Theming'
+import { Theme, ThemeContext } from '~comps/Theming'
 
 const ASIDE_SIZE = 40
 
-export type StackHeaderProps = BaseProps & {
-  
-}
+export type StackHeaderProps = StackBaseProps & {}
 export function StackHeader({navigation, route, options, back}: StackHeaderProps) {
   const title = getHeaderTitle(options, route.name)
-  const theme = useTheme()
-  const styles = useMemo(() => createStyles(theme), [ theme ])
   
   return (
-    <View style={styles.container}>
-      <View style={styles.leftContainer}>
-        {back && <Icon
-          name="chevron-back-outline"
-          type="ionicon"
-          color={theme.colors.primary}
-          size={20}
-          onPress={() => navigation.goBack()}
-        />}
-      </View>
-      <View style={styles.titleContainer}>
-        <Title preview style={styles.title}>{title}</Title>
-      </View>
-    </View>
+    <ThemeContext.Consumer>
+      {(theme) => {
+        const themedStyles = createThemedStyles(theme)
+        return (
+          <View style={[styles.container, themedStyles.container]}>
+            <View style={styles.leftContainer}>
+              {back && <Icon
+                name="chevron-back-outline"
+                type="ionicon"
+                color={theme.colors.primary}
+                size={20}
+                onPress={() => navigation.goBack()}
+              />}
+            </View>
+            <View style={styles.titleContainer}>
+              <Title preview style={styles.title}>{title}</Title>
+            </View>
+          </View>
+        )
+      }}
+      </ThemeContext.Consumer>
   )
 }
 
-const createStyles = ({colors}: Theme) => StyleSheet.create({
+export type BottomTabHeaderProps = BottomTabBaseProps & {}
+export function BottomTabHeader({route, options}: BottomTabHeaderProps) {
+  const title = getHeaderTitle(options, route.name)
+  
+  return (
+    <ThemeContext.Consumer>
+      {(theme) => {
+        const themedStyles = createThemedStyles(theme)
+        return (
+          <View style={[styles.container, themedStyles.container]}>
+            <View style={styles.leftContainer}>
+              {/* TODO: Drawer menu icon */}
+            </View>
+            <View style={styles.titleContainer}>
+              <Title preview style={styles.title}>{title}</Title>
+            </View>
+          </View>
+        )
+      }}
+    </ThemeContext.Consumer>
+  )
+}
+
+const styles = StyleSheet.create({
   container: {
     height: 50,
     display: 'flex',
@@ -44,7 +71,7 @@ const createStyles = ({colors}: Theme) => StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFF',
     borderBottomWidth: 1,
-    borderBottomColor: colors.line,
+    // borderBottomColor: colors.line,
   },
   titleContainer: {
     flex: 1,
@@ -58,5 +85,11 @@ const createStyles = ({colors}: Theme) => StyleSheet.create({
   },
   leftContainer: {
     width: ASIDE_SIZE,
+  },
+})
+
+const createThemedStyles = ({colors}: Theme) => StyleSheet.create({
+  container: {
+    borderBottomColor: colors.line
   },
 })

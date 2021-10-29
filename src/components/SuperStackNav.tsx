@@ -29,7 +29,7 @@ const Stack = createStackNavigator<SuperRoutes>()
 export function SuperStackNav({ExploreComponent}: SuperStackNavProps) {
   return (
     <Stack.Navigator screenOptions={{header: StackHeader}}>
-      <Stack.Screen name="Explore" component={ExploreComponent} />
+      <Stack.Screen name="Explore" component={ExploreComponent} options={{headerShown: false}} />
       <Stack.Screen name="Account" component={AccountScreen} options={{title: 'Profile'}} />
       <Stack.Screen name="Space"   component={SpaceScreen} />
       <Stack.Screen name="Post"    component={PostScreen} />
