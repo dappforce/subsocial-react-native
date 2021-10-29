@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { ImageStyle } from 'react-native-fast-image'
 import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
-import { SuperStackNavigationProp } from '~comps/SuperStackNav'
+import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
 import { ActionMenuProps } from '~stories/Actions'
 import { Link, Markdown, Text, Title } from '~comps/Typography'
@@ -31,7 +31,7 @@ export type PostOwnerProps = {
   onPressSpace?: (id: PostId, spaceId: SpaceId) => void
 }
 export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPressOwner: _onPressOwner, onPressSpace: _onPressSpace}: PostOwnerProps) => {
-  const nav = useNavigation<SuperStackNavigationProp | undefined>()
+  const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const reloadSpace = useCreateReloadSpace()
   const reloadOwner = useCreateReloadProfile()
   

@@ -8,7 +8,7 @@ import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'sr
 import { useNavigation } from '@react-navigation/native'
 import { useInit } from '~comps/hooks'
 import { SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
-import { SuperStackNavigationProp } from '~comps/SuperStackNav'
+import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Markdown, Text } from '~comps/Typography'
 import { Header, SocialLinks as Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowButton } from '../Actions'
@@ -57,7 +57,7 @@ export const PreviewData = React.memo(({
   onPressSpace: _onPressSpace,
 }: DataProps) =>
 {
-  const nav = useNavigation<SuperStackNavigationProp | undefined>()
+  const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const onPressSpace = useCallback(() => {
     const spaceId = data?.struct?.id
     

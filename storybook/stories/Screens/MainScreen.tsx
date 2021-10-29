@@ -34,7 +34,7 @@ export function MainScreen({}: MainScreenProps) {
       screenOptions={{
         tabBarShowLabel: false,
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textDisabled,
+        tabBarInactiveTintColor: theme.colors.divider,
         tabBarStyle: {
           backgroundColor: theme.colors.backgroundMenu,
           borderTopColor: theme.colors.divider,
@@ -42,7 +42,7 @@ export function MainScreen({}: MainScreenProps) {
         header: BottomTabHeader,
       }}
     >
-      <Tabs.Screen name="Home" component={ExploreScreen} options={{tabBarIcon: renderHomeIcon, title: 'Dotsama News (βeta)'}} />
+      <Tabs.Screen name="Home" component={ExploreScreen} options={{tabBarIcon: renderHomeIcon, headerShown: false}} />
       <Tabs.Screen name="Search" component={TempSearchScreen} options={{tabBarIcon: renderSearchIcon}} />
       <Tabs.Screen name="Notifications" component={TempNotifScreen} options={{tabBarIcon: renderNotifIcon}} />
       <Tabs.Screen name="Profile" component={TempProfileScreen} options={{tabBarIcon: renderProfileIcon, title: ''}} />

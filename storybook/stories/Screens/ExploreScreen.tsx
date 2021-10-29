@@ -15,6 +15,7 @@ import { Divider } from '~comps/Typography'
 import { asString } from '@subsocial/utils'
 import { descending } from 'src/util'
 import config from 'config.json'
+import { ExploreStackNav } from '~comps/ExploreStackNav'
 
 export type ExploreNavRoutes = {
   LatestPosts: {}
@@ -31,31 +32,35 @@ export function ExploreScreen({}: ExploreScreenProps) {
   const theme = useTheme()
   
   return (
-    <Tabs.Navigator
-      initialRouteName="LatestPosts"
-      screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.textDisabled,
-        tabBarIndicatorStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        tabBarLabelStyle: {
-          ...theme.fonts.secondary,
-          textTransform: 'none',
-        },
-        tabBarItemStyle: {
-          padding: 0,
-          minHeight: 40,
-        },
-        tabBarStyle: {
-          height: 40,
-        },
-        lazy: true,
-      }}
-    >
-      <Tabs.Screen name="LatestPosts"   component={LatestPostsScreen}   options={{title: 'Latest Posts'}} />
-      <Tabs.Screen name="DotsamaSpaces" component={DotsamaSpacesScreen} options={{title: 'Dotsama Spaces'}} />
-    </Tabs.Navigator>
+    <ExploreStackNav>
+      {useCallback(() => (
+        <Tabs.Navigator
+          initialRouteName="LatestPosts"
+          screenOptions={{
+            tabBarActiveTintColor: theme.colors.primary,
+            tabBarInactiveTintColor: theme.colors.textDisabled,
+            tabBarIndicatorStyle: {
+              backgroundColor: theme.colors.primary,
+            },
+            tabBarLabelStyle: {
+              ...theme.fonts.secondary,
+              textTransform: 'none',
+            },
+            tabBarItemStyle: {
+              padding: 0,
+              minHeight: 40,
+            },
+            tabBarStyle: {
+              height: 40,
+            },
+            lazy: true,
+          }}
+        >
+          <Tabs.Screen name="LatestPosts"   component={LatestPostsScreen}   options={{title: 'Latest Posts'}} />
+          <Tabs.Screen name="DotsamaSpaces" component={DotsamaSpacesScreen} options={{title: 'Dotsama Spaces'}} />
+        </Tabs.Navigator>
+      ), [ theme ])}
+    </ExploreStackNav>
   )
 }
 

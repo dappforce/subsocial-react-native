@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
-import { SuperStackNavigationProp } from '~comps/SuperStackNav'
+import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { Panel as ActionPanel } from '../Actions'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
@@ -45,7 +45,7 @@ export const PreviewData = React.memo(({
   onPressSpace,
 }: PreviewDataProps) =>
 {
-  const nav = useNavigation<SuperStackNavigationProp | undefined>()
+  const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const renderActions = ({size}: {size: number}) => <>
     <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
     <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
