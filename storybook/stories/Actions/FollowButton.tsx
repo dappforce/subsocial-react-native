@@ -14,14 +14,14 @@ export type FollowButtonProps<T> = Omit<ButtonProps, 'children' | 'onPress'> & {
   onPress: (props: {id: T, isFollowing: boolean}) => void
   isFollowing: boolean
   loading?: boolean
-  hideIcon?: boolean
+  showIcon?: boolean
 }
 export function FollowButton<T>({
   id,
   onPress,
   isFollowing,
   loading = false,
-  hideIcon = false,
+  showIcon = false,
   labelStyle,
   ...props
 }: FollowButtonProps<T>)
@@ -34,13 +34,13 @@ export function FollowButton<T>({
     mode: isFollowing ? "outlined" : "contained",
     loading,
     onPress: _onPress,
-    labelStyle: [{fontSize: 15}, !hideIcon && {marginLeft: 8}, labelStyle]
+    labelStyle: [{fontSize: 15}, showIcon && {marginLeft: 8}, labelStyle]
   };
   
   // need this branch because the mere presence of the "icon" prop already alters appearance
-  if (!hideIcon) {
+  if (showIcon) {
     btnProps.icon = ({size, color}) => <Icon name="people-circle-outline" type="ionicon" {...{size, color}} />
   }
   
-  return Button(btnProps);
+  return Button(btnProps)
 }

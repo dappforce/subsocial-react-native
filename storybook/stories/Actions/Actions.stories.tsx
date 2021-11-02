@@ -13,13 +13,13 @@ storiesOf('Actions', module)
       isFollowing={boolean('Following', false)}
       loading={boolean('Loading', false)}
       onPress={action('press')}
-      hideIcon={boolean('Hide Icon', false)}
+      showIcon={boolean('Show Icon', false)}
     />
   ))
   .add('Action Menu', () => {
     const renderPrimary = () => <>
       <ActionMenu.Primary>
-        <FollowButton id={1} isFollowing={boolean('Following', false)} onPress={action('follow')} hideIcon />
+        <FollowButton id={1} isFollowing={boolean('Following', false)} onPress={action('follow')} />
       </ActionMenu.Primary>
     </>;
     const renderSecondary = () => <>

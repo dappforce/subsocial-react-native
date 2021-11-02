@@ -1,13 +1,18 @@
-import React from 'react'
-import { Head, useAccount } from './Account'
-import { AnyAccountId } from '@subsocial/types'
+import React, { useEffect } from 'react'
+import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
+import { AccountId } from 'src/types/subsocial'
+import { Head } from './Account'
 
 export type PreviewProps = {
-  id: AnyAccountId
-  preview?: boolean
+  id: AccountId
 }
-export function Preview({id, preview = false}: PreviewProps) {
-  const [_, data] = useAccount(id);
+export function Preview({id}: PreviewProps) {
+  const data = useSelectProfile(id)
+  const reloadProfile = useCreateReloadProfile()
+  
+  useEffect(() => {
+    if (!data) reloadProfile?.({ id })
+  }, [ id, reloadProfile ])
   
   return (
     <>
@@ -15,8 +20,8 @@ export function Preview({id, preview = false}: PreviewProps) {
         id={id}
         name={data?.content?.name ?? id.toString()}
         isFollowing={false} // TODO: following logic... :')
-        numFollowers={data?.struct?.followers_count?.toNumber?.() ?? 0}
-        numFollowing={data?.struct?.following_accounts_count?.toNumber?.() ?? 0}
+        numFollowers={data?.struct?.followersCount ?? 0}
+        numFollowing={data?.struct?.followingAccountsCount ?? 0}
       />
     </>
   )

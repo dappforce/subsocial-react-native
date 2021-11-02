@@ -98,7 +98,6 @@ export function Head({titlePlaceholder = '', data, showFollowButton, onPressTitl
             id={data?.struct?.id ?? 0}
             isFollowing={false}
             onPress={() => alert('not yet implemented, sorry!')}
-            hideIcon
           />
         </ActionMenu.Primary>
       )}

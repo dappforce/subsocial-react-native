@@ -1,6 +1,7 @@
 import React from 'react'
+import { StyleSheet } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
-import { boolean, text } from '@storybook/addon-knobs'
+import { text } from '@storybook/addon-knobs'
 import CenterView from '~stories/CenterView'
 import * as Account from './index'
 import { SubsocialProvider } from 'src/components/SubsocialContext'
@@ -13,7 +14,24 @@ storiesOf('Accounts', module)
   ))
   .add('Preview', () => (
     <Account.Preview
-      id={text('Address', '3pgitDi6cc989ALL6vTEodUT1Zc4H86TK32Ev8gSVdiTYuZe')}
-      preview={boolean('Preview', false)}
+      id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
     />
   ))
+  .add('Details', () => (
+    <Account.Details containerStyle={styles.padded}
+      id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
+    />
+  ))
+  .add('Address', () => (
+    <CenterView style={styles.padded}>
+      <Account.Address
+        id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
+      />
+    </CenterView>
+  ))
+
+const styles = StyleSheet.create({
+  padded: {
+    padding: 10,
+  }
+})

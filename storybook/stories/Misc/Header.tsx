@@ -4,14 +4,16 @@
 // implementation avoids.
 // Plus, our specialization allows us to simplify things a bit more. ;)
 import React from 'react'
-import { GestureResponderEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { GestureResponderEvent, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import { Title, Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { ActionMenu, ActionMenuProps } from '~stories/Actions'
 
 export type HeaderProps = {
   title: string
+  titleStyle?: StyleProp<TextStyle>
   subtitle: string
+  subtitleStyle?: StyleProp<TextStyle>
   avatar?: string // CID
   avatarSize?: number
   actionMenuProps?: ActionMenuProps
@@ -23,7 +25,9 @@ export type HeaderProps = {
 }
 export function Header({
   title,
+  titleStyle,
   subtitle,
+  subtitleStyle,
   avatar,
   avatarSize = 40,
   actionMenuProps,
@@ -46,7 +50,7 @@ export function Header({
       <View style={styles.center}>
         <View style={styles.titleContainer}>
           <Text
-            style={styles.title}
+            style={[styles.title, titleStyle]}
             mode="primary"
             onPress={onPressTitle}
             numberOfLines={1}
@@ -56,7 +60,7 @@ export function Header({
         </View>
         <View style={styles.subtitleContainer}>
           <Text
-            style={styles.subtitle}
+            style={[styles.subtitle, subtitleStyle]}
             mode="secondary"
             onPress={onPressSubtitle}
             numberOfLines={1}
