@@ -13,7 +13,7 @@ const theme: Theme = {
     background: '#fafafa',
     backgroundMenu: '#f0f0f0',
     backgroundMenuHover: '#FFF0F6',
-    backdrop: '#eeecec',
+    backdrop: '#22222299',
     scaffold: '#fff',
     appBar: '#c03494',
     line: '#ddd',
