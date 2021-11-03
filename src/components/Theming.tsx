@@ -30,6 +30,7 @@ export type Theme = {
     divider: string
     icon: string
     socials: string
+    confirmation: string
   }
   consts: {
     roundness: number

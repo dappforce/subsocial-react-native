@@ -9,8 +9,8 @@ export type ModalProps = RNModalProps & {
   containerStyle?: StyleProp<ViewStyle>
   contentContainerStyle?: StyleProp<ViewStyle>
   contentStyle?: StyleProp<ViewStyle>
-  contentTitleContainerStyle?: StyleProp<ViewStyle>
-  contentTitleStyle?: StyleProp<TextStyle>
+  titleContainerStyle?: StyleProp<ViewStyle>
+  titleStyle?: StyleProp<TextStyle>
   minWidth?: TextStyle['minWidth']
   maxWidth?: TextStyle['maxWidth']
 }
@@ -21,8 +21,8 @@ export function Modal({
   containerStyle,
   contentContainerStyle,
   contentStyle,
-  contentTitleContainerStyle,
-  contentTitleStyle,
+  titleContainerStyle,
+  titleStyle,
   minWidth = 180,
   maxWidth = '80%',
   ...props
@@ -34,7 +34,7 @@ export function Modal({
   
   return (
     <RNModal
-      transparent={true}
+      transparent
       animationType="fade"
       {...props}
     >
@@ -45,8 +45,8 @@ export function Modal({
           android_disableSound
           accessibilityRole="none"
         >
-          <View style={[styles.contentTitleContainer, contentTitleContainerStyle]} accessibilityRole="header">
-            <Title preview style={contentTitleStyle}>{title}</Title>
+          <View style={[styles.titleContainer, titleContainerStyle]} accessibilityRole="header">
+            <Title preview style={titleStyle}>{title}</Title>
             <Icon
               family="ionicon"
               name="close-outline"
@@ -67,6 +67,8 @@ export function Modal({
   )
 }
 
+Modal.PADDING = 16
+
 const createStyles = ({colors}: Theme) => StyleSheet.create({
   container: {
     flex: 1,
@@ -76,13 +78,14 @@ const createStyles = ({colors}: Theme) => StyleSheet.create({
   },
   content: {
     backgroundColor: colors.background,
-    padding: 14,
+    padding: Modal.PADDING,
     borderRadius: 10,
   },
-  contentTitleContainer: {
+  titleContainer: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    alignSelf: 'stretch',
   },
 })

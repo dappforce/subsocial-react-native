@@ -108,6 +108,6 @@ export function Icon({family, onPress, onPressIn, onPressOut, onLongPress, conta
 
 const styles = StyleSheet.create({
   container: {
-    padding: 4,
+    
   },
 })

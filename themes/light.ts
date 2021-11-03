@@ -20,6 +20,7 @@ const theme: Theme = {
     divider: '#bbb',
     icon: '#262626',
     socials: '#757575',
+    confirmation: '#3baa54',
   },
   consts: {
     roundness: 4,
