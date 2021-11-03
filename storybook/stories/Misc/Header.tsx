@@ -5,20 +5,19 @@
 // Plus, our specialization allows us to simplify things a bit more. ;)
 import React from 'react'
 import { GestureResponderEvent, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
-import { Title, Text } from '~comps/Typography'
+import { Text } from '~comps/Typography'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { ActionMenu, ActionMenuProps } from '~stories/Actions'
 
 export type HeaderProps = {
-  title: string
+  title: string | React.ReactElement
   titleStyle?: StyleProp<TextStyle>
-  subtitle: string
+  subtitle: string | React.ReactElement
   subtitleStyle?: StyleProp<TextStyle>
   avatar?: string // CID
   avatarSize?: number
   actionMenuProps?: ActionMenuProps
   containerStyle?: StyleProp<ViewStyle>
-  preview?: boolean
   onPressAvatar?:   (evt: GestureResponderEvent) => void
   onPressTitle?:    (evt: GestureResponderEvent) => void
   onPressSubtitle?: (evt: GestureResponderEvent) => void
@@ -32,7 +31,6 @@ export function Header({
   avatarSize = 40,
   actionMenuProps,
   containerStyle,
-  preview = false,
   onPressAvatar,
   onPressTitle,
   onPressSubtitle,
@@ -49,24 +47,30 @@ export function Header({
       </View>
       <View style={styles.center}>
         <View style={styles.titleContainer}>
-          <Text
-            style={[styles.title, titleStyle]}
-            mode="primary"
-            onPress={onPressTitle}
-            numberOfLines={1}
-          >
-            {title}
-          </Text>
+          {typeof title === 'string'
+          ? <Text
+              style={[styles.title, titleStyle]}
+              mode="primary"
+              onPress={onPressTitle}
+              numberOfLines={1}
+            >
+              {title}
+            </Text>
+          : title
+          }
         </View>
         <View style={styles.subtitleContainer}>
-          <Text
-            style={[styles.subtitle, subtitleStyle]}
-            mode="secondary"
-            onPress={onPressSubtitle}
-            numberOfLines={1}
-          >
-            {subtitle}
-          </Text>
+          {typeof subtitle === 'string'
+          ? <Text
+              style={[styles.subtitle, subtitleStyle]}
+              mode="secondary"
+              onPress={onPressSubtitle}
+              numberOfLines={1}
+            >
+              {subtitle}
+            </Text>
+          : subtitle
+          }
         </View>
       </View>
       <View style={styles.right}>

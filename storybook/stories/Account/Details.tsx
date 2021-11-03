@@ -3,7 +3,7 @@ import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { Theme, useTheme } from '~comps/Theming'
-import { Header } from '~stories/Misc'
+import { Balance, Header } from '~stories/Misc'
 import { Text } from '~comps/Typography'
 import { FollowButton } from '~stories/Actions'
 import { Address } from './Address'
@@ -37,19 +37,26 @@ export function Details({id, containerStyle}: DetailsProps) {
     <View style={containerStyle}>
       <Header
         title={data?.content?.name ?? id}
-        subtitle={"0 SUB"} // TODO: Load SUB from blockchain
-        subtitleStyle={{fontFamily: 'Roboto500'}}
+        subtitle={
+          <Balance
+            address={id}
+            truncate={2}
+            integerBalanceStyle={styles.balance}
+            decimalBalanceStyle={styles.balance}
+            currencyStyle={styles.balance}
+          />
+        }
         avatar={data?.content?.avatar}
         actionMenuProps={{
           primary: renderFollowButton
         }}
       />
       <View style={styles.followage}>
-        <Text style={styles.followageCount}>{data?.struct?.followingAccountsCount ?? 0}</Text>
-        <Text style={styles.followageLabel}>Following</Text>
+        <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followingAccountsCount ?? 0}</Text>
+        <Text mode="secondary" style={styles.followageLabel}>Following</Text>
         
-        <Text style={styles.followageCount}>{data?.struct?.followersCount ?? 0}</Text>
-        <Text style={styles.followageLabel}>Followers</Text>
+        <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followersCount ?? 0}</Text>
+        <Text mode="secondary" style={styles.followageLabel}>Followers</Text>
       </View>
       {!!data?.content?.about && <Text style={styles.about}>{data?.content?.about}</Text>}
       <Address id={id} />
@@ -57,7 +64,7 @@ export function Details({id, containerStyle}: DetailsProps) {
   )
 }
 
-const createThemedStyles = ({colors}: Theme) => StyleSheet.create({
+const createThemedStyles = ({colors, fonts}: Theme) => StyleSheet.create({
   about: {
     marginBottom: 10,
   },
@@ -75,5 +82,11 @@ const createThemedStyles = ({colors}: Theme) => StyleSheet.create({
     fontFamily: 'Roboto500',
     color: colors.textPrimary,
     marginRight: 4,
+  },
+  
+  balance: {
+    ...fonts.secondary,
+    fontFamily: 'Roboto500',
+    color: colors.textSecondary,
   },
 })

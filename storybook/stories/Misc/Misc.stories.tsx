@@ -3,9 +3,10 @@
 import React from 'react'
 import CenterView from '~stories/CenterView'
 import { storiesOf } from '@storybook/react-native'
-import { array, boolean, text } from '@storybook/addon-knobs'
+import { array, boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
-import { Modal, SocialLinks, Tags } from './index'
+import { SubsocialProvider } from '~comps/SubsocialContext'
+import { Balance, Modal, SocialLinks, Tags } from './index'
 import { Button, Text } from '~comps/Typography'
 import QRCode from 'react-native-qrcode-svg'
 
@@ -45,7 +46,7 @@ storiesOf('Misc', module)
   .add('Socials', () => (
     <CenterView style={{padding: 10}}>
       <SocialLinks
-        links={array('Links', ['twitter.com/Kiruse', 'twitter.com/Subsocial'])}
+        links={array('Links', ['twitter.com/SubsocialChain', 'twitter.com/Subsocial'])}
         onPress={action('onPress')}
         color={text('Color', '')}
         rtl={boolean('Right to Left', false)}
@@ -53,3 +54,15 @@ storiesOf('Misc', module)
     </CenterView>
   ))
   .add('Modal', () => <ModalStory />)
+  .add('Balance', () => (
+    <SubsocialProvider>
+      <CenterView style={{padding: 10}}>
+        <Balance
+          address={text('Address', '3tZSKKfn9PSrLXTxExZtnhvV1oFyTjnF1P5pAnVyrdVs4h2v')}
+          decimals={number('Decimals', 11)}
+          truncate={number('Truncate', 11)}
+          currency={text('Currency', 'SUB')}
+        />
+      </CenterView>
+    </SubsocialProvider>
+  ))
