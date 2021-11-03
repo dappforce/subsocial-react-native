@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build debug (Android)",
+      "group": "build",
+      "command": "npm run android",
+    },
+    {
+      "label": "build release (Android)",
+      "group": "build",
+      "command": "npx react-native run-android --variant release",
+    },
+  ]
+}
