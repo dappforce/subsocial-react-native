@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from 'react'
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { TabBar, TabView } from 'react-native-tab-view'
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { Theme, useTheme } from '~comps/Theming'
@@ -7,14 +8,67 @@ import { Balance, Header } from '~stories/Misc'
 import { Text } from '~comps/Typography'
 import { FollowButton } from '~stories/Actions'
 import { Address } from './Address'
+import { Posts, PostsProps } from './Posts'
+import { Comments, CommentsProps } from './Comments'
+import { Upvotes, UpvotesProps } from './Upvotes'
+import { Follows, FollowsProps } from './Follows'
 
 export type DetailsProps = {
   id: AccountId
   containerStyle?: StyleProp<ViewStyle>
 }
-export function Details({id, containerStyle}: DetailsProps) {
+
+export function Details({ id, containerStyle }: DetailsProps) {
   const theme = useTheme()
-  const styles = createThemedStyles(theme)
+  const styles = createStyles(theme)
+  
+  const [ index, setIndex ] = useState(0)
+  const routes = useMemo(() => [
+    { key: 'posts', title: 'Posts' },
+    { key: 'comments', title: 'Comments' },
+    { key: 'upvotes', title: 'Upvotes' },
+    { key: 'follows', title: 'Follows' },
+  ], [])
+  
+  return (
+    <View style={[styles.container, containerStyle]}>
+      <DetailsHeader id={id} style={styles.padded} />
+      <TabView
+        navigationState={{ index, routes }}
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            indicatorStyle={styles.tabIndicator}
+            labelStyle={styles.tabLabel}
+            activeColor={theme.colors.primary}
+            inactiveColor={theme.colors.textSecondary}
+            style={styles.tabBar}
+          />
+        )}
+        renderScene={({ route }) => {
+          switch (route.key) {
+            case 'posts':    return <AccountPosts    id={id} />
+            case 'comments': return <AccountComments id={id} />
+            case 'upvotes':  return <AccountUpvotes  id={id} />
+            case 'follows':  return <AccountFollows  id={id} />
+            default: return null
+          }
+        }}
+        onIndexChange={setIndex}
+        initialLayout={{ width: Dimensions.get('window').width }}
+      />
+    </View>
+  )
+}
+
+export type DetailsHeaderProps = {
+  id: AccountId
+  style?: StyleProp<ViewStyle>
+}
+
+export function DetailsHeader({ id, style }: DetailsHeaderProps) {
+  const theme = useTheme()
+  const styles = createStyles(theme)
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
@@ -34,7 +88,7 @@ export function Details({id, containerStyle}: DetailsProps) {
   }, [ id, reloadProfile ])
   
   return (
-    <View style={containerStyle}>
+    <View style={style}>
       <Header
         title={data?.content?.name ?? id}
         subtitle={
@@ -64,7 +118,31 @@ export function Details({id, containerStyle}: DetailsProps) {
   )
 }
 
-const createThemedStyles = ({colors, fonts}: Theme) => StyleSheet.create({
+
+const AccountPosts    = React.memo((props: PostsProps) => <Posts {...props} />)
+const AccountComments = React.memo((props: CommentsProps) => <Comments {...props} />)
+const AccountUpvotes  = React.memo((props: UpvotesProps) => <Upvotes {...props} />)
+const AccountFollows  = React.memo((props: FollowsProps) => <Follows {...props} />)
+
+
+const createStyles = ({colors, fonts}: Theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  padded: {
+    padding: 10,
+  },
+  
+  tabBar: {
+    backgroundColor: colors.background,
+  },
+  tabIndicator: {
+    backgroundColor: colors.primary,
+  },
+  tabLabel: {
+    textTransform: 'none',
+  },
+  
   about: {
     marginBottom: 10,
   },

@@ -9,16 +9,18 @@ import { SubsocialProvider } from 'src/components/SubsocialContext'
 storiesOf('Accounts', module)
   .addDecorator(getStory => (
     <SubsocialProvider>
-      <CenterView>{getStory()}</CenterView>
+      {getStory()}
     </SubsocialProvider>
   ))
   .add('Preview', () => (
-    <Account.Preview
-      id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
-    />
+    <CenterView style={styles.padded}>
+      <Account.Preview
+        id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
+      />
+    </CenterView>
   ))
   .add('Details', () => (
-    <Account.Details containerStyle={styles.padded}
+    <Account.Details
       id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
     />
   ))
@@ -33,5 +35,5 @@ storiesOf('Accounts', module)
 const styles = StyleSheet.create({
   padded: {
     padding: 10,
-  }
+  },
 })

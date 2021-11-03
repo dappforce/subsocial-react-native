@@ -93,6 +93,7 @@ interface SubsocialInitializerCallback<T> {
   (api: SubsocialApi): T | Promise<T>
 }
 
+// TODO: useEffect-style unmount
 export function useSubsocialEffect<T>(
   callback: SubsocialInitializerCallback<T>,
   deps: React.DependencyList
