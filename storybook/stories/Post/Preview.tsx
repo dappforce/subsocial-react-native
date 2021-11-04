@@ -10,7 +10,7 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { Panel as ActionPanel } from '../Actions'
-import { ActionMenu, IconDescriptor } from '~stories/Actions'
+import { ActionMenu } from '~stories/Actions'
 import { WithSize } from 'src/types'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>

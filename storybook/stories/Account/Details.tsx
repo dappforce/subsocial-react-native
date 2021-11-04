@@ -3,7 +3,7 @@ import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from 'react-native
 import { TabBar, TabView } from 'react-native-tab-view'
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
-import { Theme, useTheme } from '~comps/Theming'
+import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { Balance, Header } from '~stories/Misc'
 import { Text } from '~comps/Typography'
 import { FollowButton } from '~stories/Actions'
@@ -20,7 +20,7 @@ export type DetailsProps = {
 
 export function Details({ id, containerStyle }: DetailsProps) {
   const theme = useTheme()
-  const styles = createStyles(theme)
+  const styles = useThemedStyle()
   
   const [ index, setIndex ] = useState(0)
   const routes = useMemo(() => [
@@ -31,7 +31,7 @@ export function Details({ id, containerStyle }: DetailsProps) {
   ], [])
   
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[ styles.container, containerStyle ]}>
       <DetailsHeader id={id} style={styles.padded} />
       <TabView
         navigationState={{ index, routes }}
@@ -67,8 +67,7 @@ export type DetailsHeaderProps = {
 }
 
 export function DetailsHeader({ id, style }: DetailsHeaderProps) {
-  const theme = useTheme()
-  const styles = createStyles(theme)
+  const styles = useThemedStyle()
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
@@ -128,7 +127,7 @@ const AccountUpvotes  = React.memo((props: UpvotesProps) => <Upvotes {...props} 
 const AccountFollows  = React.memo((props: FollowsProps) => <Follows {...props} />)
 
 
-const createStyles = ({colors, fonts}: Theme) => StyleSheet.create({
+const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -170,4 +169,4 @@ const createStyles = ({colors, fonts}: Theme) => StyleSheet.create({
     fontFamily: 'RobotoMedium',
     color: colors.textSecondary,
   },
-})
+}))

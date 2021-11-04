@@ -1,15 +1,11 @@
 import React, { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { DefaultTheme, Text, Title, useTheme } from 'react-native-paper'
-import { Span } from '~comps/Typography'
+import { Span, Text, Title } from '~comps/Typography'
 
 export default function() {
-  const theme = useTheme()
-  const styles = useMemo(() => createStyles(theme), [ theme ])
-  
   return (
     <View style={styles.container}>
-      <Title>Welcome to Subsocial RN</Title>
+      <Title style={styles.title}>Welcome to Subsocial RN</Title>
       <Text style={styles.content}>
         Subsocial RN is an example app built in
         {' '}<Span>React Native</Span>{' '}
@@ -27,7 +23,7 @@ export default function() {
   )
 }
 
-const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
@@ -36,5 +32,8 @@ const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
   content: {
     marginBottom: 10,
     lineHeight: 18,
+  },
+  title: {
+    marginBottom: 10,
   },
 })

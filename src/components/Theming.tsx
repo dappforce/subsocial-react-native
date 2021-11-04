@@ -51,8 +51,8 @@ export type DualismTheme = {
 
 export const isDualismTheme = (obj: any): obj is DualismTheme => obj && obj.light && obj.dark
 
-export const ThemeContext = React.createContext(undefined as unknown as Theme);
-export const useTheme = () => useContext(ThemeContext);
+export const ThemeContext = React.createContext(undefined as unknown as Theme)
+export const useTheme = () => useContext(ThemeContext)
 
 /**
  * Properties for ThemeProvider component.
@@ -190,3 +190,34 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, { color
     ...base.blockquote,
   },
 })
+
+
+export type StyleFactory<T> = {
+  (theme: Theme): T | StyleSheet.NamedStyles<T>
+}
+export type StyleFactoryHook<T> = {
+  (): T | StyleSheet.NamedStyles<T>
+}
+
+/** A hook which reuses the same StyleSheet across instances of the same component.
+ * 
+ * The StyleSheet is automatically recomputed when the theme changes.
+ * 
+ * @param factory to create the StyleSheet upon theme change.
+ * @returns the hook.
+ */
+export function createThemedStylesHook<T>(factory: StyleFactory<T>): StyleFactoryHook<T> {
+  let oldTheme = undefined as unknown as Theme
+  let cached   = undefined as unknown as StyleSheet.NamedStyles<T>
+  
+  const useThemedStyle = () => {
+    const theme = useTheme()
+    
+    if (theme !== oldTheme) {
+      cached = factory(theme)
+    }
+    
+    return cached
+  }
+  return useThemedStyle
+}

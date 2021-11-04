@@ -8,7 +8,7 @@ import * as Linking from 'expo-linking'
 import * as Paper from 'react-native-paper'
 import * as Elements from 'react-native-elements'
 import Md, { MarkdownProps as MdProps } from 'react-native-markdown-display'
-import { reduceMarkdownTheme, Theme, useTheme } from './Theming'
+import { createThemedStylesHook, reduceMarkdownTheme, Theme, useTheme } from './Theming'
 
 export type TextProps = RN.TextProps & React.PropsWithChildren<{
   /** Defaults to 'primary' */
@@ -30,7 +30,10 @@ export function Text({
       color: modeColor(mode, disabled, theme),
     }
     
-    return StyleSheet.flatten<TextStyle>([ combinedStyle, style ])
+    return StyleSheet.compose<TextStyle>(
+      combinedStyle,
+      style
+    )
   }, [ style, mode, theme ])
   
   return <RN.Text {...props} style={_style}>{children}</RN.Text>
@@ -76,7 +79,7 @@ export function Button({ children, style, labelStyle, ...props }: ButtonProps) {
         ...theme.fonts.button,
         textTransform: 'none',
       },
-      StyleSheet.flatten(labelStyle)
+      labelStyle
     )
   }, [ theme, labelStyle ])
   
@@ -85,12 +88,12 @@ export function Button({ children, style, labelStyle, ...props }: ButtonProps) {
 
 export type SpanProps = TextProps & React.PropsWithChildren<{}>
 export function Span({ children, style, ...props }: SpanProps) {
-  const theme = Paper.useTheme()
+  const themedStyles = useThemedStyles()
   
   return (
     <Text
       {...props}
-      style={[ {fontStyle: 'italic', color: theme.colors.accent}, style ]}
+      style={[ themedStyles.span, style ]}
     >
       {children}
     </Text>
@@ -100,7 +103,8 @@ export function Span({ children, style, ...props }: SpanProps) {
 export type LinkResponderEvent = GestureResponderEvent & {
   url: string | undefined
 }
-export type LinkProps = Omit<RN.TextProps, 'onPress'> & {
+export type LinkProps = Omit<TextProps, 'onPress' | 'mode'> & {
+  mode: 'primary' | 'secondary'
   url?: string
   onPress?: (evt: LinkResponderEvent) => void
   children?: string | Falsy
@@ -110,17 +114,17 @@ export function Link({ children: label, url, onPress, style, ...props }: LinkPro
   
   if (!label) label = url
   
-  const theme = useTheme()
+  const themedStyles = useThemedStyles()
   const defaultHandler = () => { url && Linking.openURL(url) }
   
   return (
-    <Paper.Text
+    <Text
       {...props}
-      style={[ {color: theme.colors.link}, style ]}
-      onPress={evt => (onPress??defaultHandler)({ ...evt, url })}
+      style={[ themedStyles.link, style ]}
+      onPress={evt => (onPress ?? defaultHandler)({ ...evt, url })}
     >
       {label}
-    </Paper.Text>
+    </Text>
   )
 }
 
@@ -141,37 +145,24 @@ type PaperChipProps = React.ComponentProps<typeof Paper.Chip>
 export type ChipProps = Omit<PaperChipProps, 'mode' | 'style' | 'textStyle'> & {
   mode?: 'flat' | 'accent' | 'outlined'
   style?: StyleProp<ViewStyle>
-  textStyle?: StyleProp<TextStyle>
+  labelStyle?: StyleProp<TextStyle>
 }
-export function Chip({mode: _mode, children, style, textStyle, ...props}: ChipProps) {
-  const theme = useTheme()
-  const mode = _mode ?? 'flat'
+export function Chip({ mode = 'flat', children, style: _style, labelStyle: labelStyle, ...props }: ChipProps) {
+  const styles = useThemedStyles()
   
-  const bgc = {
-    flat: theme.colors.backgroundMenu,
-    accent: theme.colors.backgroundMenuHover,
-    outlined: 'transparent',
+  let style
+  switch (mode) {
+    case 'flat': style = styles.chipFlat; break
+    case 'accent': style = styles.chipAccent; break
+    case 'outlined': style = styles.chipOutlined; break
   }
-  
-  const _style = useMemo(() => StyleSheet.compose<ViewStyle>({
-    backgroundColor: bgc[mode],
-  }, style), [ mode, theme, style ])
-  
-  const _textStyle = useMemo(() => (
-    StyleSheet.compose<TextStyle>(
-      {
-        color: theme.colors.textSecondary,
-      },
-      textStyle
-    )
-  ), [ theme, textStyle ])
   
   return (
     <Paper.Chip
       mode={Chip.paperMode[mode]}
       {...props}
-      style={_style}
-      textStyle={_textStyle}
+      style={[style, _style]}
+      textStyle={[styles.chipLabel, labelStyle]}
     >
       {children}
     </Paper.Chip>
@@ -188,3 +179,26 @@ export function Divider(props: DividerProps) {
   const { colors } = useTheme()
   return <Elements.Divider color={colors.divider} {...props} />
 }
+
+
+const useThemedStyles = createThemedStylesHook(({ colors }) => ({
+  span: {
+    fontFamily: 'RobotoItalic',
+    color: colors.primary,
+  },
+  link: {
+    color: colors.link,
+  },
+  chipFlat: {
+    backgroundColor: colors.backgroundMenu,
+  },
+  chipAccent: {
+    backgroundColor: colors.backgroundMenuHover,
+  },
+  chipOutlined: {
+    borderColor: 'transparent',
+  },
+  chipLabel: {
+    color: colors.textSecondary,
+  },
+}))
