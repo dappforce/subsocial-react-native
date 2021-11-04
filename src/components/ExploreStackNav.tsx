@@ -40,8 +40,7 @@ export function ExploreStackNav({children}: ExploreStackNavProps) {
 
 type AccountScreenProps = ExploreStackScreenProps<'Account'>
 function AccountScreen({ route }: AccountScreenProps) {
-  // TODO: Actual Account Screen
-  return null
+  return <Account.Details id={route.params.accountId} />
 }
 
 type SpaceScreenProps = ExploreStackScreenProps<'Space'>
