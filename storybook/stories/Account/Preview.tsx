@@ -6,7 +6,7 @@ import { Head } from './Account'
 export type PreviewProps = {
   id: AccountId
 }
-export function Preview({id}: PreviewProps) {
+export function Preview({ id }: PreviewProps) {
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   

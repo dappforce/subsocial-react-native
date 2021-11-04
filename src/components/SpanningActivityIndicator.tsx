@@ -8,6 +8,7 @@ import { useTheme } from './Theming'
 export type SpanningActivityIndicatorProps = {}
 export function SpanningActivityIndicator({}: SpanningActivityIndicatorProps) {
   const theme = useTheme()
+  
   return (
     <View style={styles.container}>
       <ActivityIndicator color={theme.colors.primary} />

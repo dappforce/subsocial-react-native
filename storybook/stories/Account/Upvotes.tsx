@@ -4,6 +4,6 @@ import { AccountId } from 'src/types/subsocial'
 export type UpvotesProps = {
   id: AccountId
 }
-export function Upvotes({id}: UpvotesProps) {
+export function Upvotes({ id }: UpvotesProps) {
   return null
 }

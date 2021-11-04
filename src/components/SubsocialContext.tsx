@@ -34,18 +34,18 @@ export const useSubsocial = () => useContext(SubsocialContext);
 export type SubsocialProviderProps = React.PropsWithChildren<{}>
 
 export function SubsocialProvider({children}: SubsocialProviderProps) {
-  const substrate = useSubstrate();
-  const [state, dispatch] = useReducer(stateReducer, {substrate, api: undefined, connectionState: 'PENDING'});
-  const {api} = state;
+  const substrate = useSubstrate()
+  const [ state, dispatch ] = useReducer(stateReducer, { substrate, api: undefined, connectionState: 'PENDING' })
+  const { api } = state
   
   switch (substrate?.connectionState) {
     case 'READY': {
-      if (!api) dispatch({type: 'CONNECT', data: {substrate}});
-      break;
+      if (!api) dispatch({ type: 'CONNECT', data: { substrate } })
+      break
     }
     case 'ERROR': {
-      dispatch({type: 'ERROR', data: substrate.apiError});
-      break;
+      dispatch({ type: 'ERROR', data: substrate.apiError })
+      break
     }
   }
   
@@ -62,20 +62,22 @@ function stateReducer(state: SubsocialState, action: StateAction): SubsocialStat
       if (state.connectionState !== 'PENDING') {
         console.error('duplicate connect dispatch')
       }
+      
       else {
-        const {substrate}: {substrate: SubstrateState} = action.data;
+        const {substrate}: {substrate: SubstrateState} = action.data
         const api = new SubsocialApi({
           substrateApi: substrate.api!,
           ipfsNodeUrl: config.connections.ipfs,
           offchainUrl: config.connections.ws.offchain,
-        });
-        return {...state, api, connectionState: 'CONNECTED'};
+        })
+        
+        return { ...state, api, connectionState: 'CONNECTED' }
       }
     }
     case 'ERROR': {
-      return {...state, api: undefined, apiError: action.data, connectionState: 'ERROR'};
+      return { ...state, api: undefined, apiError: action.data, connectionState: 'ERROR' }
     }
-    default: throw new Error(`unknown Subsocial context action ${action.type}`);
+    default: throw new Error(`unknown Subsocial context action ${action.type}`)
   }
 }
 
@@ -99,33 +101,34 @@ export function useSubsocialEffect<T>(
   deps: React.DependencyList
 ): [SubsocialInitializerState, undefined | T]
 {
-  const subsocial = useSubsocial();
+  const subsocial = useSubsocial()
   if (subsocial === undefined)
-    throw new Error('No Subsocial API context found - are you using SubsocialProvider?');
+    throw new Error('No Subsocial API context found - are you using SubsocialProvider?')
   
-  const {api} = subsocial;
-  const [state, setState] = useState<InitializerData<T>>({job: 'PENDING'});
-  const {job} = state;
+  const { api } = subsocial
+  const [ state, setState ] = useState<InitializerData<T>>({ job: 'PENDING' })
+  const { job } = state
   
   // Auto-reset initializer when deps change
   useEffect(() => {
-    setState({job: 'PENDING'});
-  }, deps);
+    setState({ job: 'PENDING' })
+  }, deps)
   
   // Need callback because api may be undefined
   useCallback(async () => {
-    if (!api) return;
+    if (!api) return
     
-    if (job !== 'PENDING') return;
-    setState({job: 'LOADING'});
+    if (job !== 'PENDING') return
+    
+    setState({ job: 'LOADING' })
     try {
-      setState({job: 'READY', data: await callback(api)});
+      setState({ job: 'READY', data: await callback(api) })
     }
     catch (error) {
-      setState({job: 'ERROR', error});
-      throw error;
+      setState({ job: 'ERROR', error })
+      throw error
     }
-  }, [api, state])();
+  }, [ api, state ])()
   
   return [state.job, state.data];
 }
@@ -135,6 +138,7 @@ export function isLoading(state: SubsocialInitializerState) {
     case 'PENDING':
     case 'LOADING':
       return true
+      
     default:
       return false
   }

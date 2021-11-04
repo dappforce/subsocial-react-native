@@ -15,6 +15,6 @@ const theme: Theme = {
     line: '#36404d',
     icon: '#8899a6',
   },
-};
+}
 
-export default theme;
+export default theme

@@ -37,7 +37,7 @@ export function Header({
 }: HeaderProps)
 {
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[ styles.container, containerStyle ]}>
       <View style={styles.left}>
         <IpfsAvatar
           cid={avatar}

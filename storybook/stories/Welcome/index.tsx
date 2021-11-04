@@ -4,8 +4,9 @@ import { DefaultTheme, Text, Title, useTheme } from 'react-native-paper'
 import { Span } from '~comps/Typography'
 
 export default function() {
-  const theme = useTheme();
-  const styles = useMemo(() => createStyles(theme), [theme]);
+  const theme = useTheme()
+  const styles = useMemo(() => createStyles(theme), [ theme ])
+  
   return (
     <View style={styles.container}>
       <Title>Welcome to Subsocial RN</Title>
@@ -23,7 +24,7 @@ export default function() {
         not a requirement for your own Subsocial app.
       </Text>
     </View>
-  );
+  )
 }
 
 const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
@@ -36,4 +37,4 @@ const createStyles = (theme: typeof DefaultTheme) => StyleSheet.create({
     marginBottom: 10,
     lineHeight: 18,
   },
-});
+})

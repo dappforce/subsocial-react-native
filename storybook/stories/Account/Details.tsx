@@ -105,6 +105,7 @@ export function DetailsHeader({ id, style }: DetailsHeaderProps) {
           primary: renderFollowButton
         }}
       />
+      
       <View style={styles.followage}>
         <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followingAccountsCount ?? 0}</Text>
         <Text mode="secondary" style={styles.followageLabel}>Following</Text>
@@ -112,7 +113,9 @@ export function DetailsHeader({ id, style }: DetailsHeaderProps) {
         <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followersCount ?? 0}</Text>
         <Text mode="secondary" style={styles.followageLabel}>Followers</Text>
       </View>
+      
       {!!data?.content?.about && <Text style={styles.about}>{data?.content?.about}</Text>}
+      
       <Address id={id} />
     </View>
   )

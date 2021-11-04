@@ -73,6 +73,7 @@ export function DynamicExpansionList<ID>({
           ids: [],
         }
       }
+      
       case 'INIT': {
         return {
           ...state,
@@ -81,12 +82,14 @@ export function DynamicExpansionList<ID>({
           ids: action.ids,
         }
       }
+      
       case 'BEGIN_EXPAND': {
         return {
           ...state,
           stage: 'BUSY',
         }
       }
+      
       case 'FINISH_EXPAND': {
         return {
           ...state,
@@ -94,12 +97,14 @@ export function DynamicExpansionList<ID>({
           lastIdx: action.lastIdx,
         }
       }
+      
       case 'BEGIN_REFRESH': {
         return {
           ...state,
           stage: 'REFRESH',
         }
       }
+      
       case 'FINISH_REFRESH': {
         return {
           ...state,
@@ -110,22 +115,26 @@ export function DynamicExpansionList<ID>({
     }
   }
   
-  const [state, dispatch] = useReducer(reducer, getInitState<ID>())
-  const {stage, lastIdx, ids} = state
+  const [ state, dispatch ] = useReducer(reducer, getInitState<ID>())
+  const { stage, lastIdx, ids } = state
   
-  const sections: SectionListData<ID>[] = [{data: stage !== 'INITIAL' ? ids.slice(0, lastIdx) : []}]
+  // TODO: Use ScrollView.HeaderComponent instead of SectionList workaround
+  // I simply didn't know ScrollView supported headers
+  const sections: SectionListData<ID>[] = [{ data: stage !== 'INITIAL' ? ids.slice(0, lastIdx) : [] }]
   
   async function loadMore() {
     if (lastIdx >= ids.length) return
+    
     if (stage !== 'READY') return
+    
     console.log('loading more')
     
     const newLastIdx = Math.min(lastIdx+batchSize, ids.length)
     const sublist = ids.slice(lastIdx, newLastIdx)
     
-    dispatch({type: 'BEGIN_EXPAND'})
+    dispatch({ type: 'BEGIN_EXPAND' })
     await loader(sublist)
-    dispatch({type: 'FINISH_EXPAND', lastIdx: newLastIdx})
+    dispatch({ type: 'FINISH_EXPAND', lastIdx: newLastIdx })
   }
   
   async function loadInit(ids: ID[]) {
@@ -138,33 +147,36 @@ export function DynamicExpansionList<ID>({
   useEffect(() => {
     (async() => {
       const newIds = typeof(_ids) === 'function' ? await _ids() : _ids
+      
       if (!setEqual(new Set(newIds), new Set(ids))) {
-        dispatch({type: 'RESET'})
+        dispatch({ type: 'RESET' })
         const loaded = await loadInit(newIds)
-        dispatch({type: 'INIT', ids: newIds, initialSize: loaded.length})
+        dispatch({ type: 'INIT', ids: newIds, initialSize: loaded.length })
       }
     })()
-  }, [_ids])
+  }, [ _ids ])
   
   const renderSectionHeader: SectionListSpec['renderSectionHeader'] = ({}) => renderHeader?.() || null
-  const renderItem: SectionListSpec['renderItem'] = ({item: id}) => _renderItem(id);
+  const renderItem: SectionListSpec['renderItem'] = ({ item: id }) => _renderItem(id)
+  
   const onRefresh = useCallback(async () => {
     if (typeof(_ids) === 'function' && stage === 'READY') {
-      dispatch({type: 'BEGIN_REFRESH'})
+      dispatch({ type: 'BEGIN_REFRESH' })
       
       const newIds = await _ids()
       
-      dispatch({type: 'FINISH_REFRESH', ids: newIds})
+      dispatch({ type: 'FINISH_REFRESH', ids: newIds })
     }
-  }, [_ids])
+  }, [ _ids ])
   
   if (stage === 'INITIAL') {
     return <SpanningActivityIndicator />
   }
+  
   else {
     return (
       <SectionList
-        {...{sections, renderItem, renderSectionHeader}}
+        {...{ sections, renderItem, renderSectionHeader }}
         onEndReached={loadMore}
         onEndReachedThreshold={1}
         keyExtractor={(id) => id+''}

@@ -11,23 +11,23 @@ import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { Panel as ActionPanel } from '../Actions'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
-
-const ICON_REACTIONS: IconDescriptor = {name: 'bulb-outline',      family: 'ionicon'}
-const ICON_IPFS:      IconDescriptor = {name: 'analytics-outline', family: 'ionicon'}
+import { WithSize } from 'src/types'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
-export const Preview = React.memo(({id, ...props}: PostPreviewProps) => {
+export const Preview = React.memo(({ id, ...props }: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
   useInit(() => {
-    if (data) return true;
+    if (data) return true
+    
     if (!reloadPost) return false
-    reloadPost({id})
+    
+    reloadPost({ id })
     return true
   }, [id], [reloadPost])
   
-  return <PreviewData {...props} {...{id, data}} />
+  return <PreviewData {...props} {...{ id, data }} />
 })
 
 
@@ -38,7 +38,7 @@ type PreviewDataProps = {
   onPressMore?: (id: PostId) => void
   onPressOwner?: PostOwnerProps['onPressOwner']
   onPressSpace?: PostOwnerProps['onPressSpace']
-};
+}
 export const PreviewData = React.memo(({
   id,
   data,
@@ -49,12 +49,30 @@ export const PreviewData = React.memo(({
 }: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
-  const renderActions = ({size}: {size: number}) => <>
-    <ActionMenu.Secondary label="View reactions" icon={{...ICON_REACTIONS, size}} onPress={() => alert('not yet implemented, sorry')} />
-    <ActionMenu.Secondary label="View on IPFS"   icon={{...ICON_IPFS,      size}} onPress={() => alert('not yet implemented, sorry')} />
-  </>
+  const renderActions = ({ size }: WithSize) => {
+    return <>
+      <ActionMenu.Secondary
+        label="View reactions"
+        icon={{
+          family: 'ionicon',
+          name: 'bulb-outline',
+          size,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+      <ActionMenu.Secondary
+        label="View on IPFS"
+        icon={{
+          family: 'ionicon',
+          name: 'analytics-outline',
+          size,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+    </>
+  }
   
-  const {title = '', body: content = '', image} = data?.post?.content ?? {}
+  const { title = '', body: content = '', image } = data?.post?.content ?? {}
   
   const onPressMore = useCallback((id: PostId) => {
     if (_onPressMore) {
@@ -66,9 +84,9 @@ export const PreviewData = React.memo(({
   }, [ _onPressMore ])
   
   return (
-    <View style={[styles.container, containerStyle]}>
+    <View style={[ styles.container, containerStyle ]}>
       <PostOwner
-        {...{onPressOwner, onPressSpace}}
+        {...{ onPressOwner, onPressSpace }}
         postId={id}
         postData={data?.post}
         actionMenuProps={{
@@ -76,13 +94,13 @@ export const PreviewData = React.memo(({
         }}
       />
       <Pressable onPress={() => onPressMore?.(id)}>
-        <Head {...{title, image}} titleStyle={[!data && styles.italic]} preview />
+        <Head {...{ title, image }} preview />
         <Body content={content} preview />
       </Pressable>
       
-      <Divider style={{marginTop: 16}} />
+      <Divider style={{ marginTop: 16 }} />
       
-      <ActionPanel style={{marginVertical: 16}}>
+      <ActionPanel style={{ marginVertical: 16 }}>
         <ActionPanel.LikeItem
           liked={false}
           likesCount={data?.post?.struct?.upvotesCount ?? 0}
@@ -119,4 +137,4 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   },
-});
+})

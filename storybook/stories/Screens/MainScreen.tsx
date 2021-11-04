@@ -90,18 +90,18 @@ type TabBarIconProps = {
 }
 
 const renderHomeIcon = ({ color, size }: TabBarIconProps) => (
-  <Icon name="home-outline" type="ionicon" {...{color, size}} />
+  <Icon name="home-outline" type="ionicon" {...{ color, size }} />
 )
 
 const renderSearchIcon = ({ color, size }: TabBarIconProps) => (
-  <Icon name="search-outline" type="ionicon" {...{color, size}} />
+  <Icon name="search-outline" type="ionicon" {...{ color, size }} />
 )
 
 const renderNotifIcon = ({ color, size }: TabBarIconProps) => (
-  <Icon name="notifications-outline" type="ionicon" {...{color, size}} />
+  <Icon name="notifications-outline" type="ionicon" {...{ color, size }} />
 )
 
 function renderProfileIcon({ color, size }: TabBarIconProps) {
   // TODO: render personal profile icon when signed in
-  return <Icon name="person-circle-outline" type="ionicon" {...{color, size}} />
+  return <Icon name="person-circle-outline" type="ionicon" {...{ color, size }} />
 }

@@ -7,8 +7,12 @@ export interface CenterViewProps {
   style?: StyleProp<ViewStyle>
 }
 
-export default function CenterView({children, style}: CenterViewProps) {
-  return <View style={[styles.container, style]}>{children}</View>;
+export default function CenterView({ children, style }: CenterViewProps) {
+  return (
+    <View style={[ styles.container, style ]}>
+      {children}
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -18,4 +22,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-});
+})

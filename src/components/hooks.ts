@@ -13,16 +13,17 @@ export interface InitCallback {
  * @param deps dependencies to observe - if any of these changes, initialization will be re-run
  */
 export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: DependencyList) {
-  const [initialized, setInitialized] = useState(false)
+  const [ initialized, setInitialized ] = useState(false)
   
   useEffect(() => {
     setInitialized(false)
   }, resetDeps)
+  
   useEffect(() => {
     if (!initialized) {
       if (cb()) {
         setInitialized(true)
       }
     }
-  }, [initialized, ...retryDeps])
+  }, [ initialized, ...retryDeps ])
 }

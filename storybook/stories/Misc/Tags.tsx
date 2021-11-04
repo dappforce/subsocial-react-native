@@ -11,10 +11,11 @@ export type TagsProps = {
   style?: StyleProp<ViewStyle>
   tagStyle?: StyleProp<ViewStyle>
 }
-export function Tags({tags, accented, onPress, style, tagStyle}: TagsProps) {
-  if (!tags.length) return null;
+export function Tags({ tags, accented, onPress, style, tagStyle }: TagsProps) {
+  if (!tags.length) return null
   
-  const _tagStyle = useMemo(() => StyleSheet.compose<ViewStyle>(styles.tag, tagStyle), [tagStyle]);
+  const _tagStyle = useMemo(() => StyleSheet.compose<ViewStyle>(styles.tag, tagStyle), [tagStyle])
+  
   const children = tags.map(tag => (
     <Chip
       mode={accented ? 'accent' : 'flat'}
@@ -24,10 +25,10 @@ export function Tags({tags, accented, onPress, style, tagStyle}: TagsProps) {
     >
       {tag}
     </Chip>
-  ));
+  ))
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[ styles.container, style ]}>
       {children}
     </View>
   )

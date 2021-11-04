@@ -6,7 +6,7 @@ import { TouchableHighlight } from 'react-native'
 import { TouchableRippleProps } from './TouchableRipple'
 import { Opt, Rect } from 'src/types'
 
-export function TouchableRipple({pressRetentionOffset, hitSlop, rippleSize, rippleBorderless, ...props}: TouchableRippleProps) {
+export function TouchableRipple({ pressRetentionOffset, hitSlop, rippleSize, rippleBorderless, ...props }: TouchableRippleProps) {
   return (
     <TouchableHighlight
       {...props}
@@ -18,6 +18,7 @@ export function TouchableRipple({pressRetentionOffset, hitSlop, rippleSize, ripp
 
 function toRect(v: Opt<number | Rect>): Opt<Rect> {
   if (!v) return undefined
+  
   if (typeof v === 'object') {
     const res: Rect = {}
     if ('top'    in v) res.top    = v.top
@@ -26,6 +27,7 @@ function toRect(v: Opt<number | Rect>): Opt<Rect> {
     if ('bottom' in v) res.bottom = v.bottom
     return res
   }
+  
   else {
     return {
       top: v,

@@ -11,16 +11,17 @@ import { Theme, ThemeContext } from '~comps/Theming'
 
 const ASIDE_SIZE = 40
 
-export type StackHeaderProps = StackBaseProps & {}
-export function StackHeader({navigation, route, options, back}: StackHeaderProps) {
+export type StackHeaderProps = StackBaseProps
+export function StackHeader({ navigation, route, options, back }: StackHeaderProps) {
   const title = getHeaderTitle(options, route.name)
   
   return (
     <ThemeContext.Consumer>
       {(theme) => {
         const themedStyles = createThemedStyles(theme)
+        
         return (
-          <View style={[styles.container, themedStyles.container]}>
+          <View style={[ styles.container, themedStyles.container ]}>
             <View style={styles.leftContainer}>
               {back && <Icon
                 family="ionicon"
@@ -42,16 +43,17 @@ export function StackHeader({navigation, route, options, back}: StackHeaderProps
   )
 }
 
-export type BottomTabHeaderProps = BottomTabBaseProps & {}
-export function BottomTabHeader({route, options}: BottomTabHeaderProps) {
+export type BottomTabHeaderProps = BottomTabBaseProps
+export function BottomTabHeader({ route, options }: BottomTabHeaderProps) {
   const title = getHeaderTitle(options, route.name)
   
   return (
     <ThemeContext.Consumer>
       {(theme) => {
         const themedStyles = createThemedStyles(theme)
+        
         return (
-          <View style={[styles.container, themedStyles.container]}>
+          <View style={[ styles.container, themedStyles.container ]}>
             <View style={styles.leftContainer}>
               {/* TODO: Drawer menu icon */}
             </View>
@@ -90,7 +92,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const createThemedStyles = ({colors}: Theme) => StyleSheet.create({
+const createThemedStyles = ({ colors }: Theme) => StyleSheet.create({
   container: {
     borderBottomColor: colors.line
   },

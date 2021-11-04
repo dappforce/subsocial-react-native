@@ -7,3 +7,7 @@ export type Rect = {
   right?: number
   bottom?: number
 }
+
+export type WithSize = {
+  size: number
+}

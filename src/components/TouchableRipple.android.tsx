@@ -6,7 +6,7 @@ import React, { useMemo } from 'react'
 import { Pressable, PressableAndroidRippleConfig } from 'react-native'
 import { TouchableRippleProps } from './TouchableRipple'
 
-export function TouchableRipple({rippleSize = 40, rippleBorderless = false, underlayColor, ...props}: TouchableRippleProps) {
+export function TouchableRipple({ rippleSize = 40, rippleBorderless = false, underlayColor, ...props }: TouchableRippleProps) {
   const android_ripple = useMemo<PressableAndroidRippleConfig>(() => {
     return {
       radius: rippleSize,

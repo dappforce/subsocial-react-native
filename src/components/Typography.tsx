@@ -30,30 +30,34 @@ export function Text({
       color: modeColor(mode, disabled, theme),
     }
     
-    return StyleSheet.flatten<TextStyle>([combinedStyle, style])
+    return StyleSheet.flatten<TextStyle>([ combinedStyle, style ])
   }, [ style, mode, theme ])
   
   return <RN.Text {...props} style={_style}>{children}</RN.Text>
 }
 
 function modeColor(mode: keyof Theme['fonts'], disabled: boolean, theme: Theme) {
-  if (disabled) return theme.colors.textDisabled;
+  if (disabled) return theme.colors.textDisabled
+  
   switch (mode) {
-    case 'secondary': return theme.colors.textSecondary;
-    default: return theme.colors.textPrimary;
+    case 'secondary':
+      return theme.colors.textSecondary
+    
+    default:
+      return theme.colors.textPrimary
   }
 }
 
 export type TitleProps = Omit<TextProps, 'mode' | 'composeStyles'> & React.PropsWithChildren<{
   preview?: boolean
 }>
-export function Title({preview = false, ...props}: TitleProps) {
-  return Text({...props, mode: preview ? 'titlePreview' : 'titleDetails'})
+export function Title({ preview = false, ...props }: TitleProps) {
+  return Text({ ...props, mode: preview ? 'titlePreview' : 'titleDetails' })
 }
 
 export type ButtonProps = Omit<React.ComponentProps<typeof Paper.Button>, "theme">
-export function Button({children, style, labelStyle, ...props}: ButtonProps) {
-  let {mode, color} = props
+export function Button({ children, style, labelStyle, ...props }: ButtonProps) {
+  let { mode, color } = props
   const theme = useTheme()
   color = color ?? theme.colors.primary
   
@@ -79,10 +83,18 @@ export function Button({children, style, labelStyle, ...props}: ButtonProps) {
   return <Paper.Button {...props} style={_style} labelStyle={_labelStyle}>{children}</Paper.Button>
 }
 
-export type SpanProps = Omit<RN.TextProps, 'theme'> & React.PropsWithChildren<{}>
-export function Span({children, style, ...props}: SpanProps) {
-  const theme = Paper.useTheme();
-  return <Paper.Text {...props} style={[{fontStyle: 'italic', color: theme.colors.accent}, style]}>{children}</Paper.Text>
+export type SpanProps = TextProps & React.PropsWithChildren<{}>
+export function Span({ children, style, ...props }: SpanProps) {
+  const theme = Paper.useTheme()
+  
+  return (
+    <Text
+      {...props}
+      style={[ {fontStyle: 'italic', color: theme.colors.accent}, style ]}
+    >
+      {children}
+    </Text>
+  )
 }
 
 export type LinkResponderEvent = GestureResponderEvent & {
@@ -93,17 +105,19 @@ export type LinkProps = Omit<RN.TextProps, 'onPress'> & {
   onPress?: (evt: LinkResponderEvent) => void
   children?: string | Falsy
 }
-export function Link({children: label, url, onPress, style, ...props}: LinkProps) {
+export function Link({ children: label, url, onPress, style, ...props }: LinkProps) {
   if (!label && !url) throw new Error('require one of label or url')
-  if (!label) label = url;
-  const theme = useTheme();
-  const defaultHandler = () => {url && Linking.openURL(url)}
+  
+  if (!label) label = url
+  
+  const theme = useTheme()
+  const defaultHandler = () => { url && Linking.openURL(url) }
   
   return (
     <Paper.Text
       {...props}
-      style={[{color: theme.colors.link}, style]}
-      onPress={evt => (onPress??defaultHandler)({...evt, url})}
+      style={[ {color: theme.colors.link}, style ]}
+      onPress={evt => (onPress??defaultHandler)({ ...evt, url })}
     >
       {label}
     </Paper.Text>
@@ -113,9 +127,13 @@ export function Link({children: label, url, onPress, style, ...props}: LinkProps
 export type MarkdownProps = MdProps & {
   children: string
 }
-export function Markdown({children, style, ...props}: MarkdownProps) {
-  const theme = useTheme();
-  const rootstyles = useMemo(() => reduceMarkdownTheme(style??{}, theme), [style, theme]);
+export function Markdown({ children, style, ...props }: MarkdownProps) {
+  const theme = useTheme()
+  
+  const rootstyles = useMemo(() => (
+    reduceMarkdownTheme(style ?? {}, theme)
+  ), [ style, theme ])
+  
   return <Md {...props} style={rootstyles} mergeStyle={false}>{children}</Md>
 }
 
@@ -125,23 +143,39 @@ export type ChipProps = Omit<PaperChipProps, 'mode' | 'style' | 'textStyle'> & {
   style?: StyleProp<ViewStyle>
   textStyle?: StyleProp<TextStyle>
 }
-export function Chip({mode, children, style, textStyle, ...props}: ChipProps) {
-  const theme = useTheme();
-  mode = mode ?? 'flat';
+export function Chip({mode: _mode, children, style, textStyle, ...props}: ChipProps) {
+  const theme = useTheme()
+  const mode = _mode ?? 'flat'
   
   const bgc = {
     flat: theme.colors.backgroundMenu,
     accent: theme.colors.backgroundMenuHover,
     outlined: 'transparent',
-  };
+  }
   
   const _style = useMemo(() => StyleSheet.compose<ViewStyle>({
-    backgroundColor: bgc[mode!],
-  }, style), [mode, theme, style])
-  const _textStyle = useMemo(() => StyleSheet.compose<TextStyle>({
-    color: theme.colors.textSecondary,
-  }, textStyle), [theme, textStyle]);
-  return <Paper.Chip mode={Chip.paperMode[mode!]} {...props} style={_style} textStyle={_textStyle}>{children}</Paper.Chip>
+    backgroundColor: bgc[mode],
+  }, style), [ mode, theme, style ])
+  
+  const _textStyle = useMemo(() => (
+    StyleSheet.compose<TextStyle>(
+      {
+        color: theme.colors.textSecondary,
+      },
+      textStyle
+    )
+  ), [ theme, textStyle ])
+  
+  return (
+    <Paper.Chip
+      mode={Chip.paperMode[mode]}
+      {...props}
+      style={_style}
+      textStyle={_textStyle}
+    >
+      {children}
+    </Paper.Chip>
+  )
 }
 Chip.paperMode = {
   'flat': 'flat',
@@ -151,6 +185,6 @@ Chip.paperMode = {
 
 export type DividerProps = Elements.DividerProps
 export function Divider(props: DividerProps) {
-  const {colors} = useTheme()
+  const { colors } = useTheme()
   return <Elements.Divider color={colors.divider} {...props} />
 }

@@ -3,8 +3,8 @@ import { StyleProp, TextStyle } from 'react-native'
 import { useSubsocialEffect } from '~comps/SubsocialContext'
 import { AccountId } from 'src/types/subsocial'
 import { Text } from '~comps/Typography'
-import BN from 'bn.js'
 import { formatBalance } from '@polkadot/util'
+import BN from 'bn.js'
 
 export type BalanceFormat = {
   value: BN

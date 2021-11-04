@@ -19,19 +19,21 @@ const SUMMARY_LIMIT = 200
 export type PreviewProps = Omit<DataProps, 'data' | 'state'> & {
   id: SpaceId
 }
-export const Preview = React.memo(({id, preview, ...props}: PreviewProps) => {
+export const Preview = React.memo(({ id, preview, ...props }: PreviewProps) => {
   const resolvedId = useResolvedSpaceHandle(id)
   const reloadSpace = useCreateReloadSpace()
   const data = useSelectSpace(resolvedId)
   
   useInit(() => {
     if (data) return true
+    
     if (!reloadSpace) return false
-    reloadSpace({id: resolvedId})
+    
+    reloadSpace({ id: resolvedId })
     return true
   }, [resolvedId], [reloadSpace])
   
-  return <PreviewData {...props} titlePlaceholder={id.toString()} {...{data, preview}} />
+  return <PreviewData {...props} titlePlaceholder={id.toString()} {...{ data, preview }} />
 })
 
 type DataProps = {
@@ -72,12 +74,12 @@ export const PreviewData = React.memo(({
   }, [ data, _onPressSpace ])
   
   return (
-    <View style={[{width: '100%'}, containerStyle]}>
-      <Head {...{titlePlaceholder, data, showFollowButton}} onPressTitle={onPressSpace} />
+    <View style={[ { width: '100%' }, containerStyle ]}>
+      <Head {...{ titlePlaceholder, data, showFollowButton }} onPressTitle={onPressSpace} />
       
       {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} />}
-      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={{marginBottom: 10}} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} style={{marginBottom: 8}} />}
+      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={{ marginBottom: 10 }} />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} style={{ marginBottom: 8 }} />}
     </View>
   )
 })
@@ -88,25 +90,39 @@ export type HeadProps = {
   showFollowButton?: boolean
   onPressTitle?: () => void
 }
-export function Head({titlePlaceholder = '', data, showFollowButton, onPressTitle}: HeadProps) {
+export function Head({ titlePlaceholder = '', data, showFollowButton, onPressTitle }: HeadProps) {
   const renderPrimaryActions = useCallback(() => {
     return <>
       {showFollowButton && (
         <ActionMenu.Primary>
           <FollowButton
-            id={data?.struct?.id ?? 0}
+            id={data?.struct?.id ?? '0'}
             isFollowing={false}
             onPress={() => alert('not yet implemented, sorry!')}
           />
         </ActionMenu.Primary>
       )}
     </>
-  }, []);
+  }, [])
   
   const renderSecondaryActions = useCallback(() => {
     return <>
-      <ActionMenu.Secondary label="Share Space"  icon={{name: 'share-social-outline', family: 'ionicon'}} onPress={() => {}} />
-      <ActionMenu.Secondary label="View on IPFS" icon={{name: 'analytics-outline',    family: 'ionicon'}} onPress={() => {}} />
+      <ActionMenu.Secondary
+        label="Share Space"
+        icon={{
+          family: 'ionicon',
+          name: 'share-social-outline',
+        }}
+        onPress={() => {}}
+      />
+      <ActionMenu.Secondary
+        label="View on IPFS"
+        icon={{
+          family: 'ionicon',
+          name: 'analytics-outline',
+        }}
+        onPress={() => {}}
+      />
     </>
   }, []);
   
@@ -130,7 +146,7 @@ export type AboutProps = {
   preview: boolean
   onPressMore?: (id: SpaceId) => void
 }
-export function About({data, preview, onPressMore: _onPressMore}: AboutProps) {
+export function About({ data, preview, onPressMore: _onPressMore }: AboutProps) {
   const onPressMore = useCallback(() => {
     if (data?.id) {
       _onPressMore?.(data.id)
@@ -140,7 +156,8 @@ export function About({data, preview, onPressMore: _onPressMore}: AboutProps) {
   if (!data?.content?.about) return null
   
   if (preview) {
-    const {summary, isShowMore} = summarizeMd(data.content.about, {limit: SUMMARY_LIMIT});
+    const {summary, isShowMore} = summarizeMd(data.content.about, { limit: SUMMARY_LIMIT })
+    
     return (
       <Text onPress={onPressMore} style={styles.item}>
         {summary}

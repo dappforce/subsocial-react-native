@@ -17,12 +17,6 @@ import { Age } from 'src/util'
 const SUMMARY_LIMIT = 200
 const IMAGE_PREVIEW_HEIGHT = 160
 
-export class PostNotFoundError extends Error {
-  constructor(postId: number) {
-    super(`Subsocial Post ${postId} not found`);
-  }
-}
-
 export type PostOwnerProps = {
   postId: PostId
   postData?: PostData
@@ -30,7 +24,14 @@ export type PostOwnerProps = {
   onPressOwner?: (id: PostId, ownerId: ProfileId) => void
   onPressSpace?: (id: PostId, spaceId: SpaceId) => void
 }
-export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPressOwner: _onPressOwner, onPressSpace: _onPressSpace}: PostOwnerProps) => {
+export const PostOwner = React.memo(({
+  postId,
+  postData,
+  actionMenuProps,
+  onPressOwner: _onPressOwner,
+  onPressSpace: _onPressSpace
+}: PostOwnerProps) =>
+{
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const reloadSpace = useCreateReloadSpace()
   const reloadOwner = useCreateReloadProfile()
@@ -95,11 +96,13 @@ export type HeadProps = {
   previewBannerStyle?: StyleProp<ImageStyle>
   titleStyle?: StyleProp<TextStyle>
 }
-export function Head({title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false}: HeadProps) {
+export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false }: HeadProps) {
   return (
     <View>
       <Banner cid={image} style={bannerStyle} previewStyle={previewBannerStyle} preview={preview} />
-      {!!title && <Title preview={preview} style={[styles.title, titleStyle]}>{title}</Title>}
+      {!!title && <Title preview={preview} style={[ styles.title, titleStyle ]}>
+        {title}
+      </Title>}
     </View>
   )
 }
@@ -131,24 +134,29 @@ export type BodyProps = {
   preview?: boolean
   previewStyle?: StyleProp<TextStyle>
 }
-export function Body({content, previewStyle, preview = false}: BodyProps) {
+export function Body({ content, previewStyle, preview = false }: BodyProps) {
   if (preview) {
-    const {summary, isShowMore} = summarizeAndStrip(content, {limit: SUMMARY_LIMIT})
+    const { summary, isShowMore } = summarizeAndStrip(content, { limit: SUMMARY_LIMIT })
     
     return (
       <Text style={previewStyle}>
         {summary}
-        {isShowMore && <Link style={{fontWeight: 'bold'}}> Read more</Link>}
+        {isShowMore && <Link style={{ fontFamily: 'Roboto500' }}> Read more</Link>}
       </Text>
     )
   }
+  
   else {
     return <Markdown>{content}</Markdown>
   }
 }
 
-function summarizeAndStrip(content: string, opts?: {limit: number}): {summary: string, isShowMore: boolean} {
-  let {summary, isShowMore} = summarizeMd(content, opts)
+type StrippedSummary = {
+  summary: string
+  isShowMore: boolean 
+}
+function summarizeAndStrip(content: string, opts?: { limit: number }): StrippedSummary {
+  let { summary, isShowMore } = summarizeMd(content, opts)
   
   if (summary)
     summary = summary.replace(/(\n\r|\r\n|\n|\r)+/g, '  ')

@@ -57,6 +57,6 @@ const theme: Theme = {
       lineHeight: 17*1.25,
     },
   }
-};
+}
 
-export default theme;
+export default theme

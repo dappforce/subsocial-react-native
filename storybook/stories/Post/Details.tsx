@@ -18,7 +18,7 @@ export type DetailsProps = {
   onPressOwner?: () => void
   onPressSpace?: () => void
 }
-export function Details({id, containerStyle, onPressOwner, onPressSpace}: DetailsProps) {
+export function Details({ id, containerStyle, onPressOwner, onPressSpace }: DetailsProps) {
   const reloadPost    = useCreateReloadPost()
   const reloadProfile = useCreateReloadProfile()
   const reloadSpace   = useCreateReloadSpace()
@@ -29,15 +29,15 @@ export function Details({id, containerStyle, onPressOwner, onPressSpace}: Detail
     if (!reloadPost || !reloadProfile || !reloadSpace) return false
     
     if (!data) {
-      reloadPost({id})
+      reloadPost({ id })
       return false
     }
     
     const {spaceId, ownerId} = data.post.struct
     
     await Promise.all([
-      spaceId && reloadSpace({id: spaceId}),
-      ownerId && reloadProfile({id: ownerId}),
+      spaceId && reloadSpace({ id: spaceId }),
+      ownerId && reloadProfile({ id: ownerId }),
     ])
     
     return true
@@ -45,29 +45,30 @@ export function Details({id, containerStyle, onPressOwner, onPressSpace}: Detail
   
   if (!data) {
     return (
-      <View style={[styles.loadingContainer, containerStyle]}>
+      <View style={[ styles.loadingContainer, containerStyle ]}>
         <ActivityIndicator size="large" />
       </View>
     )
   }
+  
   else {
     return (
-      <ScrollView style={[styles.container, containerStyle]}>
+      <ScrollView style={[ styles.container, containerStyle ]}>
         <PostOwner
           postId={id}
           postData={data?.post}
-          {...{onPressOwner, onPressSpace}}
+          {...{ onPressOwner, onPressSpace }}
         />
         <Head 
           title={data?.post?.content?.title}
-          titleStyle={{marginBottom: 0}} // Markdown adds indents as well
+          titleStyle={{ marginBottom: 0 }} // Markdown adds indents as well
           image={data?.post?.content?.image}
         />
         <Body
           content={data?.post?.content?.body ?? ''}
         />
         <Tags tags={data?.post?.content?.tags ?? []} />
-        <ActionPanel style={{marginVertical: 20, justifyContent: 'space-between'}}>
+        <ActionPanel style={{ marginVertical: 20, justifyContent: 'space-between' }}>
           <ActionPanel.LikeItem liked={false} likesCount={data?.post?.struct?.upvotesCount ?? 0} onPress={() => alert('not yet implemented, sorry')} />
           <ActionPanel.ShareItem label onPress={() => alert('not yet implemented, sorry')} />
         </ActionPanel>

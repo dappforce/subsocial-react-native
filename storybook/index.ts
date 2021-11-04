@@ -4,13 +4,13 @@ import { withKnobs } from '@storybook/addon-knobs'
 import './rn-addons'
 
 // global decorators
-[withKnobs].forEach(deco => addDecorator(deco));
+[ withKnobs ].forEach(deco => addDecorator(deco))
 
 // import stories
 configure(() => {
-  require('./stories');
-}, module);
+  require('./stories')
+}, module)
 
 export default getStorybookUI({
     asyncStorage: null,
-});
+})

@@ -1,14 +1,14 @@
 //////////////////////////////////////////////////////////////////////
 // Custom theming solution reducing to themes of used 3P libraries
 // (e.g. RN-Elements, RN-Paper).
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { useContext, useMemo } from 'react'
 import { StyleSheet, TextStyle, useColorScheme } from 'react-native'
 import { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { DefaultTheme as DefaultPaperTheme, Provider as PaperProvider } from 'react-native-paper'
 import { DefaultTheme as DefaultNavigationTheme } from '@react-navigation/native'
 
 type PaperFontProps = 'fontFamily'
-type FontList<Keys extends string> = {[Key in Keys]: Required<Pick<TextStyle, PaperFontProps>> & Omit<TextStyle, PaperFontProps>}
+type FontList<Keys extends string> = { [Key in Keys]: Required<Pick<TextStyle, PaperFontProps>> & Omit<TextStyle, PaperFontProps> }
 
 export type PaperTheme = typeof DefaultPaperTheme
 export type NavigationTheme = typeof DefaultNavigationTheme
@@ -49,6 +49,8 @@ export type DualismTheme = {
   dark: Theme
 }
 
+export const isDualismTheme = (obj: any): obj is DualismTheme => obj && obj.light && obj.dark
+
 export const ThemeContext = React.createContext(undefined as unknown as Theme);
 export const useTheme = () => useContext(ThemeContext);
 
@@ -61,15 +63,10 @@ export type ThemeProviderProps = React.PropsWithChildren<{
   theme: Theme | DualismTheme
   dark?: boolean
 }>
-export function ThemeProvider({children, theme, dark}: ThemeProviderProps) {
+export function ThemeProvider({ children, theme, dark }: ThemeProviderProps) {
   const scheme = useColorScheme() || 'light'
-  let _theme: Theme, dualism = theme as DualismTheme
-  if (dualism.light && dualism.dark) {
-    _theme = dualism[scheme]
-  }
-  else {
-    _theme = theme as Theme
-  }
+  
+  let _theme = isDualismTheme(theme) ? theme[scheme] : theme
   
   const paperTheme = useMemo(() => reducePaperTheme(_theme, !!dark), [ _theme ])
   return (
@@ -81,7 +78,7 @@ export function ThemeProvider({children, theme, dark}: ThemeProviderProps) {
   )
 }
 
-export const reduceNavigationTheme = ({colors}: Theme, dark: boolean): NavigationTheme => ({
+export const reduceNavigationTheme = ({ colors }: Theme, dark: boolean): NavigationTheme => ({
   dark,
   colors: {
     ...DefaultNavigationTheme.colors,
@@ -111,10 +108,10 @@ export const reducePaperTheme = ({colors, consts, fonts}: Theme, dark: boolean):
   },
   fonts: DefaultPaperTheme.fonts,
   animation: DefaultPaperTheme.animation,
-});
+})
 
-const mdHeadingMargins = {marginTop: 6, marginBottom: 4};
-export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors, fonts}: Theme) => StyleSheet.create({
+const mdHeadingMargins = { marginTop: 6, marginBottom: 4 }
+export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, { colors, fonts }: Theme) => StyleSheet.create({
   ...base,
   body: {
     ...fonts.primary,
@@ -192,4 +189,4 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, {colors
     borderLeftWidth: 3,
     ...base.blockquote,
   },
-});
+})

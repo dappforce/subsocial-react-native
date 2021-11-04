@@ -18,22 +18,22 @@ storiesOf('API', module)
 
 
 function SubstrateConsumer() {
-  const {connectionState} = useSubstrate();
+  const { connectionState } = useSubstrate()
   
   switch (connectionState) {
-    case 'PENDING': return <Text>pending ...</Text>;
-    case 'CONNECTING': return <Text>connecting ...</Text>;
-    case 'READY': return <Text>✔️ ready</Text>;
-    case 'ERROR': return <Text>❌ failed</Text>;
+    case 'PENDING': return <Text>pending ...</Text>
+    case 'CONNECTING': return <Text>connecting ...</Text>
+    case 'READY': return <Text>✔️ ready</Text>
+    case 'ERROR': return <Text>❌ failed</Text>
   }
 }
 
 function SubsocialConsumer() {
-  const {connectionState} = useSubsocial();
+  const { connectionState } = useSubsocial()
   
   switch (connectionState) {
-    case 'PENDING': return <Text>pending ...</Text>;
-    case 'CONNECTED': return <Text>✔️ ready</Text>;
-    case 'ERROR': return <Text>❌ failed</Text>;
+    case 'PENDING': return <Text>pending ...</Text>
+    case 'CONNECTED': return <Text>✔️ ready</Text>
+    case 'ERROR': return <Text>❌ failed</Text>
   }
 }

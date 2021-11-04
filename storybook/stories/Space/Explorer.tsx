@@ -11,7 +11,7 @@ import { useCreateReloadSpace } from 'src/rtk/app/hooks'
 export type SuggestedProps = {
   spaces: SpaceId[]
 }
-export function Suggested({spaces}: SuggestedProps) {
+export function Suggested({ spaces }: SuggestedProps) {
   const reloadSpace = useCreateReloadSpace()
   const renderItem = (id: SpaceId) => <WrappedSpace id={id} />
   
@@ -24,7 +24,7 @@ export function Suggested({spaces}: SuggestedProps) {
   return (
     <DynamicExpansionList
       ids={spaces}
-      {...{loader, renderItem}}
+      {...{ loader, renderItem }}
     />
   )
 }
@@ -32,7 +32,7 @@ export function Suggested({spaces}: SuggestedProps) {
 type WrappedSpaceProps = {
   id: SpaceId
 }
-const WrappedSpace = React.memo(({id}: WrappedSpaceProps) => {
+const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
   return <>
     <Preview
       id={id}
@@ -51,4 +51,4 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 0,
   },
-});
+})

@@ -5,12 +5,6 @@ import { AccountId } from 'src/types/subsocial'
 import { ActionMenu, FollowButton } from '~stories/Actions'
 import { Header } from '~stories/Misc'
 
-export class AccountNotFoundError extends Error {
-  constructor(public readonly accountID: AccountId) {
-    super(`account ${accountID} not found`)
-  }
-}
-
 export type HeadProps = {
   id: AccountId
   name: string
@@ -19,17 +13,15 @@ export type HeadProps = {
   numFollowing: number
   isFollowing: boolean
 }
-export function Head({id, name, avatar, numFollowers, numFollowing, isFollowing}: HeadProps) {
+export function Head({ id, name, avatar, numFollowers, numFollowing, isFollowing }: HeadProps) {
   const renderPrimary = useCallback(() => (
-    <>
-      <ActionMenu.Primary>
-        <FollowButton
-          {...{id, isFollowing}}
-          onPress={() => alert('not yet implemented, sorry')}
-        />
-      </ActionMenu.Primary>
-    </>
-  ), [id, isFollowing]);
+    <ActionMenu.Primary>
+      <FollowButton
+        {...{ id, isFollowing }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+    </ActionMenu.Primary>
+  ), [ id, isFollowing ])
   
   return (
     <Header

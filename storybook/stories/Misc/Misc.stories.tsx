@@ -9,13 +9,14 @@ import { SubsocialProvider } from '~comps/SubsocialContext'
 import { Balance, Modal, SocialLinks, Tags } from './index'
 import { Button, Text } from '~comps/Typography'
 import QRCode from 'react-native-qrcode-svg'
+import { StyleSheet } from 'react-native'
 
 function ModalStory() {
-  const [visible, setVisible] = React.useState(false)
+  const [ visible, setVisible ] = React.useState(false)
   const onRequestClose = () => setVisible(false)
   
   return (
-    <CenterView style={{padding: 10}}>
+    <CenterView style={styles.padded}>
       <Button onPress={() => setVisible(true)}>Show Modal</Button>
       <Modal
         {...{visible, onRequestClose}}
@@ -27,9 +28,9 @@ function ModalStory() {
         }}
         maxWidth='80%'
       >
-        <Text style={{margin: 4}}>Some text here</Text>
+        <Text style={styles.margined}>Some text here</Text>
         <QRCode value="Hope you have a good day :)" />
-        <Button mode="contained" style={{margin: 4}} onPress={() => setVisible(false)}>Close</Button>
+        <Button mode="contained" style={styles.margined} onPress={() => setVisible(false)}>Close</Button>
       </Modal>
     </CenterView>
   )
@@ -44,7 +45,7 @@ storiesOf('Misc', module)
     />
   ))
   .add('Socials', () => (
-    <CenterView style={{padding: 10}}>
+    <CenterView style={styles.padded}>
       <SocialLinks
         links={array('Links', ['twitter.com/SubsocialChain', 'twitter.com/Subsocial'])}
         onPress={action('onPress')}
@@ -56,7 +57,7 @@ storiesOf('Misc', module)
   .add('Modal', () => <ModalStory />)
   .add('Balance', () => (
     <SubsocialProvider>
-      <CenterView style={{padding: 10}}>
+      <CenterView style={styles.padded}>
         <Balance
           address={text('Address', '3tZSKKfn9PSrLXTxExZtnhvV1oFyTjnF1P5pAnVyrdVs4h2v')}
           decimals={number('Decimals', 11)}
@@ -66,3 +67,13 @@ storiesOf('Misc', module)
       </CenterView>
     </SubsocialProvider>
   ))
+
+
+const styles = StyleSheet.create({
+  padded: {
+    padding: 10,
+  },
+  margined: {
+    margin: 4,
+  },
+})

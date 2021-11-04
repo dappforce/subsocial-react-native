@@ -2,29 +2,24 @@ import React, { ReactElement, ReactNode, useState } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { Menu, TouchableRipple } from 'react-native-paper'
 import { useTheme } from '../../../src/components/Theming'
-import { Icon, IconRaw } from '~comps/Icon'
+import { AnyIcon, Icon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
-import { IconFamily } from 'src/util'
+import { WithSize } from 'src/types'
 
-export type WithSize = {size: number}
-export type IconDescriptor = {
-  name: string
-  family: IconFamily
-  size?: number
-}
+export type IconDescriptor = AnyIcon & Partial<WithSize>
 
 export type ActionMenuProps = {
-  primary?: ({size}: WithSize) => ReactNode
-  secondary?: ({size}: WithSize) => ReactNode
+  primary?: ({ size }: WithSize) => ReactNode
+  secondary?: ({ size }: WithSize) => ReactNode
   style?: StyleProp<ViewStyle>
   size?: number
 }
-export function ActionMenu({primary, secondary, size = 24, style}: ActionMenuProps) {
+export function ActionMenu({ primary, secondary, size = 24, style }: ActionMenuProps) {
   const theme = useTheme();
-  const [showSecondary, setShowSecondary] = useState(false);
+  const [ showSecondary, setShowSecondary ] = useState(false)
   
   return (
-    <View style={[styles.actionMenu, style]}>
+    <View style={[ styles.actionMenu, style ]}>
       {!!secondary &&
         <Menu
           visible={showSecondary}
@@ -33,15 +28,15 @@ export function ActionMenu({primary, secondary, size = 24, style}: ActionMenuPro
             family="feather"
             name="more-horizontal"
             size={size}
-            style={{color: theme.colors.textSecondary}}
+            style={{ color: theme.colors.textSecondary }}
             onPress={() => setShowSecondary(true)}
             rippleBorderless
           />}
         >
-          {secondary?.({size})}
+          {secondary?.({ size })}
         </Menu>
       }
-      {primary?.({size})}
+      {primary?.({ size })}
     </View>
   )
 }
@@ -49,9 +44,9 @@ export function ActionMenu({primary, secondary, size = 24, style}: ActionMenuPro
 export type PrimaryProps = React.PropsWithChildren<{
   style?: StyleProp<ViewStyle>
 }>;
-ActionMenu.Primary = function({children, style}: PrimaryProps) {
+ActionMenu.Primary = function({ children, style }: PrimaryProps) {
   return (
-    <View style={[styles.actionPrimary, style]}>
+    <View style={[ styles.actionPrimary, style ]}>
       {children}
     </View>
   )
@@ -64,13 +59,13 @@ export type SecondaryProps = {
   onPress: () => void
   disabled?: boolean
 };
-ActionMenu.Secondary = function({label, icon, iconContainerStyle, onPress, disabled}: SecondaryProps) {
-  const theme = useTheme();
+ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disabled }: SecondaryProps) {
+  const theme = useTheme()
+  let iconRender = null
   
-  let iconRender = null;
   if (icon) {
     if (typeof icon === 'function') {
-      iconRender = icon();
+      iconRender = icon()
     }
     else {
       iconRender = (
@@ -85,12 +80,12 @@ ActionMenu.Secondary = function({label, icon, iconContainerStyle, onPress, disab
   }
   
   return (
-    <TouchableRipple style={styles.actionSecondary} {...{onPress, disabled}}>
+    <TouchableRipple style={styles.actionSecondary} {...{ onPress, disabled }}>
       <>
-        <View style={[styles.iconSecondary, iconContainerStyle]}>
+        <View style={[ styles.iconSecondary, iconContainerStyle ]}>
           {iconRender}
         </View>
-        <Text style={[disabled && {color: theme.colors.textDisabled}]}>
+        <Text style={[ disabled && { color: theme.colors.textDisabled } ]}>
           {label}
         </Text>
       </>
@@ -119,4 +114,4 @@ const styles = StyleSheet.create({
   iconSecondary: {
     width: 36,
   },
-});
+})

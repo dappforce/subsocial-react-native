@@ -15,15 +15,15 @@ import SubIdSvg from 'assets/subid-logo.svg'
 export type AddressProps = {
   id: AccountId
 }
-export const Address = React.memo(({id}: AddressProps) => {
+export const Address = React.memo(({ id }: AddressProps) => {
   const theme = useTheme()
   const styles = useMemo(() => createStyles(theme), [ theme ])
-  const [showQR, setShowQR] = useState(false)
+  const [ showQR, setShowQR ] = useState(false)
   
   const iconSize = 20
   const rippleSize = 16
   
-  const MyIcon = useCallback(({...props}: IconProps) => {
+  const MyIcon = useCallback(({ ...props }: IconProps) => {
     return (
       <Icon
         size={iconSize}
@@ -67,7 +67,7 @@ export const Address = React.memo(({id}: AddressProps) => {
       </TouchableRipple>
       
       <AddressQRModal
-        {...{id, styles, theme}}
+        {...{ id, styles, theme }}
         visible={showQR}
         onClose={() => setShowQR(false)}
       />
@@ -82,8 +82,8 @@ type AddressQRModalProps = {
   styles: ReturnType<typeof createStyles>
   theme: Theme
 }
-function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalProps) {
-  const [copyClicked, setCopyClicked] = useState(false)
+function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalProps) {
+  const [ copyClicked, setCopyClicked ] = useState(false)
   
   const onModalCopy = useCallback(() => {
     Clipboard.setString(id)
@@ -92,7 +92,7 @@ function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalPro
   
   const modalCopyIcon = useMemo<ButtonProps['icon']>(() => {
     if (copyClicked) {
-      return ({size}) => (
+      return ({ size }) => (
         <Icon
           family="ionicon"
           name="checkmark-circle-outline"
@@ -101,8 +101,9 @@ function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalPro
         />
       )
     }
+    
     else {
-      return ({size}) => (
+      return ({ size }) => (
         <Icon
           family="ionicon"
           name="copy-outline"
@@ -126,7 +127,7 @@ function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalPro
   return (
     <Modal
       title="Account address"
-      titleContainerStyle={{marginBottom: Modal.PADDING}}
+      titleContainerStyle={{ marginBottom: Modal.PADDING }}
       visible={visible}
       onRequestClose={onClose}
       onDismiss={onClose}
@@ -146,7 +147,7 @@ function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalPro
         <Button
           mode="outlined"
           onPress={onClose}
-          style={[styles.modalButton, {marginRight: Modal.PADDING}]}
+          style={[ styles.modalButton, {marginRight: Modal.PADDING} ]}
         >
           Close
         </Button>
@@ -166,7 +167,7 @@ function AddressQRModal({id, visible, onClose, styles, theme}: AddressQRModalPro
 
 const truncateAddress = (id: AccountId) => id.substr(0, 6) + '...' + id.substr(-6)
 
-const createStyles = ({colors}: Theme) => StyleSheet.create({
+const createStyles = ({ colors }: Theme) => StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'row',

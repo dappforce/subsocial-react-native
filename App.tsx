@@ -21,12 +21,14 @@ export default function(props: {}) {
   // const theme  = scheme === 'light' ? LightTheme : DarkTheme;
   const dark = false
   const theme = LightTheme
-  const [fontsLoaded] = useFonts({
+  
+  const [ fontsLoaded ] = useFonts({
     Roboto: require('./assets/fonts/Roboto-Regular.ttf'),
     RobotoMedium: require('./assets/fonts/Roboto-Medium.ttf'),
     RobotoBold: require('./assets/fonts/Roboto-Bold.ttf'),
   })
-  const ready = useMemo(() => fontsLoaded, [ fontsLoaded ])
+  
+  const ready = fontsLoaded
   
   if (!ready) {
     return <AppLoading />
@@ -39,7 +41,7 @@ export default function(props: {}) {
           <SafeAreaProvider>
             <NavigationContainer theme={reduceNavigationTheme(theme, dark)}>
               <StatusBar backgroundColor={theme.colors.appBar} />
-              <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
+              <SafeAreaView style={[ styles.container, { backgroundColor: theme.colors.background } ]}>
                 <StorybookUI {...props} />
               </SafeAreaView>
             </NavigationContainer>
@@ -48,11 +50,11 @@ export default function(props: {}) {
       </ThemeProvider>
     </ReduxProvider>
   )
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
   },
-});
+})
