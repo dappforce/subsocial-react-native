@@ -200,7 +200,7 @@ const createStyles = ({colors}: Theme) => StyleSheet.create({
     alignSelf: 'center',
   },
   modalAddress: {
-    fontFamily: 'Roboto500',
+    fontFamily: 'RobotoMedium',
     textAlign: 'center',
     marginVertical: Modal.PADDING,
   },

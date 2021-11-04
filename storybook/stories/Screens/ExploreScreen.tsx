@@ -115,8 +115,9 @@ type WrappedPostProps = {
   id: PostId
 }
 const WrappedPost = React.memo(({id}: WrappedPostProps) => {
+  const theme = useTheme()
+  
   return <>
-    <Post.Preview id={id} />
-    <Divider />
+    <Post.Preview id={id} containerStyle={{borderBottomColor: theme.colors.divider}} />
   </>
 })

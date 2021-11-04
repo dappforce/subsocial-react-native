@@ -67,8 +67,17 @@ export type ZocialIcon = {
 export type AnyIcon = AntIcon | EntypoIcon | EvilIcon | FeatherIcon | FontAwesomeIcon | FontAwesome5Icon | FontistoIcon
   | FoundationIcon | IonIcon | MaterialIcon | MaterialCommunityIcon | OctIcon | SimpleLineIcon | ZocialIcon
 
-export type IconProps = AnyIcon & Omit<Elements.IconProps, 'name' | 'type'> & Pick<TouchableRippleProps, 'rippleSize' | 'rippleBorderless'>
-export function Icon({family, onPress, onPressIn, onPressOut, onLongPress, containerStyle, size = 20, rippleSize, rippleBorderless, ...props}: IconProps) {
+type RippleProps = Pick<TouchableRippleProps, 'rippleSize' | 'rippleBorderless'>
+
+export type IconProps = AnyIcon & Omit<Elements.IconProps, 'name' | 'type'> & RippleProps
+export function Icon(props: IconProps) {
+  return <IconRaw {...props} />
+}
+
+export type IconRawProps = Omit<Elements.IconProps, 'type'> & RippleProps & {
+  family: string
+}
+export function IconRaw({family, onPress, onPressIn, onPressOut, onLongPress, containerStyle, size = 20, rippleSize = size, rippleBorderless, ...props}: IconRawProps) {
   const icon = (
     <Elements.Icon
       {...props}
@@ -103,6 +112,10 @@ export function Icon({family, onPress, onPressIn, onPressOut, onLongPress, conta
       </View>
     )
   }
+}
+
+export function isAnyIcon(obj: any): obj is AnyIcon {
+  return obj && obj.family && obj.name
 }
 
 

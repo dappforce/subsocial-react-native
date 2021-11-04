@@ -58,26 +58,31 @@ export function Details({id, containerStyle, onPressOwner, onPressSpace}: Detail
           postData={data?.post}
           {...{onPressOwner, onPressSpace}}
         />
-        <Head
+        <Head 
           title={data?.post?.content?.title}
-          titleStyle={{marginTop: 15, marginBottom: 0}} // Markdown adds indents as well
+          titleStyle={{marginBottom: 0}} // Markdown adds indents as well
           image={data?.post?.content?.image}
         />
         <Body
           content={data?.post?.content?.body ?? ''}
         />
         <Tags tags={data?.post?.content?.tags ?? []} />
-        <ActionPanel>
+        <ActionPanel style={{marginVertical: 20, justifyContent: 'space-between'}}>
           <ActionPanel.LikeItem liked={false} likesCount={data?.post?.struct?.upvotesCount ?? 0} onPress={() => alert('not yet implemented, sorry')} />
-          <ActionPanel.ShareItem onPress={() => alert('not yet implemented, sorry')} />
+          <ActionPanel.ShareItem label onPress={() => alert('not yet implemented, sorry')} />
         </ActionPanel>
+        
+        <Divider style={[{marginTop: 0, marginBottom: 20}]} />
+        
         <SpacePreview
           id={data?.post?.struct?.spaceId ?? ''}
           showFollowButton
           showAbout
           preview
         />
-        <Divider style={{marginVertical: 10}} />
+        
+        <Divider style={styles.divider} />
+        
         {/* TODO: Comments! */}
       </ScrollView>
     )
@@ -93,6 +98,9 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+  },
+  divider: {
+    marginVertical: 10,
   },
 })

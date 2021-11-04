@@ -157,14 +157,14 @@ const createStyles = ({colors, fonts}: Theme) => StyleSheet.create({
     marginRight: 10,
   },
   followageCount: {
-    fontFamily: 'Roboto500',
+    fontFamily: 'RobotoMedium',
     color: colors.textPrimary,
     marginRight: 4,
   },
   
   balance: {
     ...fonts.secondary,
-    fontFamily: 'Roboto500',
+    fontFamily: 'RobotoMedium',
     color: colors.textSecondary,
   },
 })

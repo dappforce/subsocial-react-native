@@ -1,12 +1,13 @@
 //////////////////////////////////////////////////////////////////////
 // Post Preview - assembled from Post Base components
 import React, { useCallback } from 'react'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
+import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { Panel as ActionPanel } from '../Actions'
 import { ActionMenu, IconDescriptor } from '~stories/Actions'
@@ -33,6 +34,7 @@ export const Preview = React.memo(({id, ...props}: PostPreviewProps) => {
 type PreviewDataProps = {
   id: PostId
   data: PostWithSomeDetails | undefined
+  containerStyle?: StyleProp<ViewStyle>
   onPressMore?: (id: PostId) => void
   onPressOwner?: PostOwnerProps['onPressOwner']
   onPressSpace?: PostOwnerProps['onPressSpace']
@@ -40,6 +42,7 @@ type PreviewDataProps = {
 export const PreviewData = React.memo(({
   id,
   data,
+  containerStyle,
   onPressMore: _onPressMore,
   onPressOwner,
   onPressSpace,
@@ -63,7 +66,7 @@ export const PreviewData = React.memo(({
   }, [ _onPressMore ])
   
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <PostOwner
         {...{onPressOwner, onPressSpace}}
         postId={id}
@@ -76,7 +79,10 @@ export const PreviewData = React.memo(({
         <Head {...{title, image}} titleStyle={[!data && styles.italic]} preview />
         <Body content={content} preview />
       </Pressable>
-      <ActionPanel>
+      
+      <Divider style={{marginTop: 16}} />
+      
+      <ActionPanel style={{marginVertical: 16}}>
         <ActionPanel.LikeItem
           liked={false}
           likesCount={data?.post?.struct?.upvotesCount ?? 0}
@@ -86,7 +92,11 @@ export const PreviewData = React.memo(({
           replyCount={data?.post?.struct?.visibleRepliesCount ?? 0}
           onPress={() => alert('not yet implemented, sorry')}
         />
-        <ActionPanel.ShareItem />
+        <ActionPanel.ShareItem
+          label={data?.post?.struct?.sharesCount}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+        <ActionPanel.TipItem />
       </ActionPanel>
     </View>
   )
@@ -95,7 +105,9 @@ export const PreviewData = React.memo(({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    padding: 10,
+    padding: 20,
+    paddingBottom: 0,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   titleWrapper: {
     paddingTop: 6,

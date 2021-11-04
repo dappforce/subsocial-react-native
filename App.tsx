@@ -23,7 +23,8 @@ export default function(props: {}) {
   const theme = LightTheme
   const [fontsLoaded] = useFonts({
     Roboto: require('./assets/fonts/Roboto-Regular.ttf'),
-    Roboto500: require('./assets/fonts/Roboto-Medium.ttf'),
+    RobotoMedium: require('./assets/fonts/Roboto-Medium.ttf'),
+    RobotoBold: require('./assets/fonts/Roboto-Bold.ttf'),
   })
   const ready = useMemo(() => fontsLoaded, [ fontsLoaded ])
   

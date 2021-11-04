@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Custom theming solution reducing to themes of used 3P libraries
 // (e.g. RN-Elements, RN-Paper).
-import React, { useContext, useMemo } from 'react'
+import React, { useContext, useEffect, useMemo } from 'react'
 import { StyleSheet, TextStyle, useColorScheme } from 'react-native'
 import { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { DefaultTheme as DefaultPaperTheme, Provider as PaperProvider } from 'react-native-paper'

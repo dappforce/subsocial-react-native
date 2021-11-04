@@ -1,8 +1,8 @@
 import React, { ReactElement, ReactNode, useState } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { Icon } from 'react-native-elements'
 import { Menu, TouchableRipple } from 'react-native-paper'
 import { useTheme } from '../../../src/components/Theming'
+import { Icon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
 import { IconFamily } from 'src/util'
 
@@ -29,7 +29,14 @@ export function ActionMenu({primary, secondary, size = 24, style}: ActionMenuPro
         <Menu
           visible={showSecondary}
           onDismiss={() => setShowSecondary(false)}
-          anchor={<Icon name="more-horizontal" type="feather" size={size} style={{color: theme.colors.textSecondary}} onPress={() => setShowSecondary(true)} />}
+          anchor={<Icon
+            family="feather"
+            name="more-horizontal"
+            size={size}
+            style={{color: theme.colors.textSecondary}}
+            onPress={() => setShowSecondary(true)}
+            rippleBorderless
+          />}
         >
           {secondary?.({size})}
         </Menu>
@@ -67,9 +74,9 @@ ActionMenu.Secondary = function({label, icon, iconContainerStyle, onPress, disab
     }
     else {
       iconRender = (
-        <Icon
+        <IconRaw
+          family={icon.family}
           name={icon.name}
-          type={icon.family}
           size={icon.size ?? 24}
           color={disabled ? theme.colors.textDisabled : theme.colors.textPrimary}
         />

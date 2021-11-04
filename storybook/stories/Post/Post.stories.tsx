@@ -26,6 +26,6 @@ storiesOf('Post', module)
 
 const styles = StyleSheet.create({
   padded: {
-    padding: 10,
+    padding: 20,
   },
 })

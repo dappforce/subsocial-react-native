@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Generic social links for use in e.g. spaces & users
 import React from 'react'
-import { Falsy, GestureResponderEvent, StyleSheet, View } from 'react-native'
+import { Falsy, GestureResponderEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import * as Linking from 'expo-linking'
 import { Icon } from 'react-native-elements'
 import { NamedLink } from '@subsocial/types'
@@ -23,20 +23,21 @@ export type SocialLinksProps = {
   onPress?: (event: SocialLinkResponderEvent) => void
   color?: string // color of social icons - defaults to theme
   rtl?: boolean // right to left
+  containerStyle?: StyleProp<ViewStyle>
 }
-export function SocialLinks({links, onPress, color, rtl = false}: SocialLinksProps) {
+export function SocialLinks({links, onPress, color, rtl = false, containerStyle}: SocialLinksProps) {
   const theme = useTheme();
-  const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url);
+  const defaultHandler = ({link: {url}}: SocialLinkResponderEvent) => Linking.openURL(url)
   
-  links.find(link => typeof link !== 'string') && console.error('no idea how to handle named links', links.filter(link => typeof link !== 'string'));
-  const urls = links.filter(link => typeof link === 'string') as unknown as string[];
+  links.find(link => typeof link !== 'string') && console.error('no idea how to handle named links', links.filter(link => typeof link !== 'string'))
+  const urls = links.filter(link => typeof link === 'string') as unknown as string[]
   
-  const children: LinkRecord[] = [];
+  const children: LinkRecord[] = []
   for (let url of urls) {
-    const domain = extractDomain(url);
+    const domain = extractDomain(url)
     if (!domain) {
-      console.error('failed to extract domain from url', url);
-      continue;
+      console.error('failed to extract domain from url', url)
+      continue
     }
     children.push({
       url,
@@ -45,9 +46,9 @@ export function SocialLinks({links, onPress, color, rtl = false}: SocialLinksPro
     })
   }
   
-  const [iconChildren, linkChildren] = partition(children, ({hasIcon}) => hasIcon);
+  const [iconChildren, linkChildren] = partition(children, ({hasIcon}) => hasIcon)
   return (
-    <View style={[styles.links, rtl && {flexDirection: 'row-reverse'}]}>
+    <View style={[styles.links, rtl && {flexDirection: 'row-reverse'}, containerStyle]}>
       {linkChildren.map(rec => rec.component)}
       {iconChildren.map(rec => rec.component)}
     </View>
@@ -93,10 +94,11 @@ SocialLink.icons = {
 
 
 function extractDomain(url: string) {
-  const matches = url.match(/^.*?:\/\/(.*?)\/|^.*?:\/\/(.*)$|^(.*?)\/|^(.*)$/);
-  if (!matches) return undefined;
-  const domain = matches[1] ?? matches[2] ?? matches[3] ?? matches[4];
-  return domain.split('.').slice(-2).join('.');
+  const matches = url.match(/^.*?:\/\/(.*?)\/|^.*?:\/\/(.*)$|^(.*?)\/|^(.*)$/)
+  if (!matches) return undefined
+  
+  const domain = matches[1] ?? matches[2] ?? matches[3] ?? matches[4]
+  return domain.split('.').slice(-2).join('.')
 }
 
 const styles = StyleSheet.create({

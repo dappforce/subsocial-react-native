@@ -74,9 +74,10 @@ export const PreviewData = React.memo(({
   return (
     <View style={[{width: '100%'}, containerStyle]}>
       <Head {...{titlePlaceholder, data, showFollowButton}} onPressTitle={onPressSpace} />
+      
       {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} />}
-      {showSocials && <Socials links={data?.content?.links??[]} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} />}
+      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={{marginBottom: 10}} />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} style={{marginBottom: 8}} />}
     </View>
   )
 })
@@ -88,8 +89,6 @@ export type HeadProps = {
   onPressTitle?: () => void
 }
 export function Head({titlePlaceholder = '', data, showFollowButton, onPressTitle}: HeadProps) {
-  const loading = !data;
-  
   const renderPrimaryActions = useCallback(() => {
     return <>
       {showFollowButton && (
@@ -106,8 +105,8 @@ export function Head({titlePlaceholder = '', data, showFollowButton, onPressTitl
   
   const renderSecondaryActions = useCallback(() => {
     return <>
-      <ActionMenu.Secondary label="Share Space"  icon={{name: 'share-social-outline', family: 'ionicon'}} onPress={() => {}} disabled />
-      <ActionMenu.Secondary label="View on IPFS" icon={{name: 'analytics-outline',    family: 'ionicon'}} onPress={() => {}} disabled />
+      <ActionMenu.Secondary label="Share Space"  icon={{name: 'share-social-outline', family: 'ionicon'}} onPress={() => {}} />
+      <ActionMenu.Secondary label="View on IPFS" icon={{name: 'analytics-outline',    family: 'ionicon'}} onPress={() => {}} />
     </>
   }, []);
   
@@ -115,7 +114,7 @@ export function Head({titlePlaceholder = '', data, showFollowButton, onPressTitl
     <Header
       title={data?.content?.name ?? titlePlaceholder}
       onPressTitle={onPressTitle}
-      subtitle={loading ? 'loading...' : `${data?.struct?.postsCount || 0} Posts · ${data?.struct?.followersCount || 0} Followers`}
+      subtitle={`${data?.struct?.postsCount || 0} Posts · ${data?.struct?.followersCount || 0} Followers`}
       avatar={data?.content?.image}
       onPressAvatar={onPressTitle}
       actionMenuProps={{
@@ -138,23 +137,27 @@ export function About({data, preview, onPressMore: _onPressMore}: AboutProps) {
     }
   }, [ data, _onPressMore ])
   
-  if (!data?.content?.about) {
-    return null;
-  }
+  if (!data?.content?.about) return null
+  
   if (preview) {
-    const {summary, isShowMore} = summarizeMd(data!.content!.about!, {limit: SUMMARY_LIMIT});
+    const {summary, isShowMore} = summarizeMd(data.content.about, {limit: SUMMARY_LIMIT});
     return (
-      <Text onPress={onPressMore}>
+      <Text onPress={onPressMore} style={styles.item}>
         {summary}
         {isShowMore && <Text style={{fontWeight: 'bold'}}>{' '}Read more</Text>}
       </Text>
     )
   }
-  else {
-    return <Markdown style={mdStyles}>{data!.content!.about!}</Markdown>
-  }
+  
+  return <Markdown style={mdStyles}>{data!.content!.about!}</Markdown>
 }
+
+const styles = StyleSheet.create({
+  item: {
+    marginBottom: 16,
+  },
+})
 
 const mdStyles = StyleSheet.create({
   paragraph: {}, // Do not delete - this tells MarkdownIt to not apply any styles!
-});
+})

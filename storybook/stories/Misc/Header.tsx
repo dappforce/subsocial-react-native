@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     
   },
   title: {
-    fontFamily: 'Roboto500',
+    fontFamily: 'RobotoMedium',
   },
   subtitleContainer: {
     

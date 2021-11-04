@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native'
 import { StackHeaderProps as StackBaseProps } from '@react-navigation/stack'
 import { BottomTabHeaderProps as BottomTabBaseProps } from '@react-navigation/bottom-tabs'
 import { getHeaderTitle } from '@react-navigation/elements'
-import { Icon } from 'react-native-elements'
+import { Icon } from '~comps/Icon'
 import { Title } from '~comps/Typography'
 import { Theme, ThemeContext } from '~comps/Theming'
 
@@ -23,11 +23,13 @@ export function StackHeader({navigation, route, options, back}: StackHeaderProps
           <View style={[styles.container, themedStyles.container]}>
             <View style={styles.leftContainer}>
               {back && <Icon
+                family="ionicon"
                 name="chevron-back-outline"
-                type="ionicon"
                 color={theme.colors.primary}
                 size={20}
                 onPress={() => navigation.goBack()}
+                rippleBorderless
+                rippleSize={20}
               />}
             </View>
             <View style={styles.titleContainer}>

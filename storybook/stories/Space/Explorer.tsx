@@ -40,14 +40,15 @@ const WrappedSpace = React.memo(({id}: WrappedSpaceProps) => {
       showFollowButton
       showTags
       preview
-      containerStyle={styles.padded}
+      containerStyle={styles.wrappedSpace}
     />
     <Divider />
   </>
 })
 
 const styles = StyleSheet.create({
-  padded: {
-    padding: 10,
+  wrappedSpace: {
+    padding: 20,
+    paddingBottom: 0,
   },
 });

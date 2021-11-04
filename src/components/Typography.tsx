@@ -14,12 +14,10 @@ export type TextProps = RN.TextProps & React.PropsWithChildren<{
   /** Defaults to 'primary' */
   mode?: keyof Theme['fonts']
   disabled?: boolean
-  composeStyles?: boolean
 }>
 export function Text({
   children,
   mode = 'primary',
-  composeStyles = false,
   disabled = false,
   style,
   ...props
@@ -30,11 +28,10 @@ export function Text({
     const combinedStyle: TextStyle = {
       ...theme.fonts[mode],
       color: modeColor(mode, disabled, theme),
-    };
+    }
     
-    if (!composeStyles) return [combinedStyle, style];
-    return StyleSheet.compose<TextStyle>(combinedStyle, StyleSheet.flatten(style));
-  }, [style, mode, theme, composeStyles])
+    return StyleSheet.flatten<TextStyle>([combinedStyle, style])
+  }, [ style, mode, theme ])
   
   return <RN.Text {...props} style={_style}>{children}</RN.Text>
 }
@@ -51,19 +48,33 @@ export type TitleProps = Omit<TextProps, 'mode' | 'composeStyles'> & React.Props
   preview?: boolean
 }>
 export function Title({preview = false, ...props}: TitleProps) {
-  return Text({...props, mode: preview ? 'titlePreview' : 'titleDetails', composeStyles: true})
+  return Text({...props, mode: preview ? 'titlePreview' : 'titleDetails'})
 }
 
 export type ButtonProps = Omit<React.ComponentProps<typeof Paper.Button>, "theme">
 export function Button({children, style, labelStyle, ...props}: ButtonProps) {
-  let {mode, color} = props;
-  const theme = useTheme();
-  color = color ?? theme.colors.primary;
+  let {mode, color} = props
+  const theme = useTheme()
+  color = color ?? theme.colors.primary
   
-  const _style = useMemo(() => StyleSheet.compose<ViewStyle>({
-    borderColor: mode === 'outlined' ? color : 'transparent',
-  }, style), [mode, color, style]);
-  const _labelStyle = useMemo(() => StyleSheet.compose<TextStyle>(theme.fonts.button, StyleSheet.flatten(labelStyle)), [theme, labelStyle])
+  const _style = useMemo(() => {
+    return StyleSheet.compose<ViewStyle>(
+      {
+        borderColor: mode === 'outlined' ? color : 'transparent',
+      },
+      style
+    )
+  }, [ mode, color, style ])
+  
+  const _labelStyle = useMemo(() => {
+    return StyleSheet.compose<TextStyle>(
+      {
+        ...theme.fonts.button,
+        textTransform: 'none',
+      },
+      StyleSheet.flatten(labelStyle)
+    )
+  }, [ theme, labelStyle ])
   
   return <Paper.Button {...props} style={_style} labelStyle={_labelStyle}>{children}</Paper.Button>
 }

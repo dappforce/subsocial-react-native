@@ -6,6 +6,7 @@ import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadPosts, useCreateReloadSpace, useRefreshSpacePosts, useResolvedSpaceHandle, useSelectPost } from 'src/rtk/app/hooks'
 import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
+import { useTheme } from '~comps/Theming'
 import { Preview } from './Preview'
 import * as Post from '../Post'
 import { Divider } from 'src/components/Typography'
@@ -70,13 +71,14 @@ type WrappedPostProps = Omit<Post.PostPreviewProps, 'onPressMore' | 'onPressSpac
   onPressOwner?: (id: PostId, ownerId: AccountId) => void
 }
 const WrappedPost = React.memo(({id, onPressMore, onPressOwner}: WrappedPostProps) => {
+  const theme = useTheme()
+  
   return (
     <>
-      <Post.Preview id={id}
+      <Post.Preview id={id} containerStyle={{borderBottomColor: theme.colors.divider}}
         {...{onPressMore, onPressOwner}}
         onPressSpace={()=>{}}
       />
-      <Divider />
     </>
   )
 })

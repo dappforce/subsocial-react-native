@@ -64,9 +64,14 @@ export const PostOwner = React.memo(({postId, postData, actionMenuProps, onPress
   }, [ _onPressSpace, spaceId ])
   
   useEffect(() => {
-    if (!spaceData && reloadSpace && spaceId) reloadSpace({id: spaceId})
-    if (!ownerData && reloadOwner && ownerId) reloadOwner({id: ownerId})
-  }, [postData, spaceData, reloadSpace, ownerData, reloadOwner])
+    if (!spaceData && reloadSpace && spaceId) {
+      reloadSpace({id: spaceId})
+    }
+    
+    if (!ownerData && reloadOwner && ownerId) {
+      reloadOwner({id: ownerId})
+    }
+  }, [ postData, spaceData, reloadSpace, ownerData, reloadOwner ])
   
   return (
     <Header
@@ -86,21 +91,40 @@ export type HeadProps = {
   image?: string
   title?: string
   preview?: boolean
-  imageStyle?: StyleProp<ImageStyle>
-  previewImageStyle?: StyleProp<ImageStyle>
+  bannerStyle?: StyleProp<ImageStyle>
+  previewBannerStyle?: StyleProp<ImageStyle>
   titleStyle?: StyleProp<TextStyle>
 }
-export function Head({title, titleStyle, image, imageStyle, previewImageStyle, preview = false}: HeadProps) {
+export function Head({title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false}: HeadProps) {
   return (
     <View>
-      {preview
-      ? <IpfsImage cid={image} style={[styles.previewBanner, previewImageStyle]} />
-      : <IpfsBanner cid={image} style={[styles.banner, imageStyle]} />
-      }
+      <Banner cid={image} style={bannerStyle} previewStyle={previewBannerStyle} preview={preview} />
       {!!title && <Title preview={preview} style={[styles.title, titleStyle]}>{title}</Title>}
     </View>
   )
 }
+
+export type BannerProps = {
+  cid?: string
+  preview?: boolean
+  style?: StyleProp<ImageStyle>
+  previewStyle?: StyleProp<ImageStyle>
+}
+export const Banner = React.memo(({ cid, preview, style, previewStyle }: BannerProps) => {
+  if (!cid) return null
+  
+  if (preview) {
+    return (
+      <IpfsImage cid={cid} style={[styles.previewBanner, previewStyle]} />
+    )
+  }
+  
+  else {
+    return (
+      <IpfsBanner cid={cid} style={[styles.banner, style]} />
+    )
+  }
+})
 
 export type BodyProps = {
   content: string
@@ -137,7 +161,7 @@ function summarizeAndStrip(content: string, opts?: {limit: number}): {summary: s
 
 const styles = StyleSheet.create({
   title: {
-    marginTop: 10,
+    marginTop: 0,
     marginBottom: 6,
     fontWeight: 'bold',
   },
@@ -145,8 +169,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: IMAGE_PREVIEW_HEIGHT,
     borderRadius: 10,
+    marginBottom: 10,
   },
   banner: {
     borderRadius: 10,
+    marginBottom: 10,
   },
 });
