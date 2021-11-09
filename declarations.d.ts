@@ -50,3 +50,10 @@ declare module 'glyphmap' {
   import ZocialMap from 'react-native-vector-icons/glyphmaps/Zocial.json'
   export type Zocial = typeof ZocialMap
 }
+
+declare module 'react-native-elevation' {
+  import { ViewStyle } from 'react-native'
+  
+  const Elevations: ViewStyle[]
+  export default Elevations
+}

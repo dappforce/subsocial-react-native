@@ -1,6 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Dimensions, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { TabBar, TabView } from 'react-native-tab-view'
+import React, { useCallback, useEffect, useState } from 'react'
+import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import {
+  createMaterialTopTabNavigator,
+  MaterialTopTabBarProps,
+  MaterialTopTabBar,
+  MaterialTopTabNavigationProp,
+  MaterialTopTabScreenProps
+} from '@react-navigation/material-top-tabs'
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
@@ -12,61 +18,53 @@ import { Posts, PostsProps } from './Posts'
 import { Comments, CommentsProps } from './Comments'
 import { Upvotes, UpvotesProps } from './Upvotes'
 import { Follows, FollowsProps } from './Follows'
+import Elevations from 'react-native-elevation'
+
+export type DetailsRoutes = {
+  posts: { accountId: AccountId }
+  comments: { accountId: AccountId }
+  upvotes: { accountId: AccountId }
+  follows: { accountId: AccountId }
+}
+
+export type DetailsNavProps = MaterialTopTabNavigationProp<DetailsRoutes>
+export type DetailsScreenProps<S extends keyof DetailsRoutes> = MaterialTopTabScreenProps<DetailsRoutes, S>
+
+const Tabs = createMaterialTopTabNavigator<DetailsRoutes>()
 
 export type DetailsProps = {
   id: AccountId
-  containerStyle?: StyleProp<ViewStyle>
 }
 
-export function Details({ id, containerStyle }: DetailsProps) {
+export function Details({ id }: DetailsProps) {
   const theme = useTheme()
   const styles = useThemedStyle()
   
-  const [ index, setIndex ] = useState(0)
-  const routes = useMemo(() => [
-    { key: 'posts', title: 'Posts' },
-    { key: 'comments', title: 'Comments' },
-    { key: 'upvotes', title: 'Upvotes' },
-    { key: 'follows', title: 'Follows' },
-  ], [])
-  
   return (
-    <View style={[ styles.container, containerStyle ]}>
-      <DetailsHeader id={id} style={styles.padded} />
-      <TabView
-        navigationState={{ index, routes }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={styles.tabIndicator}
-            labelStyle={styles.tabLabel}
-            activeColor={theme.colors.primary}
-            inactiveColor={theme.colors.textSecondary}
-            style={styles.tabBar}
-          />
-        )}
-        renderScene={({ route }) => {
-          switch (route.key) {
-            case 'posts':    return <AccountPosts    id={id} />
-            case 'comments': return <AccountComments id={id} />
-            case 'upvotes':  return <AccountUpvotes  id={id} />
-            case 'follows':  return <AccountFollows  id={id} />
-            default: return null
-          }
-        }}
-        onIndexChange={setIndex}
-        initialLayout={{ width: Dimensions.get('window').width }}
-      />
-    </View>
+    <Tabs.Navigator
+      tabBar={(props: MaterialTopTabBarProps) => <DetailsTabBar id={id} {...props} />}
+      screenOptions={{
+        tabBarLabelStyle: styles.tabLabel,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarStyle: styles.tabBar,
+      }}
+    >
+      <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    initialParams={{ accountId: id }} />
+      <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} initialParams={{ accountId: id }} />
+      <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  initialParams={{ accountId: id }} />
+      <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  initialParams={{ accountId: id }} />
+    </Tabs.Navigator>
   )
 }
 
 export type DetailsHeaderProps = {
   id: AccountId
   style?: StyleProp<ViewStyle>
+  onLayout?: (event: LayoutChangeEvent) => void
 }
 
-export function DetailsHeader({ id, style }: DetailsHeaderProps) {
+export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
   const styles = useThemedStyle()
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
@@ -87,7 +85,7 @@ export function DetailsHeader({ id, style }: DetailsHeaderProps) {
   }, [ id, reloadProfile ])
   
   return (
-    <View style={style}>
+    <View {...{style, onLayout}}>
       <Header
         title={data?.content?.name ?? id}
         subtitle={
@@ -121,6 +119,29 @@ export function DetailsHeader({ id, style }: DetailsHeaderProps) {
 }
 
 
+type DetailsTabBarProps = MaterialTopTabBarProps & {
+  id: AccountId
+}
+function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
+  const styles = useThemedStyle()
+  
+  const [ headerHeight, setHeaderHeight ] = useState(0)
+  
+  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    const { height } = event.nativeEvent.layout
+    setHeaderHeight(height)
+  }, [])
+  console.log(headerHeight)
+  
+  return (
+    <>
+      <DetailsHeader id={id} style={styles.header} onLayout={onHeaderLayout} />
+      <MaterialTopTabBar {...props} />
+    </>
+  )
+}
+
+
 const AccountPosts    = React.memo((props: PostsProps) => <Posts {...props} />)
 const AccountComments = React.memo((props: CommentsProps) => <Comments {...props} />)
 const AccountUpvotes  = React.memo((props: UpvotesProps) => <Upvotes {...props} />)
@@ -135,13 +156,18 @@ const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => Styl
     padding: 10,
   },
   
+  header: {
+    margin: 20,
+    marginBottom: 0,
+  },
   tabBar: {
     backgroundColor: colors.background,
-  },
-  tabIndicator: {
-    backgroundColor: colors.primary,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.divider,
+    ...Elevations[0],
   },
   tabLabel: {
+    ...fonts.secondary,
     textTransform: 'none',
   },
   
