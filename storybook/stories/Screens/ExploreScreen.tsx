@@ -6,7 +6,7 @@ import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { useCreateReloadPosts } from 'src/rtk/app/hooks'
-import { RefreshPayload, refreshSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
+import { RefreshPayload, fetchSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { useTheme } from '~comps/Theming'
 import * as Space from '../Space'
 import * as Post from '../Post'
@@ -81,7 +81,7 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
   const loadIds = useCallback(async () => {
     if (!api) return []
     
-    const thunkResults = await Promise.all(spaceIds.map( id => dispatch(refreshSpacePosts({ api, id })) ))
+    const thunkResults = await Promise.all(spaceIds.map( id => dispatch(fetchSpacePosts({ api, id })) ))
     let result = [] as PostId[]
     
     for (let thunkResult of thunkResults) {
@@ -103,7 +103,7 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
     
     // must use dispatch & action directly because number of spaces
     // could theoretically change, violating fixed hooks rule
-    await Promise.all(config.suggestedSpaces.map( id => dispatch(refreshSpacePosts({ api, id })) ))
+    await Promise.all(config.suggestedSpaces.map( id => dispatch(fetchSpacePosts({ api, id })) ))
   }, [ dispatch ])
   
   return (

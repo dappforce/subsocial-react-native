@@ -10,6 +10,7 @@ import ownSpaceIds from '../features/spaceIds/ownSpaceIdsSlice'
 import myPostReactions from '../features/reactions/myPostReactionsSlice'
 import myAccount from '../features/accounts/myAccountSlice'
 import spacePosts from '../features/spacePosts/spacePostsSlice'
+import profilePosts from '../features/profilePosts/profilePostsSlice'
 
 const rootReducer = combineReducers({
   contents,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   myPostReactions,
   myAccount,
   spacePosts,
+  profilePosts,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

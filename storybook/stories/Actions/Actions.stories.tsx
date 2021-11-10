@@ -9,7 +9,7 @@ storiesOf('Actions', module)
   .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
   .add('Follow Button', () => (
     <FollowButton
-      id={number('id', 1)}
+      id={number('id', 1)+''}
       isFollowing={boolean('Following', false)}
       loading={boolean('Loading', false)}
       onPress={action('press')}
@@ -19,7 +19,7 @@ storiesOf('Actions', module)
   .add('Action Menu', () => {
     const renderPrimary = () => <>
       <ActionMenu.Primary>
-        <FollowButton id={1} isFollowing={boolean('Following', false)} onPress={action('follow')} />
+        <FollowButton id={'1'} isFollowing={boolean('Following', false)} onPress={action('follow')} />
       </ActionMenu.Primary>
     </>;
     const renderSecondary = () => <>

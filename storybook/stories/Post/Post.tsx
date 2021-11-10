@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying Post from data Component
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { StyleProp, StyleSheet, TextStyle, View } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ImageStyle } from 'react-native-fast-image'
@@ -13,6 +13,7 @@ import { Link, Markdown, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { summarizeMd } from '@subsocial/utils'
 import { Age } from 'src/util'
+import { useInit } from '~comps/hooks'
 
 const SUMMARY_LIMIT = 200
 const IMAGE_PREVIEW_HEIGHT = 160
@@ -64,15 +65,23 @@ export const PostOwner = React.memo(({
     }
   }, [ _onPressSpace, spaceId ])
   
-  useEffect(() => {
-    if (!spaceData && reloadSpace && spaceId) {
-      reloadSpace({id: spaceId})
-    }
+  useInit(async () => {
+    if (spaceData) return true
     
-    if (!ownerData && reloadOwner && ownerId) {
-      reloadOwner({id: ownerId})
-    }
-  }, [ postData, spaceData, reloadSpace, ownerData, reloadOwner ])
+    if (!reloadSpace || !spaceId) return false
+    
+    await reloadSpace({ id: spaceId })
+    return true
+  }, [ postId ], [ spaceId ])
+  
+  useInit(async () => {
+    if (ownerData) return true
+    
+    if (!reloadOwner || !ownerId) return false
+    
+    await reloadOwner({ id: ownerId })
+    return true
+  }, [ postId ], [ ownerId ])
   
   return (
     <Header
@@ -141,7 +150,7 @@ export function Body({ content, previewStyle, preview = false }: BodyProps) {
     return (
       <Text style={previewStyle}>
         {summary}
-        {isShowMore && <Link style={{ fontFamily: 'Roboto500' }}> Read more</Link>}
+        {isShowMore && <Link mode="primary" style={{ fontFamily: 'Roboto500' }}> Read more</Link>}
       </Text>
     )
   }

@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { AccountId } from 'src/types/subsocial'
+import { useInit } from '~comps/hooks'
 import { Head } from './Account'
 
 export type PreviewProps = {
@@ -10,9 +11,14 @@ export function Preview({ id }: PreviewProps) {
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
-  useEffect(() => {
-    if (!data) reloadProfile?.({ id })
-  }, [ id, reloadProfile ])
+  useInit(async () => {
+    if (data) return true
+    
+    if (!reloadProfile) return false
+    
+    reloadProfile({ id })
+    return true
+  }, [ id ], [ reloadProfile ])
   
   return (
     <>

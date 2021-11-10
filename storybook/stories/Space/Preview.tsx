@@ -65,7 +65,7 @@ export const PreviewData = React.memo(({
     
     if (spaceId) {
       if (_onPressSpace) {
-        _onPressSpace(data.struct.id)
+        _onPressSpace(spaceId)
       }
       else if (preview && nav?.push) {
         nav.push('Space', { spaceId })

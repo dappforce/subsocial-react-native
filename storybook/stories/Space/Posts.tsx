@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
 import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
-import { useCreateReloadPosts, useCreateReloadSpace, useRefreshSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
+import { useCreateReloadPosts, useCreateReloadSpace, useFetchSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
 import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
 import { useTheme } from '~comps/Theming'
@@ -24,7 +24,7 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   const resolvedId = useResolvedSpaceHandle(spaceId)
   const reloadSpace = useCreateReloadSpace()
   const reloadPosts = useCreateReloadPosts()
-  const refreshPosts = useRefreshSpacePosts()
+  const refreshPosts = useFetchSpacePosts()
   const isReady = !!(resolvedId && reloadSpace && reloadPosts && refreshPosts)
   
   const loadIds = useCallback(async () => {

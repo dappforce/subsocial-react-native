@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, SpaceId } from 'src/types/subsocial'
-import { refreshSpacePosts } from './spacePostsSlice'
+import { fetchSpacePosts } from './spacePostsSlice'
 import { descending } from 'src/util'
 
 export function useSelectSpacePosts(spaceId?: SpaceId): PostId[] {
@@ -19,18 +19,19 @@ export function useSelectSpacesPosts(spaceIds?: SpaceId[]): PostId[] {
   })
 }
 
-export type RefreshSpacePostsArgs = {
+export type FetchSpacePostsArgs = {
   id: SpaceId
 }
 
-export const useRefreshSpacePosts = () => {
+export const useFetchSpacePosts = () => {
   const dispatch = useAppDispatch()
   const { api } = useSubsocial()
   
   return useMemo(() => {
-    if (!api) return undefined
-    return ({ id }: RefreshSpacePostsArgs) => {
-      return dispatch(refreshSpacePosts({ api, id }))
+    if (!api) return
+    
+    return ({ id }: FetchSpacePostsArgs) => {
+      return dispatch(fetchSpacePosts({ api, id }))
     }
   }, [ api ])
 }

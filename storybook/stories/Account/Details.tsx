@@ -18,6 +18,7 @@ import { Posts, PostsProps } from './Posts'
 import { Comments, CommentsProps } from './Comments'
 import { Upvotes, UpvotesProps } from './Upvotes'
 import { Follows, FollowsProps } from './Follows'
+import { Spaces, SpacesProps } from './Spaces'
 import Elevations from 'react-native-elevation'
 
 export type DetailsRoutes = {
@@ -25,6 +26,7 @@ export type DetailsRoutes = {
   comments: { accountId: AccountId }
   upvotes: { accountId: AccountId }
   follows: { accountId: AccountId }
+  spaces: { accountId: AccountId }
 }
 
 export type DetailsNavProps = MaterialTopTabNavigationProp<DetailsRoutes>
@@ -44,16 +46,19 @@ export function Details({ id }: DetailsProps) {
     <Tabs.Navigator
       tabBar={(props: MaterialTopTabBarProps) => <DetailsTabBar id={id} {...props} />}
       screenOptions={{
+        tabBarStyle: styles.tabBar,
         tabBarLabelStyle: styles.tabLabel,
         tabBarInactiveTintColor: theme.colors.textSecondary,
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarStyle: styles.tabBar,
+        tabBarItemStyle: styles.tabItem,
+        tabBarScrollEnabled: true,
       }}
     >
       <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    initialParams={{ accountId: id }} />
       <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} initialParams={{ accountId: id }} />
       <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  initialParams={{ accountId: id }} />
       <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  initialParams={{ accountId: id }} />
+      <Tabs.Screen name='spaces'   component={AccountSpaces}   options={{ tabBarLabel: 'Spaces' }}   initialParams={{ accountId: id }} />
     </Tabs.Navigator>
   )
 }
@@ -131,7 +136,6 @@ function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
     const { height } = event.nativeEvent.layout
     setHeaderHeight(height)
   }, [])
-  console.log(headerHeight)
   
   return (
     <>
@@ -142,10 +146,11 @@ function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
 }
 
 
-const AccountPosts    = React.memo((props: PostsProps) => <Posts {...props} />)
-const AccountComments = React.memo((props: CommentsProps) => <Comments {...props} />)
-const AccountUpvotes  = React.memo((props: UpvotesProps) => <Upvotes {...props} />)
-const AccountFollows  = React.memo((props: FollowsProps) => <Follows {...props} />)
+const AccountPosts    = React.memo(({ route }: DetailsScreenProps<'posts'>)    => <Posts    id={route.params.accountId} />)
+const AccountComments = React.memo(({ route }: DetailsScreenProps<'comments'>) => <Comments id={route.params.accountId} />)
+const AccountUpvotes  = React.memo(({ route }: DetailsScreenProps<'upvotes'>)  => <Upvotes  id={route.params.accountId} />)
+const AccountFollows  = React.memo(({ route }: DetailsScreenProps<'follows'>)  => <Follows  id={route.params.accountId} />)
+const AccountSpaces   = React.memo(({ route }: DetailsScreenProps<'spaces'>)   => <Spaces   id={route.params.accountId} />)
 
 
 const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => StyleSheet.create({
@@ -165,6 +170,9 @@ const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => Styl
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.divider,
     ...Elevations[0],
+  },
+  tabItem: {
+    width: 100,
   },
   tabLabel: {
     ...fonts.secondary,

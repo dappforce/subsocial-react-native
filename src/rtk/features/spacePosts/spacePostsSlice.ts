@@ -13,11 +13,11 @@ export type RefreshPayload = {
   posts: PostId[]
 }
 
-type RefreshSpacePostsArgs = ApiArg & {
+type FetchSpacePostsArgs = ApiArg & {
   id: EntityId
 }
 
-export const refreshSpacePosts = createAsyncThunk<RefreshPayload, RefreshSpacePostsArgs, ThunkApiConfig>(
+export const fetchSpacePosts = createAsyncThunk<RefreshPayload, FetchSpacePostsArgs, ThunkApiConfig>(
   'spacePosts/refresh',
   async ({ api, id }) => {
     
@@ -38,7 +38,7 @@ const spacePosts = createSlice({
   initialState: {} as SpacePostMap,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(refreshSpacePosts.fulfilled, (state, action) => {
+    builder.addCase(fetchSpacePosts.fulfilled, (state, action) => {
       const {id, posts} = action.payload
       
       if (!id) return
