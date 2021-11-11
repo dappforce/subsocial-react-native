@@ -1,6 +1,8 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
+import { useStore } from 'react-redux'
 import { useCreateReloadPosts, useCreateReloadProfilePosts, useSelectProfilePosts } from 'src/rtk/app/hooks'
+import { RootState } from 'src/rtk/app/rootReducer'
 import { AccountId, PostId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
@@ -16,13 +18,18 @@ export function Posts({ id }: PostsProps) {
   const [ loading, postIds ] = useSelectProfilePosts(id)
   const reloadProfilePosts = useCreateReloadProfilePosts()
   const reloadPosts = useCreateReloadPosts()
+  const store = useStore<RootState>()
   
   const loader = async (ids: PostId[]) => {
     if (reloadPosts) {
-      // await reloadPosts({ ids })
+      await reloadPosts({ ids })
+      return ids.filter(postId => {
+        return store.getState().posts.entities[postId]?.ownerId === id
+      })
     }
     else {
       console.error('reloadPosts should be defined')
+      return ids
     }
   }
   
@@ -66,7 +73,7 @@ export function Posts({ id }: PostsProps) {
 }
 
 type WrappedPostProps = {
-  id: AccountId
+  id: PostId
 }
 const WrappedPost = React.memo(({ id }: WrappedPostProps) => {
   const styles = useThemedStyles()

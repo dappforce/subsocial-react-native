@@ -9,7 +9,7 @@ export interface DynamicExpansionListLoader<ID> {
   (): Promise<ID[]>
 }
 export interface DynamicDataLoader<ID> {
-  (ids: ID[]): void
+  (ids: ID[]): ID[] | Promise<ID[]>
 }
 
 type ListStage = 'INITIAL' | 'REFRESH' | 'BUSY' | 'READY'
@@ -17,30 +17,37 @@ type ListState<ID> = {
   stage: ListStage
   lastIdx: number
   ids: ID[]
+  baseIds: ID[]
 }
 
 type ListActionNotify = {
-  type: 'RESET' | 'BEGIN_EXPAND' | 'BEGIN_REFRESH'
+  type: 'BEGIN_EXPAND' | 'BEGIN_REFRESH'
+}
+type ListActionReset<ID> = {
+  type: 'RESET'
+  baseIds: ID[]
 }
 type ListActionInitialize<ID> = {
   type: 'INIT'
   ids: ID[]
-  initialSize: number
+  lastIdx: number
 }
-type ListActionFinishExpand = {
+type ListActionFinishExpand<ID> = {
   type: 'FINISH_EXPAND'
   lastIdx: number
+  newIds: ID[]
 }
 type ListActionFinishRefresh<ID> = {
   type: 'FINISH_REFRESH'
   ids: ID[]
 }
-type ListAction<ID> = ListActionNotify | ListActionFinishExpand | ListActionInitialize<ID> | ListActionFinishRefresh<ID>
+type ListAction<ID> = ListActionNotify | ListActionReset<ID> | ListActionFinishExpand<ID> | ListActionInitialize<ID> | ListActionFinishRefresh<ID>
 
 const getInitState: <ID>() => ListState<ID> = () => ({
   stage: 'INITIAL',
   lastIdx: 0,
   ids: [],
+  baseIds: [],
 })
 
 export type DynamicExpansionListProps<ID> = {
@@ -71,6 +78,7 @@ export function DynamicExpansionList<ID>({
           stage: 'INITIAL',
           lastIdx: 0,
           ids: [],
+          baseIds: action.baseIds,
         }
       }
       
@@ -78,7 +86,7 @@ export function DynamicExpansionList<ID>({
         return {
           ...state,
           stage: 'READY',
-          lastIdx: action.initialSize,
+          lastIdx: action.lastIdx,
           ids: action.ids,
         }
       }
@@ -95,6 +103,7 @@ export function DynamicExpansionList<ID>({
           ...state,
           stage: 'READY',
           lastIdx: action.lastIdx,
+          ids: [...state.ids, ...action.newIds],
         }
       }
       
@@ -116,32 +125,44 @@ export function DynamicExpansionList<ID>({
   }
   
   const [ state, dispatch ] = useReducer(reducer, getInitState<ID>())
-  const { stage, lastIdx, ids } = state
+  const { stage, lastIdx, ids, baseIds } = state
   
   // TODO: Use ScrollView.HeaderComponent instead of SectionList workaround
   // I simply didn't know ScrollView supported headers
-  const sections: SectionListData<ID>[] = [{ data: stage !== 'INITIAL' ? ids.slice(0, lastIdx) : [] }]
+  const sections: SectionListData<ID>[] = [{ data: stage !== 'INITIAL' ? ids : [] }]
+  
+  async function loadBatch(ids: ID[], lastIdx: number): Promise<[ ID[], number ]> {
+    if (lastIdx >= ids.length) return [ [], lastIdx ]
+    
+    let added: ID[] = []
+    
+    let newLastIdx = lastIdx
+    while (added.length < batchSize && newLastIdx < ids.length) {
+      const targetIdx = Math.min(newLastIdx + batchSize, ids.length)
+      const sublist = ids.slice(newLastIdx, targetIdx)
+      added = added.concat(await loader(sublist))
+      newLastIdx = targetIdx
+    }
+    
+    return [ added, newLastIdx ]
+  }
   
   async function loadMore() {
-    if (lastIdx >= ids.length) return
+    if (lastIdx >= baseIds.length) return
     
     if (stage !== 'READY') return
     
     console.log('loading more')
-    
-    const newLastIdx = Math.min(lastIdx+batchSize, ids.length)
-    const sublist = ids.slice(lastIdx, newLastIdx)
-    
     dispatch({ type: 'BEGIN_EXPAND' })
-    await loader(sublist)
-    dispatch({ type: 'FINISH_EXPAND', lastIdx: newLastIdx })
+    
+    const [ newIds, newLastIdx ] = await loadBatch(baseIds, lastIdx)
+    
+    dispatch({ type: 'FINISH_EXPAND', newIds, lastIdx: newLastIdx })
   }
   
   async function loadInit(ids: ID[]) {
-    const sublist = ids.slice(0, batchSize)
     await loadInitial?.()
-    await loader(sublist)
-    return sublist
+    return await loadBatch(ids, 0)
   }
   
   useEffect(() => {
@@ -149,9 +170,9 @@ export function DynamicExpansionList<ID>({
       const newIds = typeof(_ids) === 'function' ? await _ids() : _ids
       
       if (!setEqual(new Set(newIds), new Set(ids))) {
-        dispatch({ type: 'RESET' })
-        const loaded = await loadInit(newIds)
-        dispatch({ type: 'INIT', ids: newIds, initialSize: loaded.length })
+        dispatch({ type: 'RESET', baseIds: newIds })
+        const [ loaded, lastIdx ] = await loadInit(newIds)
+        dispatch({ type: 'INIT', ids: loaded, lastIdx })
       }
     })()
   }, [ _ids ])
