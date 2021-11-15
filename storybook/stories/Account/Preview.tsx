@@ -1,4 +1,5 @@
 import React from 'react'
+import { StyleProp, View, ViewStyle } from 'react-native'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { AccountId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
@@ -6,8 +7,9 @@ import { Head } from './Account'
 
 export type PreviewProps = {
   id: AccountId
+  containerStyle?: StyleProp<ViewStyle>
 }
-export function Preview({ id }: PreviewProps) {
+export const Preview = React.memo(({ id, containerStyle }: PreviewProps) => {
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
@@ -21,14 +23,15 @@ export function Preview({ id }: PreviewProps) {
   }, [ id ], [ reloadProfile ])
   
   return (
-    <>
+    <View style={containerStyle}>
       <Head
         id={id}
         name={data?.content?.name ?? id.toString()}
+        avatar={data?.content?.avatar}
         isFollowing={false} // TODO: following logic... :')
         numFollowers={data?.struct?.followersCount ?? 0}
         numFollowing={data?.struct?.followingAccountsCount ?? 0}
       />
-    </>
+    </View>
   )
-}
+})

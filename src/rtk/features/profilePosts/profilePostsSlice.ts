@@ -6,9 +6,14 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ApiArg, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { AccountId, EntityId, PostId, SpaceId } from 'src/types/subsocial'
 import { descending } from 'src/util'
-import { fetchPosts } from '../posts/postsSlice'
+import { fetchPosts, selectPosts } from '../posts/postsSlice'
 import { fetchSpaceIdsOwnedByAccount, selectEntityOfSpaceIdsByOwner } from '../spaceIds/ownSpaceIdsSlice'
 import { fetchSpacePosts } from '../spacePosts/spacePostsSlice'
+import { logger as createLogger } from '@polkadot/util'
+import { pluralize } from '@subsocial/utils'
+
+const logger = createLogger('profilePostsSlice')
+
 
 type ProfilePostsState = {
   loading: boolean
@@ -40,17 +45,29 @@ export const fetchProfilePostIds = createAsyncThunk<ProfilePostsPayload, FetchPr
       ))
       
       const state = getState()
-      const postIdsSet = spaceIds.reduce((set, spaceId) => {
+      const unfiltered = [...spaceIds.reduce((set, spaceId) => {
         const ids = state.spacePosts[spaceId]
         ids?.forEach?.(id => set.add(id))
         return set
-      }, new Set() as Set<PostId>)
+      }, new Set() as Set<PostId>)]
       
-      const postIds = [...postIdsSet].sort(descending)
+      const t0 = Date.now()
+      
+      await dispatch(fetchPosts({
+        ids: unfiltered,
+        api,
+        withContent: false,
+        withOwner: true,
+        withSpace: false,
+      }))
+      const posts = selectPosts(getState(), { ids: unfiltered })
+      
+      const filtered = posts.filter(({ post }) => post.struct.ownerId === id)
+      logger.debug(`filtered ${unfiltered.length} ${pluralize(unfiltered.length, 'post')} in ${Date.now() - t0}ms`)
       
       return {
         id,
-        posts: postIds,
+        posts: filtered.map(struct => struct.id).sort(descending),
       }
     }
     finally {

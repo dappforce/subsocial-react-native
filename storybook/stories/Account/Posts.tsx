@@ -4,6 +4,7 @@ import { useStore } from 'react-redux'
 import { useCreateReloadPosts, useCreateReloadProfilePosts, useSelectProfilePosts } from 'src/rtk/app/hooks'
 import { RootState } from 'src/rtk/app/rootReducer'
 import { AccountId, PostId } from 'src/types/subsocial'
+import { assertDefinedSoft } from 'src/util'
 import { useInit } from '~comps/hooks'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { createThemedStylesHook } from '~comps/Theming'
@@ -20,20 +21,21 @@ export function Posts({ id }: PostsProps) {
   const reloadPosts = useCreateReloadPosts()
   const store = useStore<RootState>()
   
+  // TODO: refresh posts
+  
   const loader = async (ids: PostId[]) => {
-    if (reloadPosts) {
-      await reloadPosts({ ids })
+    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Account/Posts/loader' })) {
+      await reloadPosts({ ids, reload: true })
       return ids.filter(postId => {
         return store.getState().posts.entities[postId]?.ownerId === id
       })
     }
     else {
-      console.error('reloadPosts should be defined')
       return ids
     }
   }
   
-  const renderPost = useCallback((postId: PostId) => <WrappedPost id={postId} />, [])
+  const renderPost = useCallback((id: PostId) => <WrappedPost id={id} />, [])
   
   const isReady = !!reloadProfilePosts && !!reloadPosts && !loading
   
