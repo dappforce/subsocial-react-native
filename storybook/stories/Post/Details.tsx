@@ -79,7 +79,7 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace }: Deta
           id={data?.post?.struct?.spaceId ?? ''}
           showFollowButton
           showAbout
-          preview
+          onPressSpace={onPressSpace}
         />
         
         <Divider style={styles.divider} />

@@ -11,8 +11,9 @@ export interface InitCallback {
  * the callback returns true.
  * @param cb initializer callback
  * @param deps dependencies to observe - if any of these changes, initialization will be re-run
+ * @returns true if initialization was successful, false otherwise
  */
-export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: DependencyList) {
+export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: DependencyList): boolean {
   const [ initialized, setInitialized ] = useState(false)
   
   useEffect(() => {
@@ -26,4 +27,6 @@ export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: 
       }
     }
   }, [ initialized, ...retryDeps ])
+  
+  return initialized
 }

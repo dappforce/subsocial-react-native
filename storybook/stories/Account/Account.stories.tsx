@@ -5,6 +5,7 @@ import { text } from '@storybook/addon-knobs'
 import CenterView from '~stories/CenterView'
 import * as Account from './index'
 import { SubsocialProvider } from 'src/components/SubsocialContext'
+import { ExploreStackNav } from '~comps/ExploreStackNav'
 
 storiesOf('Accounts', module)
   .addDecorator(getStory => (
@@ -20,9 +21,13 @@ storiesOf('Accounts', module)
     </CenterView>
   ))
   .add('Details', () => (
-    <Account.Details
-      id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
-    />
+    <ExploreStackNav>
+      {() => (
+        <Account.Details
+          id={text('Address', '3rzZpUCan9uAA9VSH12zX552Y6rfemGR3hWeeLmhNT1EGosL')}
+        />
+      )}
+    </ExploreStackNav>
   ))
   .add('Address', () => (
     <CenterView style={styles.padded}>

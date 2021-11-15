@@ -6,11 +6,10 @@ import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadPosts, useCreateReloadSpace, useFetchSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
 import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
-import { useTheme } from '~comps/Theming'
-import { Preview } from './Preview'
+import { createThemedStylesHook, useTheme } from '~comps/Theming'
+import { Data } from './Data'
 import * as Post from '../Post'
-import { Divider } from 'src/components/Typography'
-import { descending } from 'src/util'
+import { assertDefinedSoft, descending } from 'src/util'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 
 export type PostsProps = {
@@ -25,6 +24,7 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   const reloadSpace = useCreateReloadSpace()
   const reloadPosts = useCreateReloadPosts()
   const refreshPosts = useFetchSpacePosts()
+  const styles = useThemedStyles()
   const isReady = !!(resolvedId && reloadSpace && reloadPosts && refreshPosts)
   
   const loadIds = useCallback(async () => {
@@ -34,7 +34,10 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   }, [refreshPosts, resolvedId])
   
   const loader: ListSpec['loader'] = async (ids) => {
-    await reloadPosts!({ ids })
+    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Space/Posts/loader' })) {
+      await reloadPosts({ ids })
+    }
+    return ids
   }
   
   const loadInitial: ListSpec['loadInitial'] = async () => {
@@ -42,10 +45,16 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   }
   
   const renderSpace: ListSpec['renderHeader'] = () => {
-    return <>
-      <Preview id={spaceId} showTags showSocials showAbout showFollowButton containerStyle={styles.padded} />
-      <Divider />
-    </>
+    return (
+      <Data
+        id={spaceId}
+        showTags
+        showSocials
+        showAbout
+        showFollowButton
+        containerStyle={styles.space}
+      />
+    )
   }
   
   const renderItem: ListSpec['renderItem'] = (id) => <WrappedPost {...{ id, onPressMore, onPressOwner }} />
@@ -53,6 +62,7 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   if (!isReady) {
     return <SpanningActivityIndicator />
   }
+  
   else {
     return (
       <DynamicExpansionList
@@ -83,8 +93,10 @@ const WrappedPost = React.memo(({ id, onPressMore, onPressOwner }: WrappedPostPr
   )
 })
 
-const styles = StyleSheet.create({
-  padded: {
+const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
+  space: {
     padding: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.divider,
   },
-})
+}))

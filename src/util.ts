@@ -1,7 +1,17 @@
 //////////////////////////////////////////////////////////////////////
 // Simple utility functions independent from RN
+import { logger } from '@polkadot/util'
+
+const assertLog = logger('assert')
 
 type PartitionResult<T> = [T[], T[]]
+
+export class AssertionError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AssertionError'
+  }
+}
 
 /**
  * Partition the given array-like in two by the given predicate.
@@ -62,6 +72,57 @@ export const values = <T>(obj: T) => keys(obj).map(key => obj[key])
 export const pairs  = <T>(obj: T) => keys(obj).map(key => [ key, obj[key] ] as [ keyof T, T[keyof T] ])
 
 export const descending = (a: any, b: any) => Number(b) - Number(a)
+
+export function assert(condition: boolean, message: string): boolean {
+  if (!condition) {
+    throw new AssertionError(message)
+  }
+  return true
+}
+
+export type AssertSoftOptions = {
+  tag?: string | symbol
+}
+export function assertSoft(condition: boolean, message: string): boolean
+export function assertSoft(condition: boolean, message: string, opts: AssertSoftOptions): boolean
+export function assertSoft(condition: boolean, ...args: any[]): boolean {
+  let [ message, opts ] = args
+  
+  const tag = opts?.tag
+  
+  if (!condition) {
+    // log only once per tag to keep logs clean
+    if (!tag || !assertSoftLogged[tag]) {
+      assertLog.warn(message)
+      if (tag) assertSoftLogged[tag] = true
+    }
+    return false
+  }
+  
+  return true
+}
+const assertSoftLogged: Record<string | symbol, boolean> = {}
+
+export function assertDefined<T>(value: T | undefined, message: string): value is T {
+  return assert(value !== undefined, message)
+}
+
+export type AssertDefinedSoftOptions = AssertSoftOptions & {
+  symbol?: string
+}
+export function assertDefinedSoft<T>(value: T | undefined, message: string): value is T
+export function assertDefinedSoft<T>(value: T | undefined, opts: AssertDefinedSoftOptions): value is T
+export function assertDefinedSoft<T>(value: T | undefined, message: string, opts: AssertDefinedSoftOptions): value is T
+export function assertDefinedSoft<T>(value: T | undefined, ...args: any[]): value is T {
+  let [ message, opts ] = args
+  
+  if (typeof message === 'object') {
+    opts = message
+    message = `${opts?.symbol || ''} should be defined`.trim()
+  }
+  
+  return assertSoft(value !== undefined, message, opts)
+}
 
 export class Age {
   constructor(public readonly timestamp: number) {

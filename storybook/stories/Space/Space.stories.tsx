@@ -21,12 +21,16 @@ storiesOf('Space', module)
         showAbout={boolean('About', true)}
         showSocials={boolean('Socials', true)}
         showTags={boolean('Tags', true)}
-        preview={boolean('Preview', false)}
+        onPressSpace={action('onPressSpace')}
       />
     </CenterView>
   ))
   .add('Posts', () => (
-    <Space.Posts id={text('handle', '@subsocial')} />
+    <Space.Posts
+      id={text('handle', '@subsocial')}
+      onPressMore={action('onPressMore')}
+      onPressOwner={action('onPressOwner')}
+    />
   ))
   .add('Explore Suggested', () => (
     <Space.Suggested spaces={config.suggestedSpaces.map(asString)} />

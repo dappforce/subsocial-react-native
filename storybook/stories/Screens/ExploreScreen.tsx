@@ -13,7 +13,7 @@ import * as Post from '../Post'
 import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import { Divider } from '~comps/Typography'
 import { asString } from '@subsocial/utils'
-import { descending } from 'src/util'
+import { assertDefinedSoft, descending } from 'src/util'
 import config from 'config.json'
 import { ExploreStackNav } from '~comps/ExploreStackNav'
 
@@ -93,7 +93,10 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
   }, [ api, dispatch, spaceIds ])
   
   const loader: ListProps['loader'] = async (ids) => {
-    await reloadPosts?.({ids})
+    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Screens/ExploreScreen/loader' })) {
+      await reloadPosts({ids})
+    }
+    return ids
   }
   
   const renderItem: ListProps['renderItem'] = (id) => <WrappedPost id={id} />

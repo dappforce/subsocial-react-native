@@ -91,7 +91,9 @@ export function SocialLink({ link, onPress, color, rtl = false }: SocialLinkProp
     <IconRaw
       {...{ name, family, size, color }}
       onPress={_onPress}
-      style={rtl ? {marginLeft: 10} : {marginRight: 10}}
+      containerStyle={rtl ? {marginLeft: 10} : {marginRight: 10}}
+      rippleSize={20}
+      rippleBorderless
     />
   )
 }

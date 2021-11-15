@@ -91,14 +91,14 @@ export const useResolvedSpaceHandles = (ids: SpaceId[]) => {
   useSubsocialEffect(async api => {
     setResolved(await resolveSpaceIds(api.substrate, ids))
   }, ids)
-  return resolved;
+  return resolved
 }
 
 export async function resolveSpaceId(substrate: SubsocialSubstrateApi, id: SpaceId): Promise<SpaceId> {
   if (isHandle(id)) {
-    const handle = (id as string).substr(1).toLowerCase();
-    const spaceid = await substrate.getSpaceIdByHandle(handle);
-    if (!spaceid) throw new SpaceNotFoundError(handle);
+    const handle = (id as string).substr(1).toLowerCase()
+    const spaceid = await substrate.getSpaceIdByHandle(handle)
+    if (!spaceid) throw new SpaceNotFoundError(handle)
     return spaceid+''
   }
   else {

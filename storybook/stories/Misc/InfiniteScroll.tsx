@@ -4,6 +4,9 @@ import React, { ReactElement, useCallback, useEffect, useReducer } from 'react'
 import { RefreshControl, SectionList, SectionListData, SectionListProps } from 'react-native'
 import { setEqual } from 'src/util'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
+import { logger as createLogger } from '@polkadot/util'
+
+const logger = createLogger('InfiniteScroll')
 
 export interface DynamicExpansionListLoader<ID> {
   (): Promise<ID[]>
@@ -152,7 +155,7 @@ export function DynamicExpansionList<ID>({
     
     if (stage !== 'READY') return
     
-    console.log('loading more')
+    logger.debug('loading more')
     dispatch({ type: 'BEGIN_EXPAND' })
     
     const [ newIds, newLastIdx ] = await loadBatch(baseIds, lastIdx)

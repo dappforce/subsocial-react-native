@@ -7,6 +7,7 @@ import { Divider } from 'src/components/Typography'
 import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
 import { useCreateReloadSpace } from 'src/rtk/app/hooks'
+import { assertDefinedSoft } from 'src/util'
 
 export type SuggestedProps = {
   spaces: SpaceId[]
@@ -16,9 +17,10 @@ export function Suggested({ spaces }: SuggestedProps) {
   const renderItem = (id: SpaceId) => <WrappedSpace id={id} />
   
   const loader = async (ids: SpaceId[]) => {
-    ids.forEach(id => {
-      reloadSpace?.({id})
-    })
+    if (assertDefinedSoft(reloadSpace, { symbol: 'reloadSpace', tag: 'Space/Explorer/loader' })) {
+      await Promise.all(ids.map(id => reloadSpace({ id })))
+    }
+    return ids
   }
   
   return (
@@ -39,7 +41,6 @@ const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
       showAbout
       showFollowButton
       showTags
-      preview
       containerStyle={styles.wrappedSpace}
     />
     <Divider />

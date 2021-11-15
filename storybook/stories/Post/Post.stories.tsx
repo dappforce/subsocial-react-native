@@ -17,11 +17,18 @@ storiesOf('Post', module)
       <Preview
         id={number('Post ID', 20738)+''} // another good PostID is 20482
         onPressMore={action('pressMore')}
+        onPressOwner={action('pressOwner')}
+        onPressSpace={action('pressSpace')}
       />
     </ScrollView>
   ))
   .add('Details', () => (
-    <Details id={number('Post ID', 20738)+''} containerStyle={styles.padded} />
+    <Details
+      id={number('Post ID', 20738)+''}
+      containerStyle={styles.padded}
+      onPressOwner={action('pressOwner')}
+      onPressSpace={action('pressSpace')}
+    />
   ))
 
 const styles = StyleSheet.create({
