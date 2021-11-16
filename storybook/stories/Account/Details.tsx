@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import {
   createMaterialTopTabNavigator,
@@ -11,22 +11,28 @@ import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { Balance, Header } from '~stories/Misc'
-import { Text } from '~comps/Typography'
+import { Divider, Text } from '~comps/Typography'
 import { FollowButton } from '~stories/Actions'
+import { DetailsHeaderProvider, useDetailsHeader } from './DetailsHeaderContext'
 import { Address } from './Address'
-import { Posts, PostsProps } from './Posts'
-import { Comments, CommentsProps } from './Comments'
-import { Upvotes, UpvotesProps } from './Upvotes'
-import { Follows, FollowsProps } from './Follows'
-import { Spaces, SpacesProps } from './Spaces'
+import { Posts } from './Posts'
+import { Comments } from './Comments'
+import { Upvotes } from './Upvotes'
+import { Follows } from './Follows'
+import { Spaces } from './Spaces'
 import Elevations from 'react-native-elevation'
+import Collapsible from 'react-native-collapsible'
+
+type CommonScreenParams = {
+  accountId: AccountId
+}
 
 export type DetailsRoutes = {
-  posts: { accountId: AccountId }
-  comments: { accountId: AccountId }
-  upvotes: { accountId: AccountId }
-  follows: { accountId: AccountId }
-  spaces: { accountId: AccountId }
+  posts:    CommonScreenParams
+  comments: CommonScreenParams
+  upvotes:  CommonScreenParams
+  follows:  CommonScreenParams
+  spaces:   CommonScreenParams
 }
 
 export type DetailsNavProps = MaterialTopTabNavigationProp<DetailsRoutes>
@@ -37,29 +43,34 @@ const Tabs = createMaterialTopTabNavigator<DetailsRoutes>()
 export type DetailsProps = {
   id: AccountId
 }
-
 export function Details({ id }: DetailsProps) {
   const theme = useTheme()
   const styles = useThemedStyle()
   
+  const screenParams: CommonScreenParams = useMemo(() => ({
+    accountId: id,
+  }), [ id ])
+  
   return (
-    <Tabs.Navigator
-      tabBar={(props: MaterialTopTabBarProps) => <DetailsTabBar id={id} {...props} />}
-      screenOptions={{
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.tabLabel,
-        tabBarInactiveTintColor: theme.colors.textSecondary,
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarItemStyle: styles.tabItem,
-        tabBarScrollEnabled: true,
-      }}
-    >
-      <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    initialParams={{ accountId: id }} />
-      <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} initialParams={{ accountId: id }} />
-      <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  initialParams={{ accountId: id }} />
-      <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  initialParams={{ accountId: id }} />
-      <Tabs.Screen name='spaces'   component={AccountSpaces}   options={{ tabBarLabel: 'Spaces' }}   initialParams={{ accountId: id }} />
-    </Tabs.Navigator>
+    <DetailsHeaderProvider>
+      <Tabs.Navigator
+        tabBar={(props: MaterialTopTabBarProps) => <DetailsTabBar id={id} {...props} />}
+        screenOptions={{
+          tabBarStyle: styles.tabBar,
+          tabBarLabelStyle: styles.tabLabel,
+          tabBarInactiveTintColor: theme.colors.textSecondary,
+          tabBarActiveTintColor: theme.colors.primary,
+          tabBarItemStyle: styles.tabItem,
+          tabBarScrollEnabled: true,
+        }}
+      >
+        <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    initialParams={screenParams} />
+        <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} initialParams={screenParams} />
+        <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  initialParams={screenParams} />
+        <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  initialParams={screenParams} />
+        <Tabs.Screen name='spaces'   component={AccountSpaces}   options={{ tabBarLabel: 'Spaces' }}   initialParams={screenParams} />
+      </Tabs.Navigator>
+    </DetailsHeaderProvider>
   )
 }
 
@@ -129,6 +140,7 @@ type DetailsTabBarProps = MaterialTopTabBarProps & {
 }
 function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
   const styles = useThemedStyle()
+  const { collapsed } = useDetailsHeader()
   
   const [ headerHeight, setHeaderHeight ] = useState(0)
   
@@ -139,18 +151,36 @@ function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
   
   return (
     <>
-      <DetailsHeader id={id} style={styles.header} onLayout={onHeaderLayout} />
+      <Collapsible collapsed={collapsed}>
+        <DetailsHeader id={id} style={styles.header} onLayout={onHeaderLayout} />
+      </Collapsible>
       <MaterialTopTabBar {...props} />
+      <Divider />
     </>
   )
 }
 
 
-const AccountPosts    = React.memo(({ route }: DetailsScreenProps<'posts'>)    => <Posts    id={route.params.accountId} />)
-const AccountComments = React.memo(({ route }: DetailsScreenProps<'comments'>) => <Comments id={route.params.accountId} />)
-const AccountUpvotes  = React.memo(({ route }: DetailsScreenProps<'upvotes'>)  => <Upvotes  id={route.params.accountId} />)
-const AccountFollows  = React.memo(({ route }: DetailsScreenProps<'follows'>)  => <Follows  id={route.params.accountId} />)
-const AccountSpaces   = React.memo(({ route }: DetailsScreenProps<'spaces'>)   => <Spaces   id={route.params.accountId} />)
+const AccountPosts = React.memo(({ route }: DetailsScreenProps<'posts'>) => {
+  const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
+  return <Posts id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+})
+const AccountComments = React.memo(({ route }: DetailsScreenProps<'comments'>) => {
+  const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
+  return <Comments id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+})
+const AccountUpvotes = React.memo(({ route }: DetailsScreenProps<'upvotes'>) => {
+  const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
+  return <Upvotes id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+})
+const AccountFollows = React.memo(({ route }: DetailsScreenProps<'follows'>) => {
+  const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
+  return <Follows id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+})
+const AccountSpaces = React.memo(({ route }: DetailsScreenProps<'spaces'>)   => {
+  const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
+  return <Spaces id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+})
 
 
 const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => StyleSheet.create({

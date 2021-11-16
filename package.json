@@ -39,6 +39,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "~0.63.4",
+    "react-native-collapsible": "^1.6.0",
     "react-native-elements": "react-native-elements/react-native-elements#dist",
     "react-native-elevation": "^1.0.0",
     "react-native-fast-image": "^8.5.11",

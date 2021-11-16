@@ -9,15 +9,18 @@ import {
 import { useInit } from '~comps/hooks'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import * as Space from '~stories/Space'
-import { DynamicExpansionList } from '~stories/Misc'
+import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import { Text } from '~comps/Typography'
 import { createThemedStylesHook } from '~comps/Theming'
 import { assertDefinedSoft } from 'src/util'
 
 export type SpacesProps = {
   id: AccountId
+  onScroll?: DynamicExpansionListProps<SpaceId>['onScroll']
+  onScrollBeginDrag?: DynamicExpansionListProps<SpaceId>['onScrollBeginDrag']
+  onScrollEndDrag?: DynamicExpansionListProps<SpaceId>['onScrollEndDrag']
 }
-export function Spaces({ id }: SpacesProps) {
+export function Spaces({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: SpacesProps) {
   const spaces = useSelectSpaceIdsWhereAccountCanPost(id)
   const reloadSpace = useCreateReloadSpace()
   const reloadOwnSpaces = useCreateReloadSpaceIdsRelatedToAccount()
@@ -57,6 +60,9 @@ export function Spaces({ id }: SpacesProps) {
         ids={spaces}
         loader={loader}
         renderItem={(id) => <WrappedSpace id={id} />}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
       />
     )
   }

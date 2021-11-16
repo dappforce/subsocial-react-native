@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Custom list implementations to help with arbitrary InfiniteScroll
 import React, { ReactElement, useCallback, useEffect, useReducer } from 'react'
-import { RefreshControl, SectionList, SectionListData, SectionListProps } from 'react-native'
+import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl, SectionList, SectionListData, SectionListProps } from 'react-native'
 import { setEqual } from 'src/util'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { logger as createLogger } from '@polkadot/util'
@@ -53,6 +53,8 @@ const getInitState: <ID>() => ListState<ID> = () => ({
   baseIds: [],
 })
 
+type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>
+
 export type DynamicExpansionListProps<ID> = {
   ids: ID[] | DynamicExpansionListLoader<ID>
   loader: DynamicDataLoader<ID>
@@ -60,7 +62,9 @@ export type DynamicExpansionListProps<ID> = {
   renderItem: (id: ID) => ReactElement
   renderHeader?: () => ReactElement
   batchSize?: number
-  onRefresh?: () => void
+  onScroll?: (e: ScrollEvent) => void
+  onScrollBeginDrag?: (e: ScrollEvent) => void
+  onScrollEndDrag?: (e: ScrollEvent) => void
 }
 export function DynamicExpansionList<ID>({
   ids: _ids,
@@ -69,6 +73,9 @@ export function DynamicExpansionList<ID>({
   renderItem: _renderItem,
   renderHeader,
   batchSize = 10,
+  onScroll,
+  onScrollBeginDrag,
+  onScrollEndDrag,
 }: DynamicExpansionListProps<ID>)
 {
   type SectionListSpec = SectionListProps<ID>
@@ -203,6 +210,9 @@ export function DynamicExpansionList<ID>({
         {...{ sections, renderItem, renderSectionHeader }}
         onEndReached={loadMore}
         onEndReachedThreshold={1}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
         keyExtractor={(id) => id+''}
         refreshControl={typeof(_ids) === 'function'
         ? <RefreshControl

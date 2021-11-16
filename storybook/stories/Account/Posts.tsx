@@ -9,13 +9,16 @@ import { useInit } from '~comps/hooks'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { createThemedStylesHook } from '~comps/Theming'
 import { Text } from '~comps/Typography'
-import { DynamicExpansionList } from '~stories/Misc'
+import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import * as Post from '../Post'
 
 export type PostsProps = {
   id: AccountId
+  onScroll?: DynamicExpansionListProps<PostId>['onScroll']
+  onScrollBeginDrag?: DynamicExpansionListProps<PostId>['onScrollBeginDrag']
+  onScrollEndDrag?: DynamicExpansionListProps<PostId>['onScrollEndDrag']
 }
-export function Posts({ id }: PostsProps) {
+export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: PostsProps) {
   const [ loading, postIds ] = useSelectProfilePosts(id)
   const reloadProfilePosts = useCreateReloadProfilePosts()
   const reloadPosts = useCreateReloadPosts()
@@ -69,6 +72,9 @@ export function Posts({ id }: PostsProps) {
         ids={postIds}
         loader={loader}
         renderItem={renderPost}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
       />
     )
   }

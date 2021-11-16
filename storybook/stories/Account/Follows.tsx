@@ -2,19 +2,22 @@ import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
 import { useStore } from 'react-redux'
 import { AccountId } from 'src/types/subsocial'
-import { useCreateReloadAccountIdsByFollower, useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
+import { useCreateReloadAccountIdsByFollower, useCreateReloadProfile } from 'src/rtk/app/hooks'
 import { selectAccountIdsByFollower } from 'src/rtk/features/profiles/followedAccountIdsSlice'
 import { RootState } from 'src/rtk/app/rootReducer'
 import { Preview } from './Preview'
 import { createThemedStylesHook } from '~comps/Theming'
-import { DynamicExpansionList } from '~stories/Misc'
+import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { assertDefinedSoft } from 'src/util'
 
 export type FollowsProps = {
   id: AccountId
+  onScroll?: DynamicExpansionListProps<AccountId>['onScroll']
+  onScrollBeginDrag?: DynamicExpansionListProps<AccountId>['onScrollBeginDrag']
+  onScrollEndDrag?: DynamicExpansionListProps<AccountId>['onScrollEndDrag']
 }
-export function Follows({ id }: FollowsProps) {
+export function Follows({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: FollowsProps) {
   const reload = useCreateReloadAccountIdsByFollower()
   const reloadProfile = useCreateReloadProfile()
   const store = useStore<RootState>()
@@ -49,7 +52,10 @@ export function Follows({ id }: FollowsProps) {
         {...{
           ids,
           loader,
-          renderItem
+          renderItem,
+          onScroll,
+          onScrollBeginDrag,
+          onScrollEndDrag,
         }}
       />
     )
