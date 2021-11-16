@@ -59,6 +59,7 @@ export type DynamicExpansionListProps<ID> = {
   ids: ID[] | DynamicExpansionListLoader<ID>
   loader: DynamicDataLoader<ID>
   loadInitial?: () => Promise<void>
+  renderEmpty?: () => ReactElement
   renderItem: (id: ID) => ReactElement
   renderHeader?: () => ReactElement
   batchSize?: number
@@ -70,6 +71,7 @@ export function DynamicExpansionList<ID>({
   ids: _ids,
   loader,
   loadInitial,
+  renderEmpty,
   renderItem: _renderItem,
   renderHeader,
   batchSize = 10,
@@ -202,6 +204,10 @@ export function DynamicExpansionList<ID>({
   
   if (stage === 'INITIAL') {
     return <SpanningActivityIndicator />
+  }
+  
+  else if (!baseIds.length) {
+    return renderEmpty?.() || null
   }
   
   else {

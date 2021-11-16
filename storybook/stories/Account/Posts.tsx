@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native'
 import { useStore } from 'react-redux'
 import { useCreateReloadPosts, useCreateReloadProfilePosts, useSelectProfilePosts } from 'src/rtk/app/hooks'
 import { RootState } from 'src/rtk/app/rootReducer'
-import { AccountId, PostId } from 'src/types/subsocial'
+import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
 import { assertDefinedSoft } from 'src/util'
 import { useInit } from '~comps/hooks'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
@@ -11,6 +11,16 @@ import { createThemedStylesHook } from '~comps/Theming'
 import { Text } from '~comps/Typography'
 import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
 import * as Post from '../Post'
+import config from 'config.json'
+import axios from 'axios'
+
+type RESTResponse = {
+  account: AccountId
+  block_number: number
+  post_id: PostId
+  space_id: SpaceId
+}
+["account", "block_number", "event_index", "event", "following_id", "space_id", "post_id", "comment_id", "parent_comment_id", "date", "aggregated", "agg_count"]
 
 export type PostsProps = {
   id: AccountId
@@ -19,40 +29,28 @@ export type PostsProps = {
   onScrollEndDrag?: DynamicExpansionListProps<PostId>['onScrollEndDrag']
 }
 export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: PostsProps) {
-  const [ loading, postIds ] = useSelectProfilePosts(id)
-  const reloadProfilePosts = useCreateReloadProfilePosts()
   const reloadPosts = useCreateReloadPosts()
-  const store = useStore<RootState>()
   
-  // TODO: refresh posts
+  // fetch post IDs from offchain REST API because it's magnitudes faster
+  const url = `${config.connections.rpc.offchain}/v1/offchain/activities/${id}/posts`
+  
+  const ids = useCallback(async () => {
+    const res = await axios.get<RESTResponse[]>(url)
+    if (res.status !== 200) return []
+    
+    return res.data.map(({ post_id }) => post_id)
+  }, [ url ])
   
   const loader = async (ids: PostId[]) => {
     if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Account/Posts/loader' })) {
       await reloadPosts({ ids, reload: true })
-      return ids.filter(postId => {
-        return store.getState().posts.entities[postId]?.ownerId === id
-      })
     }
-    else {
-      return ids
-    }
+    return ids
   }
   
   const renderPost = useCallback((id: PostId) => <WrappedPost id={id} />, [])
   
-  const isReady = !!reloadProfilePosts && !!reloadPosts && !loading
-  
-  useInit(async () => {
-    if (!isReady) return false
-    
-    if (!reloadProfilePosts) return false
-    
-    if (!postIds.length) {
-      await reloadProfilePosts({ id })
-    }
-    
-    return true
-  }, [ id ], [ reloadProfilePosts ])
+  const isReady = !!reloadPosts
   
   if (!isReady) {
     return (
@@ -60,18 +58,13 @@ export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Post
     )
   }
   
-  else if (!postIds.length) {
-    return (
-      <Text mode="secondary" style={{margin: 20, textAlign: 'center', fontStyle: 'italic'}}>No posts</Text>
-    )
-  }
-  
   else {
     return (
       <DynamicExpansionList
-        ids={postIds}
+        ids={ids}
         loader={loader}
         renderItem={renderPost}
+        renderEmpty={() => <Text>No posts</Text>}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}

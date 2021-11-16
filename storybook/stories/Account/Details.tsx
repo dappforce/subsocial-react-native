@@ -23,16 +23,12 @@ import { Spaces } from './Spaces'
 import Elevations from 'react-native-elevation'
 import Collapsible from 'react-native-collapsible'
 
-type CommonScreenParams = {
-  accountId: AccountId
-}
-
 export type DetailsRoutes = {
-  posts:    CommonScreenParams
-  comments: CommonScreenParams
-  upvotes:  CommonScreenParams
-  follows:  CommonScreenParams
-  spaces:   CommonScreenParams
+  posts:    {}
+  comments: {}
+  upvotes:  {}
+  follows:  {}
+  spaces:   {}
 }
 
 export type DetailsNavProps = MaterialTopTabNavigationProp<DetailsRoutes>
@@ -47,9 +43,11 @@ export function Details({ id }: DetailsProps) {
   const theme = useTheme()
   const styles = useThemedStyle()
   
-  const screenParams: CommonScreenParams = useMemo(() => ({
-    accountId: id,
-  }), [ id ])
+  const AccountPosts    = useMemo(() => ({}: {}) => <WrappedPosts    id={id} />, [ id ])
+  const AccountComments = useMemo(() => ({}: {}) => <WrappedComments id={id} />, [ id ])
+  const AccountUpvotes  = useMemo(() => ({}: {}) => <WrappedUpvotes  id={id} />, [ id ])
+  const AccountFollows  = useMemo(() => ({}: {}) => <WrappedFollows  id={id} />, [ id ])
+  const AccountSpaces   = useMemo(() => ({}: {}) => <WrappedSpaces   id={id} />, [ id ])
   
   return (
     <DetailsHeaderProvider>
@@ -64,11 +62,11 @@ export function Details({ id }: DetailsProps) {
           tabBarScrollEnabled: true,
         }}
       >
-        <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    initialParams={screenParams} />
-        <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} initialParams={screenParams} />
-        <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  initialParams={screenParams} />
-        <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  initialParams={screenParams} />
-        <Tabs.Screen name='spaces'   component={AccountSpaces}   options={{ tabBarLabel: 'Spaces' }}   initialParams={screenParams} />
+        <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    />
+        <Tabs.Screen name='comments' component={AccountComments} options={{ tabBarLabel: 'Comments' }} />
+        <Tabs.Screen name='upvotes'  component={AccountUpvotes}  options={{ tabBarLabel: 'Upvotes' }}  />
+        <Tabs.Screen name='follows'  component={AccountFollows}  options={{ tabBarLabel: 'Follows' }}  />
+        <Tabs.Screen name='spaces'   component={AccountSpaces}   options={{ tabBarLabel: 'Spaces' }}   />
       </Tabs.Navigator>
     </DetailsHeaderProvider>
   )
@@ -161,25 +159,29 @@ function DetailsTabBar({ id, ...props }: DetailsTabBarProps) {
 }
 
 
-const AccountPosts = React.memo(({ route }: DetailsScreenProps<'posts'>) => {
+type CommonDetailsScreenProps = {
+  id: AccountId
+}
+
+const WrappedPosts = React.memo(({ id }: CommonDetailsScreenProps) => {
   const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
-  return <Posts id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+  return <Posts {...{ id, onScroll, onScrollBeginDrag, onScrollEndDrag }} />
 })
-const AccountComments = React.memo(({ route }: DetailsScreenProps<'comments'>) => {
+const WrappedComments = React.memo(({ id }: CommonDetailsScreenProps) => {
   const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
-  return <Comments id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+  return <Comments {...{ id, onScroll, onScrollBeginDrag, onScrollEndDrag }} />
 })
-const AccountUpvotes = React.memo(({ route }: DetailsScreenProps<'upvotes'>) => {
+const WrappedUpvotes = React.memo(({ id }: CommonDetailsScreenProps) => {
   const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
-  return <Upvotes id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+  return <Upvotes {...{ id, onScroll, onScrollBeginDrag, onScrollEndDrag }} />
 })
-const AccountFollows = React.memo(({ route }: DetailsScreenProps<'follows'>) => {
+const WrappedFollows = React.memo(({ id }: CommonDetailsScreenProps) => {
   const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
-  return <Follows id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+  return <Follows {...{ id, onScroll, onScrollBeginDrag, onScrollEndDrag }} />
 })
-const AccountSpaces = React.memo(({ route }: DetailsScreenProps<'spaces'>)   => {
+const WrappedSpaces = React.memo(({ id }: CommonDetailsScreenProps)   => {
   const { onScroll, onScrollBeginDrag, onScrollEndDrag } = useDetailsHeader()
-  return <Spaces id={route.params.accountId} {...{ onScroll, onScrollBeginDrag, onScrollEndDrag }} />
+  return <Spaces {...{ id, onScroll, onScrollBeginDrag, onScrollEndDrag }} />
 })
 
 
