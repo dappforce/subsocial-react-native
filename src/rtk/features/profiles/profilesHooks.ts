@@ -47,9 +47,3 @@ export const useFetchAccountIdsByFollower = (follower: AccountId) => {
     { id: follower }
   )
 }
-
-export const useCreateReloadAccountIdsByFollower = () => {
-  return useActions<AccountId>(({ dispatch, args: id, ...props }) => {
-    return dispatch(fetchEntityOfAccountIdsByFollower({ id, reload: true, ...props }))
-  })
-}

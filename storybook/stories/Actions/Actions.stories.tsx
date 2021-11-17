@@ -1,25 +1,35 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react-native'
-import { boolean, number } from '@storybook/addon-knobs'
+import { boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
-import { ActionMenu, FollowButton, Panel } from './index'
+import { SubsocialProvider } from '~comps/SubsocialContext'
+import { ActionMenu, FollowButton, FollowAccountButton, Panel } from './index'
+import { LogoutButton } from './LogoutButton'
 import CenterView from '~stories/CenterView'
 
 storiesOf('Actions', module)
   .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
-  .add('Follow Button', () => (
+  .add('Follow Button Base', () => (
     <FollowButton
-      id={number('id', 1)+''}
       isFollowing={boolean('Following', false)}
       loading={boolean('Loading', false)}
-      onPress={action('press')}
+      onPress={action('onPress')}
       showIcon={boolean('Show Icon', false)}
     />
+  ))
+  .add('Follow Account Button', () => (
+    <SubsocialProvider>
+      <FollowAccountButton
+        id={text('Address', '3tiKakuy6RaHWThsHts23De8XwpaNdvw8PwwXcJqeVSN6w8w')}
+        showIcon={boolean('Show Icon', false)}
+      />
+      <LogoutButton />
+    </SubsocialProvider>
   ))
   .add('Action Menu', () => {
     const renderPrimary = () => <>
       <ActionMenu.Primary>
-        <FollowButton id={'1'} isFollowing={boolean('Following', false)} onPress={action('follow')} />
+        <FollowButton isFollowing={boolean('Following', false)} onPress={action('follow')} />
       </ActionMenu.Primary>
     </>;
     const renderSecondary = () => <>

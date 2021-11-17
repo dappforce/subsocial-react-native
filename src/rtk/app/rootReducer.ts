@@ -8,9 +8,8 @@ import followedSpaceIds from '../features/spaceIds/followedSpaceIdsSlice'
 import followedAccountIds from '../features/profiles/followedAccountIdsSlice'
 import ownSpaceIds from '../features/spaceIds/ownSpaceIdsSlice'
 import myPostReactions from '../features/reactions/myPostReactionsSlice'
-import myAccount from '../features/accounts/myAccountSlice'
+import localAccount from '../features/accounts/localAccountSlice'
 import spacePosts from '../features/spacePosts/spacePostsSlice'
-import profilePosts from '../features/profilePosts/profilePostsSlice'
 
 const rootReducer = combineReducers({
   contents,
@@ -22,9 +21,8 @@ const rootReducer = combineReducers({
   followedAccountIds,
   ownSpaceIds,
   myPostReactions,
-  myAccount,
+  localAccount,
   spacePosts,
-  profilePosts,
 })
 
 export type RootState = ReturnType<typeof rootReducer>
