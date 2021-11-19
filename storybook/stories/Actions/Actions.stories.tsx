@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react-native'
 import { boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import { ActionMenu, FollowButton, FollowAccountButton, Panel } from './index'
+import { LoginPrompt } from './LoginPrompt'
 import { LogoutButton } from './LogoutButton'
+import { Button } from '~comps/Typography'
 import CenterView from '~stories/CenterView'
 
 storiesOf('Actions', module)
@@ -57,3 +59,28 @@ storiesOf('Actions', module)
       </Panel>
     </CenterView>
   ))
+  .add('Login', () => (
+    <CenterView style={{display: 'flex', flexDirection: 'column'}}>
+      <ModalWrapper label="Login">
+        {(visible, setVisible) => (
+          <LoginPrompt visible={visible} onClose={() => setVisible(false)} />
+        )}
+      </ModalWrapper>
+      <LogoutButton />
+    </CenterView>
+  ))
+
+
+// need dedicated component for hooks
+type ModalWrapperProps = {
+  children: (visible: boolean, setVisible: (v: boolean) => void) => React.ReactElement
+  label?: string
+}
+function ModalWrapper({ children, label = 'Show Prompt' }: ModalWrapperProps) {
+  const [ visible, setVisible ] = useState(false)
+  
+  return <>
+    <Button mode="contained" onPress={() => setVisible(true)} style={{marginBottom: 4}}>{label}</Button>
+    {children(visible, setVisible)}
+  </>
+}

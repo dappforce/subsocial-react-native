@@ -31,6 +31,7 @@ export type Theme = {
     icon: string
     socials: string
     confirmation: string
+    rejection: string
   }
   consts: {
     roundness: number

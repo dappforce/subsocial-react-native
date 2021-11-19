@@ -21,6 +21,7 @@ const theme: Theme = {
     icon: '#262626',
     socials: '#a0a0a0',
     confirmation: '#3baa54',
+    rejection: '#b51e1e',
   },
   consts: {
     roundness: 4,

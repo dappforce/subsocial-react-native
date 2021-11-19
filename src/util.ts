@@ -1,6 +1,8 @@
 //////////////////////////////////////////////////////////////////////
 // Simple utility functions independent from RN
-import { logger } from '@polkadot/util'
+import { hexToU8a, isHex, logger } from '@polkadot/util'
+import { decodeAddress, encodeAddress, naclSign, naclVerify, randomAsU8a } from '@polkadot/util-crypto'
+import Snackbar, { SnackBarOptions } from 'react-native-snackbar'
 
 const assertLog = logger('assert')
 
@@ -103,17 +105,17 @@ export function assertSoft(condition: boolean, ...args: any[]): boolean {
 }
 const assertSoftLogged: Record<string | symbol, boolean> = {}
 
-export function assertDefined<T>(value: T | undefined, message: string): value is T {
+export function assertDefined<T>(value: T | undefined | null, message: string): value is T {
   return assert(value !== undefined, message)
 }
 
 export type AssertDefinedSoftOptions = AssertSoftOptions & {
   symbol?: string
 }
-export function assertDefinedSoft<T>(value: T | undefined, message: string): value is T
-export function assertDefinedSoft<T>(value: T | undefined, opts: AssertDefinedSoftOptions): value is T
-export function assertDefinedSoft<T>(value: T | undefined, message: string, opts: AssertDefinedSoftOptions): value is T
-export function assertDefinedSoft<T>(value: T | undefined, ...args: any[]): value is T {
+export function assertDefinedSoft<T>(value: T | undefined | null, message: string): value is T
+export function assertDefinedSoft<T>(value: T | undefined | null, opts: AssertDefinedSoftOptions): value is T
+export function assertDefinedSoft<T>(value: T | undefined | null, message: string, opts: AssertDefinedSoftOptions): value is T
+export function assertDefinedSoft<T>(value: T | undefined | null, ...args: any[]): value is T {
   let [ message, opts ] = args
   
   if (typeof message === 'object') {
@@ -123,6 +125,37 @@ export function assertDefinedSoft<T>(value: T | undefined, ...args: any[]): valu
   
   return assertSoft(value !== undefined, message, opts)
 }
+
+
+// see https://polkadot.js.org/docs/util-crypto/examples/validate-address/
+export function validateAddress(address: string): boolean {
+  try {
+    encodeAddress(isHex(address) ? hexToU8a(address) : decodeAddress(address))
+    return true
+  }
+  catch {
+    return false
+  }
+}
+
+export function validateKeypair(secret: string, address: string): boolean {
+  const msg = randomAsU8a()
+  const publicKey = isHex(address) ? hexToU8a(address) : decodeAddress(address)
+  const secretKey = hexToU8a(secret)
+  
+  const sig = naclSign(msg, { secretKey })
+  return naclVerify(msg, sig, publicKey)
+}
+
+
+export function snack(opts: SnackBarOptions) {
+  Snackbar.show(opts)
+}
+
+export function delaySnack(opts: SnackBarOptions, delay: number = 100) {
+  setTimeout(() => snack(opts), delay)
+}
+
 
 export class Age {
   constructor(public readonly timestamp: number) {

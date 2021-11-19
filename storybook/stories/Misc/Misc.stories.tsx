@@ -1,15 +1,15 @@
 //////////////////////////////////////////////////////////////////////
 // Miscellaneous small components & stories
 import React from 'react'
-import CenterView from '~stories/CenterView'
+import { StyleSheet } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
 import { array, boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import { Balance, Modal, SocialLinks, Tags } from './index'
 import { Button, Text } from '~comps/Typography'
+import CenterView from '~stories/CenterView'
 import QRCode from 'react-native-qrcode-svg'
-import { StyleSheet } from 'react-native'
 
 function ModalStory() {
   const [ visible, setVisible ] = React.useState(false)

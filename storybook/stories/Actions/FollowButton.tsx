@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // General purpose FollowButton encompassing following & follow-state
 // logic.
-// TODO: Following requires SUB -> requires transactions -> requires wallet
-// TODO: When following, switch mode to "outline"
 import React, { useCallback } from 'react'
 import { Icon } from 'react-native-elements'
 import { useInit } from '~comps/hooks'
@@ -60,7 +58,7 @@ export function FollowButton({
         onFollow?.(evt)
       }
     }
-  }, [ isFollowing ])
+  }, [ _onPress, isFollowing ])
   
   const extraProps: Partial<ButtonProps> = {
     ...props,
@@ -109,7 +107,6 @@ export const FollowAccountButton = React.memo(({ id, ...props }: FollowAccountBu
   }, [ id ], [ reloadFollowers ])
   
   const onPress = useCallback(async (e: FollowEvent) => {
-    console.log(address)
     if (!address) {
       e.preventDefault()
       setShowLoginPrompt(true)

@@ -5,54 +5,49 @@
 import React, { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { TextInput } from 'react-native-paper'
-import Clipboard from '@react-native-community/clipboard'
-import Snackbar from 'react-native-snackbar'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
-import { Icon } from '~comps/Icon'
-import { createThemedStylesHook } from '~comps/Theming'
+import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { Button, Text } from '~comps/Typography'
 import { Modal } from '~stories/Misc/Modal'
-import { importKeypair, Keypair } from 'src/rtk/features/accounts/localAccountSlice'
+import { storeKeypair, loadOrUnlockKeypair } from 'src/rtk/features/accounts/localAccountSlice'
+import { generateRandomKeypair, NoKeypairError } from 'src/crypto/keypair'
+import { delaySnack } from 'src/util'
+import { logger as createLogger } from '@polkadot/util'
+
+const log = createLogger('LoginPrompt')
 
 export type LoginPromptProps = {
   visible: boolean
   onClose: () => void
 }
 export function LoginPrompt({ visible, onClose }: LoginPromptProps) {
-  const styles = useThemedStyles()
   const dispatch = useAppDispatch()
-  const [ json, setJson ] = useState('{}')
+  const styles = useThemedStyles()
+  const theme = useTheme()
+  const [ passphrase, setPassphrase ] = useState('')
   
-  const paste = useCallback(async () => {
-    setJson(await Clipboard.getString())
-  }, [ setJson ])
+  const generate = useCallback(async () => {
+    await dispatch(storeKeypair({ keypair: generateRandomKeypair(), passphrase })).unwrap()
+    delaySnack({ text: 'Keypair generated', textColor: theme.colors.confirmation })
+    onClose()
+  }, [ passphrase, onClose ])
   
-  const importJson = useCallback(async () => {
-    let keypair: Keypair | undefined
+  const restore = useCallback(async () => {
     try {
-      keypair = await dispatch(importKeypair({ json })).unwrap()
+      await dispatch(loadOrUnlockKeypair(passphrase)).unwrap()
+      delaySnack({ text: 'Successfully restored keypair', textColor: theme.colors.confirmation })
+      onClose()
     }
-    catch {}
-    
-    // show snackbar after modal vanishes
-    // otherwise snackbar vanishes together with modal
-    setTimeout(() => {
-      if (keypair) {
-        Snackbar.show({
-          text: 'Successfully imported wallet',
-          textColor: '#10c928',
-        })
+    catch (err) {
+      if (err instanceof NoKeypairError) {
+        delaySnack({ text: 'No keypair stored', textColor: theme.colors.rejection })
       }
       else {
-        Snackbar.show({
-          text: 'Failed to import wallet',
-          textColor: 'red',
-        })
+        delaySnack({ text: 'Failed to recover keypair', textColor: theme.colors.rejection })
+        log.error(err)
       }
-    }, 100)
-    
-    onClose()
-  }, [ dispatch, json ])
+    }
+  }, [ passphrase, onClose ])
   
   return (
     <Modal visible={visible} title="Login required" onRequestClose={onClose} containerStyle={styles.container}>
@@ -60,20 +55,24 @@ export function LoginPrompt({ visible, onClose }: LoginPromptProps) {
         You need to login to use this feature.
       </Text>
       <Text style={styles.paragraph}>
-        Currently, you must import your Polkadot wallet keypair JSON{'\n'}
-        while we are working on a proper on-boarding process.
+        For development & testing purposes, you can currently only generate a random keypair or restore from secure storage.
       </Text>
+      
       <TextInput
-        label="Import Wallet"
+        label="Passphrase (optional)"
         mode="outlined"
-        value={json}
-        right={<Icon family="ionicon" name="clipboard-outline" onPress={paste} />} // TODO: it doesn't work...
-        onChangeText={setJson}
-        style={styles.importInput}
+        value={passphrase}
+        onChangeText={setPassphrase}
+        secureTextEntry
+        style={styles.passphrase}
       />
+      
       <View style={styles.buttonContainer}>
-        <Button mode="contained" onPress={importJson} style={styles.button}>
-          Import
+        <Button mode="contained" onPress={generate} style={styles.button}>
+          Generate
+        </Button>
+        <Button mode="contained" onPress={restore} style={styles.button}>
+          Restore
         </Button>
         <Button mode="outlined" onPress={onClose} style={[styles.button, { marginRight: 0 }]}>
           Cancel
@@ -92,7 +91,7 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     marginBottom: 20,
     lineHeight: 20,
   },
-  importInput: {
+  passphrase: {
     width: '100%',
     marginBottom: 20,
   },
