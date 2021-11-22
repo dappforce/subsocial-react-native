@@ -127,6 +127,19 @@ export function assertDefinedSoft<T>(value: T | undefined | null, ...args: any[]
 }
 
 
+/** Simple wrapper around Promise to create try/catch/then/finally syntax */
+export function trial<T>(cb: () => T | Promise<T>) {
+  return new Promise<T>(async (res, rej) => {
+    try {
+      res(await cb())
+    }
+    catch (err) {
+      rej(err)
+    }
+  })
+}
+
+
 // see https://polkadot.js.org/docs/util-crypto/examples/validate-address/
 export function validateAddress(address: string): boolean {
   try {

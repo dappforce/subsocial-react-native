@@ -14,7 +14,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { newLogger } from '@subsocial/utils'
 import { AccountId } from 'src/types/subsocial'
 import { Opt } from 'src/types'
-import { Keypair, restore as restoreKeypair, forget as _forgetKeypair } from 'src/crypto/keypair'
+import { forget as _forgetKeypair, hasStoredKeypair, Keypair, restore as restoreKeypair } from 'src/crypto/keypair'
 import { asAccountId } from '@subsocial/api'
 import { RootState } from 'src/rtk/app/rootReducer'
 
@@ -41,7 +41,15 @@ type ThunkApiConfig = {
 type LocalAccountState = {
   keypair?: Keypair
   nonce?: number
+  stored?: boolean
 }
+
+export const checkForStoredKeypair = createAsyncThunk<boolean, void, ThunkApiConfig>(
+  'localAccount/checkForStored',
+  async () => {
+    return await hasStoredKeypair()
+  }
+)
 
 export const loadOrUnlockKeypair = createAsyncThunk<Keypair, string | undefined, ThunkApiConfig>(
   'localAccount/loadOrUnlock',
@@ -100,6 +108,8 @@ export const incClientNonce = createAsyncThunk<number | undefined, void, ThunkAp
 
 export const selectKeypair = (state: RootState) => state.localAccount.keypair
 
+export const selectHasStoredKeypair = (state: RootState) => state.localAccount.stored
+
 const initialState: LocalAccountState = {}
 
 const localAccountSlice = createSlice({
@@ -108,15 +118,21 @@ const localAccountSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     return builder
+      .addCase(checkForStoredKeypair.fulfilled, (state, action) => {
+        state.stored = action.payload
+      })
       .addCase(loadOrUnlockKeypair.fulfilled, (state, action) => {
         state.keypair = action.payload
+        state.stored = true
       })
       .addCase(storeKeypair.fulfilled, (state, action) => {
         state.keypair = action.payload
+        state.stored = true
       })
       .addCase(forgetKeypair.fulfilled, (state) => {
         delete state.keypair
         delete state.nonce
+        state.stored = false
       })
       .addCase(setClientNonce.fulfilled, (state, action) => {
         state.nonce = action.payload

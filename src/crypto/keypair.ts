@@ -190,6 +190,14 @@ export function fromSeed(seed: Uint8Array, { type = 'sr25519', ss58Format = 42 }
 }
 
 
+/** Checks if keypair data is stored in secure storage.
+ * 
+ * The check is rudimentary and does not verify that the data is complete or valid.
+ */
+export async function hasStoredKeypair() {
+  return await SecureStore.getItemAsync(STORE_ADDRESS) !== null
+}
+
 /** Restore previously stored keypair from Expo-Secure-Store */
 export async function restore(passphrase: string | Falsy = ''): Promise<Keypair> {
   await assertPassphrase(passphrase)
