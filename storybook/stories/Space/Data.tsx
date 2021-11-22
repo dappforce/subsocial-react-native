@@ -6,7 +6,7 @@ import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'sr
 import { useInit } from '~comps/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header, SocialLinks as Socials, Tags } from '~stories/Misc'
-import { ActionMenu, FollowButton } from '~stories/Actions'
+import { ActionMenu, FollowSpaceButton } from '~stories/Actions'
 import { Markdown, Text } from '~comps/Typography'
 import { summarizeMd } from '@subsocial/utils'
 
@@ -92,19 +92,17 @@ export type HeadProps = {
   onPressSpace?: () => void
 }
 export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpace }: HeadProps) {
+  const id = data?.id ?? '0'
+  
   const renderPrimaryActions = useCallback(() => {
     return <>
       {showFollowButton && (
         <ActionMenu.Primary>
-          <FollowButton
-            id={data?.struct?.id ?? '0'}
-            isFollowing={false}
-            onPress={() => alert('not yet implemented, sorry!')}
-          />
+          <FollowSpaceButton id={id} />
         </ActionMenu.Primary>
       )}
     </>
-  }, [])
+  }, [ id ])
   
   const renderSecondaryActions = useCallback(() => {
     return <>

@@ -1,19 +1,17 @@
 //////////////////////////////////////////////////////////////////////
 // General purpose FollowButton encompassing following & follow-state
 // logic.
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Icon } from 'react-native-elements'
 import { useInit } from '~comps/hooks'
 import { useCreateReloadAccountIdsByFollower, useSelectAccountIdsByFollower, useSelectKeypair } from 'src/rtk/app/hooks'
 import { useSubstrate } from '~comps/SubstrateContext'
-import { AccountId } from 'src/types/subsocial'
+import { AccountId, EntityId, SpaceId } from 'src/types/subsocial'
 import { Button, ButtonProps } from '~comps/Typography'
 import { LoginPrompt } from './LoginPrompt'
 import { send as sendTx } from 'src/tx'
 import { assertDefinedSoft } from 'src/util'
-import { logger as createLogger } from '@polkadot/util'
-
-const log = createLogger('FollowButton')
+import { useCreateReloadSpaceIdsByFollower, useSelectSpaceIdsByFollower } from 'src/rtk/features/spaceIds/followedSpaceIdsHooks'
 
 export class FollowEvent {
   private _isDefaultPrevented = false
@@ -29,36 +27,92 @@ export class FollowEvent {
   }
 }
 
-export type FollowButtonProps = Omit<ButtonProps, 'children' | 'onPress' | 'icon'> & {
-  isFollowing: boolean
+export type CommonFollowButtonProps = Omit<ButtonProps, 'children' | 'onPress' | 'icon'> & {
   onPress?: (e: FollowEvent) => void
   onFollow?: (e: FollowEvent) => void
   onUnfollow?: (e: FollowEvent) => void
   showIcon?: boolean
 }
+
+export type GenericFollowButtonProps = {
+  targetId: EntityId
+  follows: EntityId[]
+  reloadFollows: (myAddress: string) => void
+  followTx: string
+  unfollowTx: string
+}
+
 export function FollowButton({
-  isFollowing,
+  targetId,
+  follows,
+  reloadFollows,
+  followTx,
+  unfollowTx,
+  
   onPress: _onPress,
   onFollow,
   onUnfollow,
   showIcon = false,
   labelStyle,
   ...props
-}: FollowButtonProps)
+}: CommonFollowButtonProps & GenericFollowButtonProps)
 {
-  const onPress = useCallback(() => {
-    const evt = new FollowEvent(!isFollowing)
-    _onPress?.(evt)
+  const { api } = useSubstrate() ?? {}
+  const { address } = useSelectKeypair() ?? {}
+  const isFollowing = !!address && follows.includes(targetId)
+  
+  const [ showLoginPrompt, setShowLoginPrompt] = useState(false)
+  const [ isLoading, setIsLoading ] = useState(false)
+  
+  const initialized = useInit(async () => {
+    if (follows || !address) return true
     
-    if (!evt.isDefaultPrevented) {
-      if (isFollowing) {
-        onUnfollow?.(evt)
-      }
-      else {
-        onFollow?.(evt)
+    if (!api || !reloadFollows) return false
+    
+    await reloadFollows(address)
+    return true
+  }, [ targetId ], [ api, address, follows, reloadFollows ])
+  
+  const onPress = useCallback(async () => {
+    if (!address) {
+      setShowLoginPrompt(true)
+      return
+    }
+    
+    if (!assertDefinedSoft(api, { symbol: 'api', tag: 'FollowButton/onPress/api' }) ||
+        !assertDefinedSoft(reloadFollows, { symbol: 'reloadFollows', tag: 'FollowButton/onPress/reloadFollows' })
+    ) {
+      return
+    }
+    
+    setIsLoading(true)
+    const evt = new FollowEvent(!isFollowing)
+    await _onPress?.(evt)
+    
+    try {
+      if (!evt.isDefaultPrevented) {
+        await sendTx({
+          api,
+          tx: isFollowing
+            ? unfollowTx
+            : followTx,
+          args: [ targetId ],
+        })
+        await reloadFollows(address)
+        
+        if (isFollowing) {
+          onUnfollow?.(evt)
+        }
+        else {
+          onFollow?.(evt)
+        }
       }
     }
-  }, [ _onPress, isFollowing ])
+    
+    finally {
+      setIsLoading(false)
+    }
+  }, [ targetId, address, unfollowTx, followTx, isFollowing, _onPress, onFollow, onUnfollow ])
   
   const extraProps: Partial<ButtonProps> = {
     ...props,
@@ -71,85 +125,60 @@ export function FollowButton({
   }
   
   return (
-    <Button
-      {...extraProps}
-      mode={isFollowing ? 'outlined' : 'contained'}
-      labelStyle={[
-        { fontSize: 15 },
-        showIcon && { marginLeft: 8 },
-        labelStyle
-      ]}
-    >
-      {isFollowing ? "Unfollow" : "Follow"}
-    </Button>
+    <>
+      <Button
+        {...extraProps}
+        mode={isFollowing ? 'outlined' : 'contained'}
+        labelStyle={[
+          { fontSize: 15 },
+          showIcon && { marginLeft: 8 },
+          labelStyle
+        ]}
+        loading={!initialized || isLoading}
+      >
+        {isFollowing ? "Unfollow" : "Follow"}
+      </Button>
+      <LoginPrompt visible={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
+    </>
   )
 }
 
-export type FollowAccountButtonProps = Omit<FollowButtonProps, 'isFollowing' | 'loading'> & {
+export type FollowAccountButtonProps = Omit<CommonFollowButtonProps, 'loading'> & {
   id: AccountId
 }
 export const FollowAccountButton = React.memo(({ id, ...props }: FollowAccountButtonProps) => {
-  const { api } = useSubstrate() ?? {}
   const { address } = useSelectKeypair() ?? {}
-  const followers = useSelectAccountIdsByFollower(address ?? '')
-  const reloadFollowers = useCreateReloadAccountIdsByFollower()
-  const isFollowing = !!address && followers.includes(id)
-  const [ showLoginPrompt, setShowLoginPrompt] = React.useState(false)
-  const [ isLoading, setIsLoading ] = React.useState(false)
-  
-  const initialized = useInit(async () => {
-    if (followers || !address) return true
-    
-    if (!api || !reloadFollowers) return false
-    
-    await reloadFollowers(address)
-    return true
-  }, [ id ], [ reloadFollowers ])
-  
-  const onPress = useCallback(async (e: FollowEvent) => {
-    if (!address) {
-      e.preventDefault()
-      setShowLoginPrompt(true)
-    }
-    
-    else {
-      if (!assertDefinedSoft(api, { symbol: 'api', tag: 'FollowAccountButton/onFollow/api' }) ||
-          !assertDefinedSoft(reloadFollowers, { symbol: 'reloadFollowers', tag: 'FollowAccountButton/onFollow/reloadFollowers' }))
-      {
-        e.preventDefault()
-        return
-      }
-      
-      setIsLoading(true)
-      
-      try {
-        await sendTx({
-          api,
-          tx: e.isFollowing
-            ? 'profileFollows.followAccount'
-            : 'profileFollows.unfollowAccount',
-          args: [ id ],
-        })
-        await reloadFollowers(address)
-      }
-      
-      finally {
-        setIsLoading(false)
-      }
-    }
-  }, [ address, setIsLoading ])
+  const follows = useSelectAccountIdsByFollower(address ?? '')
+  const reloadFollows = useCreateReloadAccountIdsByFollower()
   
   return (
-    <>
-      <FollowButton
-        {...props}
-        {...{
-          isFollowing,
-          onPress,
-        }}
-        loading={!initialized || isLoading}
-      />
-      <LoginPrompt visible={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
-    </>
+    <FollowButton
+      {...props}
+      targetId={id}
+      follows={follows}
+      reloadFollows={(address) => reloadFollows?.(address)}
+      followTx="profileFollows.followAccount"
+      unfollowTx="profileFollows.unfollowAccount"
+    />
+  )
+})
+
+export type FollowSpaceButtonProps = Omit<CommonFollowButtonProps, 'loading'> & {
+  id: SpaceId
+}
+export const FollowSpaceButton = React.memo(({ id, ...props }: FollowSpaceButtonProps) => {
+  const { address = '' } = useSelectKeypair() ?? {}
+  const follows = useSelectSpaceIdsByFollower(address)
+  const reloadFollows = useCreateReloadSpaceIdsByFollower()
+  
+  return (
+    <FollowButton
+      {...props}
+      targetId={id}
+      follows={follows}
+      reloadFollows={(address) => reloadFollows?.(address)}
+      followTx="spaceFollows.followSpace"
+      unfollowTx="spaceFollows.unfollowSpace"
+    />
   )
 })

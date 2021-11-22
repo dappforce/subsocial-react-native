@@ -6,6 +6,7 @@ import { fetchEntityOfSpaceIdsByFollower, selectEntityOfSpaceIdsByFollower } fro
 import { fetchSpaceIdsOwnedByAccount, selectEntityOfSpaceIdsByOwner, selectSpaceIdsByOwner } from './ownSpaceIdsSlice'
 import { useAppSelector } from 'src/rtk/app/hooksCommon'
 import { shallowEqual } from 'react-redux'
+import { useSelectKeypair } from 'src/rtk/features/accounts/localAccountHooks'
 
 export const useFetchSpaceIdsByOwner = (owner: AccountId) => {
   const { entity, ...other } = useFetchOneEntity(
@@ -40,16 +41,16 @@ export const useCreateReloadSpaceIdsRelatedToAccount = () => {
 }
 
 /** Reload three lists of space ids: that I own, I follow, I have any role. */
-// export const useCreateReloadSpaceIdsForMyAccount = () => {
-//   const myAddress = useMyAddress()
+export const useCreateReloadSpaceIdsForMyAccount = () => {
+  const { address } = useSelectKeypair() ?? {}
 
-//   return useActions<void>(({ dispatch, ...props }) => {
-//     if (myAddress) {
-//       dispatch(fetchSpaceIdsOwnedByAccount({ id: myAddress, reload: true, ...props }))
-//       dispatch(fetchEntityOfSpaceIdsByFollower({ id: myAddress, reload: true, ...props }))
-//     }
-//   })
-// }
+  return useActions<void>(({ dispatch, ...props }) => {
+    if (address) {
+      dispatch(fetchSpaceIdsOwnedByAccount({ id: address, reload: true, ...props }))
+      dispatch(fetchEntityOfSpaceIdsByFollower({ id: address, reload: true, ...props }))
+    }
+  })
+}
 
 /** Select two lists of space ids: that I own, I gave any role */
 export const useSelectSpaceIdsWhereAccountCanPost = (address?: AccountId) => useAppSelector(state => {
