@@ -56,8 +56,9 @@ export const loadOrUnlockKeypair = createAsyncThunk<Keypair, string | undefined,
   async (passphrase, { getState }) => {
     const keypair = getState().localAccount.keypair
     
-    if (keypair && keypair.isLocked()) {
-      keypair.unlock(passphrase)
+    if (keypair) {
+      if (keypair.isLocked())
+        keypair.unlock(passphrase)
       return keypair
     }
     
