@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import {
   createMaterialTopTabNavigator,
@@ -12,7 +12,7 @@ import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { Balance, Header } from '~stories/Misc'
 import { Divider, Text } from '~comps/Typography'
-import { FollowButton } from '~stories/Actions'
+import { FollowAccountButton } from '~stories/Actions'
 import { DetailsHeaderProvider, useDetailsHeader } from './DetailsHeaderContext'
 import { Address } from './Address'
 import { Posts } from './Posts'
@@ -22,6 +22,7 @@ import { Follows } from './Follows'
 import { Spaces } from './Spaces'
 import Elevations from 'react-native-elevation'
 import Collapsible from 'react-native-collapsible'
+import { useInit } from '~comps/hooks'
 
 export type DetailsRoutes = {
   posts:    {}
@@ -83,20 +84,14 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
-  // TODO: Follow logic :')
-  const renderFollowButton = useCallback(() => {
-    return (
-      <FollowButton
-        id={id}
-        isFollowing={false}
-        onPress={() => alert('not yet implemented')}
-      />
-    )
-  }, [ id ])
+  const renderFollowButton = useCallback(() => <FollowAccountButton id={id} />, [ id ])
   
-  useEffect(() => {
-    if (!data) reloadProfile?.({ id })
-  }, [ id, reloadProfile ])
+  useInit(async () => {
+    if (!reloadProfile) return false
+    
+    if (!data) await reloadProfile({ id })
+    return true
+  }, [ id ], [ reloadProfile ])
   
   return (
     <View {...{style, onLayout}}>

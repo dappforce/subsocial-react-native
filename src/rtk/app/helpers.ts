@@ -147,13 +147,11 @@ type CommonDispatchCallbackProps<T> = {
   args: T
 }
 
-type CommonDispatchCallbackFn<T> = (props: CommonDispatchCallbackProps<T>) => any | Promise<any>
+type CommonDispatchCallback<T, R = any> = (props: CommonDispatchCallbackProps<T>) => R | Promise<R>
 
 // ? Change cb on actions[]. And use actions.forEach(action => dispatch(action))
-export const useActions = <T>(cb: CommonDispatchCallbackFn<T>) => {
+export const useActions = <T, R = any>(cb: CommonDispatchCallback<T, R>) => {
   const dispatch = useAppDispatch()
   const { api } = useSubsocial()
-  
-  if (!api) return undefined
   return (args: T) => cb({ dispatch, api, args })
 }

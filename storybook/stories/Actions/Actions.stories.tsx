@@ -44,7 +44,7 @@ storiesOf('Actions', module)
       <ActionMenu.Secondary label="Redo"  onPress={action('redo')} icon={{name: "arrow-redo-outline", family: "ionicon"}} />
       <ActionMenu.Secondary label="Dummy" onPress={action('dummy')} />
     </>;
-    return <ActionMenu primary={renderPrimary} secondary={renderSecondary} />
+    return <SubsocialProvider><ActionMenu primary={renderPrimary} secondary={renderSecondary} /></SubsocialProvider>
   })
   .add('Action Panel', () => (
     <CenterView>

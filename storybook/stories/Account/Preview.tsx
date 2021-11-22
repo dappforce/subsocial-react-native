@@ -28,7 +28,6 @@ export const Preview = React.memo(({ id, containerStyle }: PreviewProps) => {
         id={id}
         name={data?.content?.name ?? id.toString()}
         avatar={data?.content?.avatar}
-        isFollowing={false} // TODO: following logic... :')
         numFollowers={data?.struct?.followersCount ?? 0}
         numFollowing={data?.struct?.followingAccountsCount ?? 0}
       />

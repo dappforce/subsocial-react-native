@@ -1,9 +1,10 @@
 //////////////////////////////////////////////////////////////////////
 // Common & general purpose hooks
 import { DependencyList, useEffect, useState } from 'react'
+import { Ref } from 'src/types'
 
 export interface InitCallback {
-  (): boolean | Promise<boolean>
+  (isMounted: Ref<boolean>): boolean | Promise<boolean>
 }
 
 /**
@@ -16,17 +17,24 @@ export interface InitCallback {
 export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: DependencyList): boolean {
   const [ initialized, setInitialized ] = useState(false)
   
+  let isMounted = { value: true }
+  
   useEffect(() => {
     setInitialized(false)
   }, resetDeps)
   
   useEffect(() => {
     if (!initialized) {
-      if (cb()) {
-        setInitialized(true)
-      }
+      (async() => {
+        const init = await cb(isMounted)
+        if (init && isMounted.value) {
+          setInitialized(true)
+        }
+      })()
     }
-  }, [ initialized, ...retryDeps ])
+  }, [ initialized, ...resetDeps, ...retryDeps ])
+  
+  useEffect(() => () => {isMounted.value = false}, [])
   
   return initialized
 }

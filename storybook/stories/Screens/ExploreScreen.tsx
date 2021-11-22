@@ -2,7 +2,7 @@
 // Screen with top tabs for Latest Posts & Dotsama Spaces
 import React, { useCallback } from 'react'
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationProp, MaterialTopTabScreenProps } from '@react-navigation/material-top-tabs'
-import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
+import { useSubsocial, useSubsocialInit } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { useCreateReloadPosts } from 'src/rtk/app/hooks'
@@ -11,7 +11,6 @@ import { useTheme } from '~comps/Theming'
 import * as Space from '../Space'
 import * as Post from '../Post'
 import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
-import { Divider } from '~comps/Typography'
 import { asString } from '@subsocial/utils'
 import { assertDefinedSoft, descending } from 'src/util'
 import config from 'config.json'
@@ -101,13 +100,10 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
   
   const renderItem: ListProps['renderItem'] = (id) => <WrappedPost id={id} />
   
-  useSubsocialEffect(async api => {
-    if (!api || !dispatch) return
-    
-    // must use dispatch & action directly because number of spaces
-    // could theoretically change, violating fixed hooks rule
+  useSubsocialInit(async (isMounted, { api }) => {
     await Promise.all(config.suggestedSpaces.map( id => dispatch(fetchSpacePosts({ api, id })) ))
-  }, [ dispatch ])
+    return true
+  }, [], [])
   
   return (
     <DynamicExpansionList ids={loadIds} {...{renderItem, loader}} />

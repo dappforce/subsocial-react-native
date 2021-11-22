@@ -2,7 +2,7 @@
 // Underlying User Components
 import React, { useCallback } from 'react'
 import { AccountId } from 'src/types/subsocial'
-import { ActionMenu, FollowButton } from '~stories/Actions'
+import { ActionMenu, FollowAccountButton } from '~stories/Actions'
 import { Header } from '~stories/Misc'
 
 export type HeadProps = {
@@ -11,17 +11,13 @@ export type HeadProps = {
   avatar?: string
   numFollowers: number
   numFollowing: number
-  isFollowing: boolean
 }
-export function Head({ id, name, avatar, numFollowers, numFollowing, isFollowing }: HeadProps) {
+export function Head({ id, name, avatar, numFollowers, numFollowing }: HeadProps) {
   const renderPrimary = useCallback(() => (
     <ActionMenu.Primary>
-      <FollowButton
-        {...{ id, isFollowing }}
-        onPress={() => alert('not yet implemented, sorry')}
-      />
+      <FollowAccountButton id={id} />
     </ActionMenu.Primary>
-  ), [ id, isFollowing ])
+  ), [ id ])
   
   return (
     <Header

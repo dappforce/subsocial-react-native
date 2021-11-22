@@ -1,14 +1,18 @@
 //////////////////////////////////////////////////////////////////////
 // Simple Substrate API integration with RN
 // SPDX-License-Identifier: GPL-3.0
-import React, { useCallback, useContext, useEffect, useReducer, useState } from 'react'
+import React, { EffectCallback, useContext, useEffect, useReducer } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
+import { ApiPromise } from '@polkadot/api'
 import { SubsocialApi } from '@subsocial/api'
 import { SubstrateState, useSubstrate } from './SubstrateContext'
-import config from 'config.json'
 import { useTheme } from './Theming'
 import { Text } from './Typography'
+import { assertDefined } from 'src/util'
+import config from 'config.json'
+import { useInit } from './hooks'
+import { Ref } from 'src/types'
 
 export { SubstrateProvider, useSubstrate } from './SubstrateContext'
 
@@ -118,68 +122,53 @@ function stateReducer(state: SubsocialState, action: StateAction): SubsocialStat
 
 // ===== QoL Hooks =====
 
-export type SubsocialInitializerState = 'PENDING' | 'LOADING' | 'READY' | 'ERROR'
-type InitializerData<T> = {
-  job: SubsocialInitializerState
-  data?: T
-  error?: any
-}
-
-interface SubsocialInitializerCallback<T> {
-  (api: SubsocialApi): T | Promise<T>
+interface SubsocialEffect {
+  (args: { api: SubsocialApi, substrate: ApiPromise }): ReturnType<EffectCallback>
 }
 
 // TODO: useEffect-style unmount
-export function useSubsocialEffect<T>(
-  callback: SubsocialInitializerCallback<T>,
+export function useSubsocialEffect(
+  callback: SubsocialEffect,
   deps: React.DependencyList
-): [SubsocialInitializerState, undefined | T]
+): void
 {
   const subsocial = useSubsocial()
   if (subsocial === undefined)
     throw new Error('No Subsocial API context found - are you using SubsocialProvider?')
   
-  const { api } = subsocial
-  const [ state, setState ] = useState<InitializerData<T>>({ job: 'PENDING' })
-  const { job } = state
+  const { api, substrate: { api: substrate } } = subsocial
   
-  // Auto-reset initializer when deps change
   useEffect(() => {
-    setState({ job: 'PENDING' })
-  }, deps)
-  
-  // Need callback because api may be undefined
-  useCallback(async () => {
-    if (!api) return
+    if (!assertDefined(api, 'Subsocial API unavailable')) return
+    if (!assertDefined(substrate, 'Subsocial Substrate API unavailable')) return
     
-    if (job !== 'PENDING') return
-    
-    setState({ job: 'LOADING' })
-    try {
-      setState({ job: 'READY', data: await callback(api) })
-    }
-    catch (error) {
-      setState({ job: 'ERROR', error })
-      throw error
-    }
-  }, [ api, state ])()
-  
-  return [state.job, state.data];
+    return callback({ api, substrate })
+  }, [ api, substrate, ...deps ])
 }
 
-export function isLoading(state: SubsocialInitializerState) {
-  switch (state) {
-    case 'PENDING':
-    case 'LOADING':
-      return true
-      
-    default:
-      return false
-  }
+interface SubsocialInit {
+  (isMounted: Ref<boolean>, args: { api: SubsocialApi, substrate: ApiPromise }): boolean | Promise<boolean>
 }
 
-export const isReady = (state: SubsocialInitializerState) => state === 'READY'
-export const isError = (state: SubsocialInitializerState) => state === 'ERROR'
+export function useSubsocialInit(
+  callback: SubsocialInit,
+  resetDeps: React.DependencyList,
+  retryDeps: React.DependencyList,
+): boolean
+{
+  const subsocial = useSubsocial()
+  if (subsocial === undefined)
+    throw new Error('No Subsocial API context found - are you using SubsocialProvider?')
+  
+  const { api, substrate: { api: substrate } } = subsocial
+  
+  return useInit(async(isMounted) => {
+    if (!assertDefined(api, 'Subsocial API unavailable')) return true
+    if (!assertDefined(substrate, 'Subsocial Substrate API unavailable')) return true
+    
+    return await callback(isMounted, { api, substrate })
+  }, [ api, substrate, ...resetDeps ], retryDeps)
+}
 
 const styles = StyleSheet.create({
   coverContainer: {

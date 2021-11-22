@@ -5,7 +5,7 @@ import { fetchSpaces, SelectSpaceArgs, SelectSpacesArgs, selectSpaceStructById }
 import { PostId, SpaceContent, SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { SubsocialSubstrateApi } from '@subsocial/api'
 import { selectSpaceContentById } from '../contents/contentsSlice'
-import { useSubsocial, useSubsocialEffect } from '~comps/SubsocialContext'
+import { useSubsocial, useSubsocialEffect, useSubsocialInit } from '~comps/SubsocialContext'
 import { isDef } from '@subsocial/utils'
 
 export const useSelectSpace = (spaceId?: SpaceId): SpaceWithSomeDetails | undefined => {
@@ -87,10 +87,15 @@ export const useResolvedSpaceHandle = (id: SpaceId) => {
 }
 
 export const useResolvedSpaceHandles = (ids: SpaceId[]) => {
-  const [resolved, setResolved] = useState<PostId[]>([])
-  useSubsocialEffect(async api => {
-    setResolved(await resolveSpaceIds(api.substrate, ids))
-  }, ids)
+  const [ resolved, setResolved ] = useState<PostId[]>([])
+  
+  useSubsocialInit(async (isMounted, { api }) => {
+    const resolved = await resolveSpaceIds(api.substrate, ids)
+    if (isMounted.value)
+      setResolved(resolved)
+    return true
+  }, ids, [])
+  
   return resolved
 }
 

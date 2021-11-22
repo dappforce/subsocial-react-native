@@ -1,5 +1,5 @@
-import { useMyAddress } from 'src/components/auth/MyAccountContext'
 import { useActions } from 'src/rtk/app/helpers'
+import { useSelectKeypair } from 'src/rtk/app/hooks'
 import { useFetch } from 'src/rtk/app/hooksCommon'
 import { PostId } from 'src/types/subsocial'
 import { fetchMyReactionsByPostIds, prependPostIdWithMyAddress, ReactionStruct, upsertMyReaction } from './myPostReactionsSlice'
@@ -9,18 +9,20 @@ export const useFetchMyReactionsByPostId = (postId: PostId) => {
 }
 
 export const useFetchMyReactionsByPostIds = (postIds: PostId[]) => {
-  const myAddress = useMyAddress()
+  const { address } = useSelectKeypair() ?? {}
+  
   return useFetch(
     fetchMyReactionsByPostIds,
-    { ids: postIds, myAddress }
+    { ids: postIds, myAddress: address }
   )
 }
 
 export const useCreateUpsertMyReaction = () => {
-  const myAddress = useMyAddress()
+  const { address } = useSelectKeypair() ?? {}
+  
   return useActions<ReactionStruct>(({ dispatch, args: { id: postId, reactionId, kind } }) => {
-    return myAddress && dispatch(upsertMyReaction({
-      id: prependPostIdWithMyAddress(postId, myAddress),
+    return address && dispatch(upsertMyReaction({
+      id: prependPostIdWithMyAddress(postId, address),
       reactionId,
       kind
     }))

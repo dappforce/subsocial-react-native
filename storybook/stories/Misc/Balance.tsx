@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleProp, TextStyle } from 'react-native'
-import { useSubsocialEffect } from '~comps/SubsocialContext'
+import { useSubsocialInit } from '~comps/SubsocialContext'
 import { AccountId } from 'src/types/subsocial'
 import { Text } from '~comps/Typography'
 import { formatBalance } from '@polkadot/util'
@@ -77,14 +77,17 @@ function defaultBalanceFormat(balance: BN, decimals: number, currency: string, t
 export function useBalance(address: AccountId) {
   const [ balance, setBalance ] = React.useState<BN>(new BN(0))
   
-  useSubsocialEffect(async ({ substrate }) => {
-    if (!address) return
+  useSubsocialInit((isMounted, { substrate }) => {
+    if (!address) return false
     
-    const api = await substrate.api
+    substrate.derive.balances.all(address)
+      .then(data => {
+        if (isMounted.value)
+          setBalance(data.freeBalance)
+      })
     
-    const data = await api.derive.balances.all(address)
-    setBalance(data.freeBalance)
-  }, [ address ])
+    return true
+  }, [ address ], [ setBalance ])
   
   return balance
 }

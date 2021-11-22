@@ -24,16 +24,13 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace }: Deta
   const reloadSpace   = useCreateReloadSpace()
   
   const data = useSelectPost(id)
+  const { spaceId, ownerId } = data?.post?.struct ?? {}
   
   useInit(async () => {
-    if (!reloadPost || !reloadProfile || !reloadSpace) return false
-    
     if (!data) {
       reloadPost({ id })
       return false
     }
-    
-    const {spaceId, ownerId} = data.post.struct
     
     await Promise.all([
       spaceId && reloadSpace({ id: spaceId }),
@@ -41,7 +38,7 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace }: Deta
     ])
     
     return true
-  }, [ id ], [ data, reloadPost, reloadProfile, reloadSpace ])
+  }, [ id ], [ spaceId, ownerId ])
   
   if (!data) {
     return (

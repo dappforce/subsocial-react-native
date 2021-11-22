@@ -1,10 +1,9 @@
 //////////////////////////////////////////////////////////////////////
 // Post Preview - assembled from Post Base components
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
-import { useInit } from '~comps/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
@@ -18,14 +17,9 @@ export const Preview = React.memo(({ id, ...props }: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
-  useInit(() => {
-    if (data) return true
-    
-    if (!reloadPost) return false
-    
-    reloadPost({ id })
-    return true
-  }, [id], [reloadPost])
+  useEffect(() => {
+    reloadPost({ id, reload: true })
+  }, [ id ])
   
   return <PreviewData {...props} {...{ id, data }} />
 })

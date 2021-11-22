@@ -2,7 +2,7 @@ import { AsyncThunkAction } from '@reduxjs/toolkit'
 import { isEmptyArray, newLogger } from '@subsocial/utils'
 import { useState } from 'react'
 import { createSelectorHook, shallowEqual, useDispatch } from 'react-redux'
-import { useSubsocialEffect } from '~comps/SubsocialContext'
+import { useSubsocialInit } from '~comps/SubsocialContext'
 import { ApiArg, FetchManyArgs, FetchOneArgs, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from './rootReducer'
 import { AppDispatch } from 'src/rtk/app/store'
@@ -38,23 +38,21 @@ export type FetchOneFn<Args, Struct> = FetchFn<FetchOneArgs<Args>, Struct>
 export function useFetch<Args, Struct> (
   fetch: FetchFn<Args, Struct>,
   args: Omit<Args, 'api'> | Partial<ApiArg>,
-): CommonResult {
-
+): CommonResult
+{
   const [ loading, setLoading ] = useState(true)
   const [ error, setError ] = useState<Error>()
   const dispatch = useAppDispatch()
 
-  useSubsocialEffect(async api => {
+  useSubsocialInit(async (isMounted, { api }) => {
     log.debug('useFetch: args:', args)
-
-    let isMounted = true
     setError(undefined)
-
+    
     try {
       await dispatch(fetch({ ...args, api } as unknown as Args))
     }
     catch (err: any) {
-      if (isMounted) {
+      if (isMounted.value) {
         setError(err)
         log.error(error)
       }
@@ -64,9 +62,9 @@ export function useFetch<Args, Struct> (
         setLoading(false)
       }
     }
-
-    return () => { isMounted = false }
-  }, [ dispatch, args ])
+    
+    return true
+  }, [ args ], [])
 
   return {
     loading,
