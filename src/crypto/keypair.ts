@@ -28,7 +28,7 @@ const DEV_PHRASE = 'bottom drive obey lake curtain smoke basket hold race lonely
 const DEV_SEED   = '0xfac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e'
 
 const STORE_SECRET   = 'df.secretKey'
-const STORE_ADDRESS  = 'df.secretKey'
+const STORE_ADDRESS  = 'df.address'
 const STORE_TYPE     = 'df.keypairType'
 const STORE_SS58     = 'df.keypairSS58Format'
 const STORE_PASSHASH = 'df.keypairPasshash'
