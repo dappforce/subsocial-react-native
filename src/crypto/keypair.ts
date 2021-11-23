@@ -5,7 +5,7 @@
 // NOTE: Because we use native secure storage which already encrypts data, we don't need to enscrypt the keypair. Though it wouldn't hurt.
 import { createHash } from 'crypto'
 import { IKeyringPair } from '@polkadot/types/types'
-import { hexToU8a, isHex, stringToU8a, u8aConcat, u8aToString, u8aToU8a } from '@polkadot/util'
+import { hexToU8a, isHex, stringToU8a, u8aConcat, u8aToHex, u8aToU8a } from '@polkadot/util'
 import {
   decodeAddress,
   encodeAddress,
@@ -138,7 +138,7 @@ export function keypair({ publicKey, secretKey = new Uint8Array() }: ActualKeypa
       const passhash = passphrase ? digestPassphrase(passphrase) : ''
       
       await Promise.all([
-        SecureStore.setItemAsync(STORE_SECRET, u8aToString(secretKey)),
+        SecureStore.setItemAsync(STORE_SECRET, u8aToHex(secretKey)),
         SecureStore.setItemAsync(STORE_ADDRESS, encodeAddress(publicKey, ss58Format)),
         SecureStore.setItemAsync(STORE_TYPE, type),
         SecureStore.setItemAsync(STORE_SS58, ss58Format.toString()),
@@ -211,7 +211,7 @@ export async function restore(passphrase: string | Falsy = ''): Promise<Keypair>
   
   if (!secret || !address || !type || !ss58Format) throw new NoKeypairError('No keypair stored or stored keypair data damaged')
   
-  const secretKey = stringToU8a(secret)
+  const secretKey = hexToU8a(secret)
   const publicKey = decodeAddress(address, false, ss58Format)
   
   return keypair({ secretKey, publicKey }, { type: type as KeypairType, ss58Format })
