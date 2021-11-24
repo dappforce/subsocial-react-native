@@ -1,3 +1,5 @@
+import './polyfill'
+
 import React, { useMemo } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
