@@ -7,6 +7,7 @@ import { useInit } from '~comps/hooks'
 import { useCreateReloadPost, useCreateReloadProfile, useCreateReloadSpace, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId } from 'src/types/subsocial'
 import { Head, Body, PostOwner } from './Post'
+import { LikeAction, LikeEvent } from './Likes'
 import { Preview as SpacePreview } from '../Space/Preview'
 import { Divider } from '~comps/Typography'
 import { Panel as ActionPanel } from '../Actions'
@@ -17,8 +18,11 @@ export type DetailsProps = {
   containerStyle?: StyleProp<TextStyle>
   onPressOwner?: () => void
   onPressSpace?: () => void
+  onPressLike?: (evt: LikeEvent) => void
+  onLike?: (evt: LikeEvent) => void
+  onUnlike?: (evt: LikeEvent) => void
 }
-export function Details({ id, containerStyle, onPressOwner, onPressSpace }: DetailsProps) {
+export function Details({ id, containerStyle, onPressOwner, onPressSpace, onPressLike, onLike, onUnlike }: DetailsProps) {
   const reloadPost    = useCreateReloadPost()
   const reloadProfile = useCreateReloadProfile()
   const reloadSpace   = useCreateReloadSpace()
@@ -66,7 +70,12 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace }: Deta
         />
         <Tags tags={data?.post?.content?.tags ?? []} />
         <ActionPanel style={{ marginVertical: 20, justifyContent: 'space-between' }}>
-          <ActionPanel.LikeItem liked={false} likesCount={data?.post?.struct?.upvotesCount ?? 0} onPress={() => alert('not yet implemented, sorry')} />
+          <LikeAction
+            postId={id}
+            onPress={onPressLike}
+            onLike={onLike}
+            onUnlike={onUnlike}
+          />
           <ActionPanel.ShareItem label onPress={() => alert('not yet implemented, sorry')} />
         </ActionPanel>
         

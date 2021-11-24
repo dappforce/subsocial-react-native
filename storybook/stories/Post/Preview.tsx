@@ -8,8 +8,8 @@ import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
-import { Panel as ActionPanel } from '../Actions'
-import { ActionMenu } from '~stories/Actions'
+import { LikeAction, LikeEvent } from './Likes'
+import { ActionMenu, Panel as ActionPanel } from '../Actions'
 import { WithSize } from 'src/types'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
@@ -32,6 +32,9 @@ type PreviewDataProps = {
   onPressMore?: (id: PostId) => void
   onPressOwner?: PostOwnerProps['onPressOwner']
   onPressSpace?: PostOwnerProps['onPressSpace']
+  onPressLike?: (evt: LikeEvent) => void
+  onLike?: (evt: LikeEvent) => void
+  onUnlike?: (evt: LikeEvent) => void
 }
 export const PreviewData = React.memo(({
   id,
@@ -40,6 +43,9 @@ export const PreviewData = React.memo(({
   onPressMore: _onPressMore,
   onPressOwner,
   onPressSpace,
+  onPressLike,
+  onLike,
+  onUnlike,
 }: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
@@ -95,10 +101,11 @@ export const PreviewData = React.memo(({
       <Divider style={{ marginTop: 16 }} />
       
       <ActionPanel style={{ marginVertical: 16 }}>
-        <ActionPanel.LikeItem
-          liked={false}
-          likesCount={data?.post?.struct?.upvotesCount ?? 0}
-          onPress={() => alert('not yet implemented, sorry')}
+        <LikeAction
+          postId={id}
+          onPress={onPressLike}
+          onLike={onLike}
+          onUnlike={onUnlike}
         />
         <ActionPanel.ReplyItem
           replyCount={data?.post?.struct?.visibleRepliesCount ?? 0}

@@ -19,6 +19,9 @@ storiesOf('Post', module)
         onPressMore={action('pressMore')}
         onPressOwner={action('pressOwner')}
         onPressSpace={action('pressSpace')}
+        onPressLike={action('pressLike')}
+        onLike={action('onLike')}
+        onUnlike={action('onUnlike')}
       />
     </ScrollView>
   ))
