@@ -1,11 +1,12 @@
 import { AsyncThunkAction } from '@reduxjs/toolkit'
 import { isEmptyArray, newLogger } from '@subsocial/utils'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createSelectorHook, shallowEqual, useDispatch } from 'react-redux'
 import { useSubsocialInit } from '~comps/SubsocialContext'
 import { ApiArg, FetchManyArgs, FetchOneArgs, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from './rootReducer'
 import { AppDispatch } from 'src/rtk/app/store'
+import isDeepEqual from 'fast-deep-equal/es6'
 
 const log = newLogger('useFetchEntities')
 
@@ -43,7 +44,12 @@ export function useFetch<Args, Struct> (
   const [ loading, setLoading ] = useState(true)
   const [ error, setError ] = useState<Error>()
   const dispatch = useAppDispatch()
-
+  const refArgs = useRef(args)
+  
+  if (!isDeepEqual(args, refArgs.current)) {
+    refArgs.current = args
+  }
+  
   useSubsocialInit(async (isMounted, { api }) => {
     log.debug('useFetch: args:', args)
     setError(undefined)
@@ -52,7 +58,7 @@ export function useFetch<Args, Struct> (
       await dispatch(fetch({ ...args, api } as unknown as Args))
     }
     catch (err: any) {
-      if (isMounted.value) {
+      if (isMounted.current) {
         setError(err)
         log.error(error)
       }
@@ -64,7 +70,7 @@ export function useFetch<Args, Struct> (
     }
     
     return true
-  }, [ args ], [])
+  }, [ refArgs ], [])
 
   return {
     loading,

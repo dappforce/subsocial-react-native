@@ -1,10 +1,9 @@
 //////////////////////////////////////////////////////////////////////
 // Common & general purpose hooks
-import { DependencyList, useEffect, useState } from 'react'
-import { Ref } from 'src/types'
+import { DependencyList, MutableRefObject, useEffect, useRef, useState } from 'react'
 
 export interface InitCallback {
-  (isMounted: Ref<boolean>): boolean | Promise<boolean>
+  (isMounted: MutableRefObject<boolean>): boolean | Promise<boolean>
 }
 
 /**
@@ -16,8 +15,7 @@ export interface InitCallback {
  */
 export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: DependencyList): boolean {
   const [ initialized, setInitialized ] = useState(false)
-  
-  let isMounted = { value: true }
+  const isMounted = useMountState()
   
   useEffect(() => {
     setInitialized(false)
@@ -27,14 +25,32 @@ export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: 
     if (!initialized) {
       (async() => {
         const init = await cb(isMounted)
-        if (init && isMounted.value) {
+        if (init && isMounted.current) {
           setInitialized(true)
         }
       })()
     }
   }, [ initialized, ...resetDeps, ...retryDeps ])
   
-  useEffect(() => () => {isMounted.value = false}, [])
-  
   return initialized
+}
+
+/**
+ * Simple `useRef` wrapper tracking whether the component is still mounted. Use as such:
+ * 
+ * ```
+ * const isMounted = useMountedState()
+ * if (isMounted.current) {
+ *   // ...
+ * }
+ * ```
+ * 
+ * @returns mutable ref to a boolean value indicating whether the component is still mounted
+ */
+export function useMountState() {
+  const isMounted = useRef(true)
+  useEffect(() => {
+    return () => { isMounted.current = false }
+  }, [])
+  return isMounted
 }

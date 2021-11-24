@@ -11,6 +11,3 @@ export type Rect = {
 export type WithSize = {
   size: number
 }
-
-/** Simple wrapper for referencing primitives. */
-export type Ref<T> = { value: T }

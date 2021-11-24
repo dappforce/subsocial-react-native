@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Simple Substrate API integration with RN
 // SPDX-License-Identifier: GPL-3.0
-import React, { EffectCallback, useContext, useEffect, useReducer } from 'react'
+import React, { EffectCallback, MutableRefObject, useContext, useEffect, useReducer } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { ApiPromise } from '@polkadot/api'
@@ -12,7 +12,6 @@ import { Text } from './Typography'
 import { assertDefined } from 'src/util'
 import config from 'config.json'
 import { useInit } from './hooks'
-import { Ref } from 'src/types'
 
 export { SubstrateProvider, useSubstrate } from './SubstrateContext'
 
@@ -126,7 +125,6 @@ interface SubsocialEffect {
   (args: { api: SubsocialApi, substrate: ApiPromise }): ReturnType<EffectCallback>
 }
 
-// TODO: useEffect-style unmount
 export function useSubsocialEffect(
   callback: SubsocialEffect,
   deps: React.DependencyList
@@ -147,7 +145,7 @@ export function useSubsocialEffect(
 }
 
 interface SubsocialInit {
-  (isMounted: Ref<boolean>, args: { api: SubsocialApi, substrate: ApiPromise }): boolean | Promise<boolean>
+  (isMounted: MutableRefObject<boolean>, args: { api: SubsocialApi, substrate: ApiPromise }): boolean | Promise<boolean>
 }
 
 export function useSubsocialInit(

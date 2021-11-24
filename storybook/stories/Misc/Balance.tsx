@@ -82,7 +82,7 @@ export function useBalance(address: AccountId) {
     
     substrate.derive.balances.all(address)
       .then(data => {
-        if (isMounted.value)
+        if (isMounted.current)
           setBalance(data.freeBalance)
       })
     
