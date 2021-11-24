@@ -8,7 +8,7 @@ import {
   MaterialTopTabScreenProps
 } from '@react-navigation/material-top-tabs'
 import { AccountId } from 'src/types/subsocial'
-import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
+import { useCreateReloadProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { Balance, Header } from '~stories/Misc'
 import { Divider, Text } from '~comps/Typography'
@@ -80,6 +80,8 @@ export type DetailsHeaderProps = {
 }
 
 export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
+  const { address: myAddress } = useSelectKeypair() ?? {}
+  const isMyAccount = myAddress === id
   const styles = useThemedStyle()
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
@@ -108,7 +110,7 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
         }
         avatar={data?.content?.avatar}
         actionMenuProps={{
-          primary: renderFollowButton
+          primary: !isMyAccount ? renderFollowButton : undefined,
         }}
       />
       

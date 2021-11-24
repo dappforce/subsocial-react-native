@@ -87,7 +87,7 @@ export type SignOptions = {
 }
 
 
-export function keypair({ publicKey, secretKey = new Uint8Array() }: ActualKeypair, { type, ss58Format }: KeypairSetup) {
+export function keypair({ publicKey, secretKey = new Uint8Array() }: { publicKey: Uint8Array, secretKey?: Uint8Array }, { type, ss58Format }: KeypairSetup) {
   secretKey = u8aToU8a(secretKey) // ensure local secretKey is independent instance to prevent manipulation from outside post-creation
   
   const isLocked = () => !secretKey.length
@@ -95,12 +95,20 @@ export function keypair({ publicKey, secretKey = new Uint8Array() }: ActualKeypa
   const isStored = async () => await SecureStore.getItemAsync(STORE_ADDRESS) === encodeAddress(publicKey, ss58Format)
   
   return {
-    address: encodeAddress(publicKey, ss58Format),
-    addressRaw: publicKey,
-    publicKey,
+    get address() { return encodeAddress(publicKey, ss58Format) },
+    get addressRaw() { return new Uint8Array(publicKey) },
+    get publicKey() { return new Uint8Array(publicKey) },
     
     isLocked,
     isStored,
+    
+    getAddress: (_ss58Format?: number) => {
+      return encodeAddress(publicKey, _ss58Format ?? ss58Format)
+    },
+    
+    reformat: (_ss58Format: number) => {
+      ss58Format = _ss58Format
+    },
     
     lock: async () => {
       assert(!isLocked(), 'Keypair is already locked')
@@ -115,7 +123,7 @@ export function keypair({ publicKey, secretKey = new Uint8Array() }: ActualKeypa
       const restored = await SecureStore.getItemAsync(STORE_SECRET)
       if (!restored) throw new Error('Failed to restore secret key')
       
-      secretKey = stringToU8a(restored)
+      secretKey = hexToU8a(restored)
     },
     
     sign: (msg: Uint8Array, { withType = false }: SignOptions = {}) => {
@@ -154,7 +162,7 @@ export function generateRandomKeypair({ seedSize = 32, ...setup }: Partial<Keypa
   return fromSeed(seed, setup)
 }
 
-export function fromSuri(_suri: string, { type = 'sr25519', ss58Format = 42 }: Partial<KeypairSetup> = {}) {
+export function fromSuri(_suri: string, { type = 'sr25519', ss58Format = 28 }: Partial<KeypairSetup> = {}) {
   const suri = _suri.startsWith('//')
     ? `${DEV_PHRASE}${_suri}`
     : _suri
@@ -184,7 +192,7 @@ export function fromSuri(_suri: string, { type = 'sr25519', ss58Format = 42 }: P
   }
 }
 
-export function fromSeed(seed: Uint8Array, { type = 'sr25519', ss58Format = 42 }: Partial<KeypairSetup> = {}) {
+export function fromSeed(seed: Uint8Array, { type = 'sr25519', ss58Format = 28 }: Partial<KeypairSetup> = {}) {
   const pair = keyImpls[type].fromSeed(seed)
   return keypair(pair, { type, ss58Format })
 }
@@ -199,22 +207,18 @@ export async function hasStoredKeypair() {
 }
 
 /** Restore previously stored keypair from Expo-Secure-Store */
-export async function restore(passphrase: string | Falsy = ''): Promise<Keypair> {
-  await assertPassphrase(passphrase)
-  
-  const [ secret, address, type, ss58Format ] = await Promise.all([
-    SecureStore.getItemAsync(STORE_SECRET),
+export async function restore(): Promise<Keypair> {
+  const [ address, type, ss58Format ] = await Promise.all([
     SecureStore.getItemAsync(STORE_ADDRESS),
     SecureStore.getItemAsync(STORE_TYPE),
     SecureStore.getItemAsync(STORE_SS58).then(ss58 => parseInt(ss58 ?? 'n/a')),
   ])
   
-  if (!secret || !address || !type || !ss58Format) throw new NoKeypairError('No keypair stored or stored keypair data damaged')
+  if (!address || !type || !ss58Format) throw new NoKeypairError('No keypair stored or stored keypair data damaged')
   
-  const secretKey = hexToU8a(secret)
   const publicKey = decodeAddress(address, false, ss58Format)
   
-  return keypair({ secretKey, publicKey }, { type: type as KeypairType, ss58Format })
+  return keypair({ publicKey }, { type: type as KeypairType, ss58Format })
 }
 
 /** Forget previously stored keypair, removing it from Expo-Secure-Store */

@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react-native'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import { MainScreen } from './MainScreen'
 import { ExploreScreen } from './ExploreScreen'
+import { MyAccountDetails } from '../Account/MyAccountDetails'
 
 storiesOf('Screens', module)
   .addDecorator(getStories => <SubsocialProvider>{getStories()}</SubsocialProvider>)
@@ -11,4 +12,7 @@ storiesOf('Screens', module)
   ))
   .add('Explore', () => (
     <ExploreScreen />
+  ))
+  .add('My Profile', () => (
+    <MyAccountDetails />
   ))

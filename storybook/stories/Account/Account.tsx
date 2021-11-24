@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying User Components
 import React, { useCallback } from 'react'
+import { useSelectKeypair } from 'src/rtk/app/hooks'
 import { AccountId } from 'src/types/subsocial'
 import { ActionMenu, FollowAccountButton } from '~stories/Actions'
 import { Header } from '~stories/Misc'
@@ -13,6 +14,9 @@ export type HeadProps = {
   numFollowing: number
 }
 export function Head({ id, name, avatar, numFollowers, numFollowing }: HeadProps) {
+  const { address: myAddress } = useSelectKeypair() ?? {}
+  const isMyAccount = myAddress === id
+  
   const renderPrimary = useCallback(() => (
     <ActionMenu.Primary>
       <FollowAccountButton id={id} />
@@ -25,7 +29,7 @@ export function Head({ id, name, avatar, numFollowers, numFollowing }: HeadProps
       subtitle={`${numFollowers} Followers · ${numFollowing} Following`}
       avatar={avatar}
       actionMenuProps={{
-        primary: renderPrimary
+        primary: !isMyAccount ? renderPrimary : undefined
       }}
     />
   )

@@ -42,6 +42,7 @@ type LocalAccountState = {
   keypair?: Keypair
   nonce?: number
   stored?: boolean
+  locked?: boolean
 }
 
 export const checkForStoredKeypair = createAsyncThunk<boolean, void, ThunkApiConfig>(
@@ -51,20 +52,14 @@ export const checkForStoredKeypair = createAsyncThunk<boolean, void, ThunkApiCon
   }
 )
 
-export const loadOrUnlockKeypair = createAsyncThunk<Keypair, string | undefined, ThunkApiConfig>(
-  'localAccount/loadOrUnlock',
-  async (passphrase, { getState }) => {
-    const keypair = getState().localAccount.keypair
+export const loadKeypair = createAsyncThunk<Keypair, void, ThunkApiConfig>(
+  'localAccount/loadKeypair',
+  async (_, { getState }) => {
+    let keypair = getState().localAccount.keypair
     
-    if (keypair) {
-      if (keypair.isLocked())
-        keypair.unlock(passphrase)
-      return keypair
-    }
+    if (!keypair) keypair = await restoreKeypair()
     
-    else {
-      return await restoreKeypair(passphrase)
-    }
+    return keypair
   }
 )
 
@@ -77,6 +72,26 @@ export const storeKeypair = createAsyncThunk<Keypair, StoreKeypairArgs, ThunkApi
   async ({ keypair, passphrase }) => {
     await keypair.store(passphrase)
     return keypair
+  }
+)
+
+export const lockKeypair = createAsyncThunk<void, void, Omit<ThunkApiConfig, 'rejectValue'> & { rejectValue: NoKeypairError }>(
+  'localAccount/lock',
+  async (_, { getState, rejectWithValue }) => {
+    const keypair = getState().localAccount.keypair
+    if (!keypair) return rejectWithValue(new NoKeypairError())
+    
+    if (keypair.isLocked()) await keypair.lock()
+  }
+)
+
+export const unlockKeypair = createAsyncThunk<void, string | undefined, Omit<ThunkApiConfig, 'rejectValue'> & { rejectValue: NoKeypairError }>(
+  'localAccount/unlock',
+  async (passphrase, { getState, rejectWithValue }) => {
+    const keypair = getState().localAccount.keypair
+    if (!keypair) return rejectWithValue(new NoKeypairError())
+    
+    if (keypair.isLocked()) await keypair.unlock(passphrase)
   }
 )
 
@@ -122,17 +137,26 @@ const localAccountSlice = createSlice({
       .addCase(checkForStoredKeypair.fulfilled, (state, action) => {
         state.stored = action.payload
       })
-      .addCase(loadOrUnlockKeypair.fulfilled, (state, action) => {
+      .addCase(loadKeypair.fulfilled, (state, action) => {
         state.keypair = action.payload
         state.stored = true
+        state.locked = action.payload.isLocked()
       })
       .addCase(storeKeypair.fulfilled, (state, action) => {
         state.keypair = action.payload
         state.stored = true
+        state.locked = action.payload.isLocked()
+      })
+      .addCase(lockKeypair.fulfilled, (state) => {
+        state.locked = true
+      })
+      .addCase(unlockKeypair.fulfilled, (state) => {
+        state.locked = false
       })
       .addCase(forgetKeypair.fulfilled, (state) => {
         delete state.keypair
         delete state.nonce
+        delete state.locked
         state.stored = false
       })
       .addCase(setClientNonce.fulfilled, (state, action) => {

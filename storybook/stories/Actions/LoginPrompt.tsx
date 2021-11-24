@@ -6,14 +6,15 @@ import React, { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { TextInput } from 'react-native-paper'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { useCheckForStoredKeypair } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { Button, Text } from '~comps/Typography'
 import { Modal } from '~stories/Misc/Modal'
-import { storeKeypair, loadOrUnlockKeypair } from 'src/rtk/features/accounts/localAccountSlice'
+import { storeKeypair, loadKeypair, unlockKeypair } from 'src/rtk/features/accounts/localAccountSlice'
 import { fromSuri as generateKeypairFromSuri, generateRandomKeypair, NoKeypairError } from 'src/crypto/keypair'
 import { delaySnack, snack, trial } from 'src/util'
 import { logger as createLogger } from '@polkadot/util'
-import { useCheckForStoredKeypair } from 'src/rtk/app/hooks'
+import { keyExtractSuri } from '@polkadot/util-crypto'
 
 const log = createLogger('LoginPrompt')
 
@@ -63,7 +64,8 @@ const RestoreView = React.memo(({ onClose, toggleView }: SubviewProps) => {
   
   const restore = useCallback(async () => {
     try {
-      await dispatch(loadOrUnlockKeypair(passphrase)).unwrap()
+      await dispatch(loadKeypair()).unwrap()
+      await dispatch(unlockKeypair(passphrase)).unwrap()
       delaySnack({ text: 'Successfully restored keypair', textColor: theme.colors.confirmation })
       onClose()
     }
@@ -126,10 +128,11 @@ const ImportView = React.memo(({ onClose, toggleView }: SubviewProps) => {
     // Subtle delay so `importing` can affect the button
     setTimeout(() => {
       trial(() => {
-        return generateKeypairFromSuri(`${mnemonic}${derivePath}`).keypair
+        const { path } = derivePath ? keyExtractSuri(derivePath) : { path: '' }
+        return generateKeypairFromSuri(mnemonic + path)
       })
       
-      .then(keypair => {
+      .then(({ keypair }) => {
         dispatch(storeKeypair({ keypair, passphrase }))
         
         delaySnack({ text: 'Successfully imported', textColor: theme.colors.confirmation }, 500)
