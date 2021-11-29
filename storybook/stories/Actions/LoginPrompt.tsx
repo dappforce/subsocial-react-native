@@ -3,7 +3,7 @@
 // -----
 // Preliminary solution until we have proper onboarding
 import React, { useCallback, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, TextInput as RNTextInput, View } from 'react-native'
 import { TextInput } from 'react-native-paper'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { useCheckForStoredKeypair } from 'src/rtk/app/hooks'
@@ -87,8 +87,10 @@ const RestoreView = React.memo(({ onClose, toggleView }: SubviewProps) => {
         label="Passphrase (optional)"
         mode="outlined"
         value={passphrase}
-        onChangeText={setPassphrase}
         secureTextEntry
+        autoFocus
+        onChangeText={setPassphrase}
+        onSubmitEditing={restore}
         style={styles.lastInput}
       />
       
@@ -121,6 +123,8 @@ const ImportView = React.memo(({ onClose, toggleView }: SubviewProps) => {
   const [ mnemonic, setMnemonic ] = useState('')
   const [ derivePath, setDerivePath ] = useState('')
   const [ passphrase, setPassphrase ] = useState('')
+  const [ input2, setInput2 ] = useState<RNTextInput | null>(null)
+  const [ input3, setInput3 ] = useState<RNTextInput | null>(null)
   
   const importMnemonic = useCallback(() => {
     setImporting(true)
@@ -153,19 +157,30 @@ const ImportView = React.memo(({ onClose, toggleView }: SubviewProps) => {
         label="Mnemonic"
         mode="outlined"
         onChangeText={setMnemonic}
+        onSubmitEditing={() => setTimeout(() => input2?.focus(), 100)}
+        returnKeyType="next"
+        blurOnSubmit={false}
+        autoFocus
         style={styles.input}
       />
       <TextInput
         label="Derive Path (optional, advanced)"
         mode="outlined"
         onChangeText={setDerivePath}
+        onSubmitEditing={() => setTimeout(() => input3?.focus(), 100)}
+        ref={(ref) => setInput2(ref)}
+        returnKeyType="next"
+        blurOnSubmit={false}
         style={styles.input}
       />
       <TextInput
         label="Passphrase (optional)"
         mode="outlined"
-        onChangeText={setPassphrase}
         secureTextEntry
+        onChangeText={setPassphrase}
+        onSubmitEditing={importMnemonic}
+        ref={(ref) => setInput3(ref)}
+        returnKeyType="done"
         style={styles.lastInput}
       />
       
