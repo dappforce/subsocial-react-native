@@ -23,11 +23,12 @@ export type PanelItemProps = {
   icon: AnyIcon | React.ReactElement
   label?: string | number
   color?: string
+  disabled?: boolean
   onPress?: () => void
   containerStyle?: StyleProp<TextStyle>
   labelStyle?: StyleProp<TextStyle>
 };
-Panel.Item = ({ icon, label, color, onPress, containerStyle, labelStyle }: PanelItemProps) => {
+Panel.Item = ({ icon, label, color, disabled, onPress, containerStyle, labelStyle }: PanelItemProps) => {
   const theme = useTheme()
   
   const _icon = isAnyIcon(icon)
@@ -36,6 +37,7 @@ Panel.Item = ({ icon, label, color, onPress, containerStyle, labelStyle }: Panel
         family={icon.family}
         color={color ?? theme.colors.socials}
         onPress={onPress}
+        disabled={disabled}
         size={20}
         rippleBorderless
         rippleSize={16}
@@ -90,8 +92,9 @@ Panel.ReplyItem = ({ replyCount, onPress }: PanelReplyItemProps) => {
 type PanelShareItemProps = {
   onPress?: () => void
   label?: string | number | true
+  disabled?: boolean
 };
-Panel.ShareItem = ({ label, onPress }: PanelShareItemProps) => {
+Panel.ShareItem = ({ label, onPress, disabled }: PanelShareItemProps) => {
   label = label || ''
   
   return (
@@ -101,6 +104,7 @@ Panel.ShareItem = ({ label, onPress }: PanelShareItemProps) => {
         name: 'arrow-redo-outline',
       }}
       label={label === true ? 'Share' : label+''}
+      disabled={disabled}
       onPress={onPress}
     />
   )

@@ -9,6 +9,7 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
+import { SharePostAction, SharePostEvent } from './Share'
 import { ActionMenu, Panel as ActionPanel } from '../Actions'
 import { WithSize } from 'src/types'
 
@@ -35,6 +36,8 @@ type PreviewDataProps = {
   onPressLike?: (evt: LikeEvent) => void
   onLike?: (evt: LikeEvent) => void
   onUnlike?: (evt: LikeEvent) => void
+  onPressShare?: (evt: SharePostEvent) => void
+  onShare?: (evt: SharePostEvent) => void
 }
 export const PreviewData = React.memo(({
   id,
@@ -46,6 +49,8 @@ export const PreviewData = React.memo(({
   onPressLike,
   onLike,
   onUnlike,
+  onPressShare,
+  onShare,
 }: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
@@ -111,9 +116,10 @@ export const PreviewData = React.memo(({
           replyCount={data?.post?.struct?.visibleRepliesCount ?? 0}
           onPress={() => alert('not yet implemented, sorry')}
         />
-        <ActionPanel.ShareItem
-          label={data?.post?.struct?.sharesCount}
-          onPress={() => alert('not yet implemented, sorry')}
+        <SharePostAction
+          postId={id}
+          onPress={onPressShare}
+          onShare={onShare}
         />
         <ActionPanel.TipItem />
       </ActionPanel>

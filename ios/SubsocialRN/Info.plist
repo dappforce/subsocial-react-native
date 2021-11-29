@@ -25,6 +25,7 @@
       <dict>
         <key>CFBundleURLSchemes</key>
         <array>
+          <string>subsocialrn</string>
           <string>com.kiruse.subsocialrn</string>
         </array>
       </dict>

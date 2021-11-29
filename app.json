@@ -2,6 +2,7 @@
   "expo": {
     "name": "SubsocialRN",
     "slug": "SubsocialRN",
+    "scheme": "subsocialrn",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -25,7 +26,22 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.kiruse.subsocialrn"
+      "package": "com.kiruse.subsocialrn",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "https",
+              "host": "app.subsocial.network"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "userInterfaceStyle": "automatic"
   }
