@@ -61,6 +61,8 @@ export function Details({ id }: DetailsProps) {
           tabBarActiveTintColor: theme.colors.primary,
           tabBarItemStyle: styles.tabItem,
           tabBarScrollEnabled: true,
+          lazy: true,
+          lazyPreloadDistance: 0, // do not preload, because loading a single tab takes long enough
         }}
       >
         <Tabs.Screen name='posts'    component={AccountPosts}    options={{ tabBarLabel: 'Posts' }}    />
