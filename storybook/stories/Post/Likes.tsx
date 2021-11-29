@@ -6,10 +6,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { shallowEqual } from 'react-redux'
 import { useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
-import { useAppSelector } from 'src/rtk/app/hooksCommon'
+import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useFetchMyReactionsByPostId } from 'src/rtk/features/reactions/myPostReactionsHooks'
-import { selectMyReactionsByPostIds } from 'src/rtk/features/reactions/myPostReactionsSlice'
+import { fetchMyReactionsByPostIds, selectMyReactionsByPostIds } from 'src/rtk/features/reactions/myPostReactionsSlice'
 import { PostId } from 'src/types/subsocial'
 import { Panel } from '../Actions/Panel'
 import { LoginPrompt } from '~stories/Actions'
@@ -41,9 +41,8 @@ export type LikeActionProps = {
   onUnlike?: (event: LikeEvent) => void
 }
 export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike }: LikeActionProps) {
-  useFetchMyReactionsByPostId(postId)
-  
   const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
   const keypair = useSelectKeypair()
   const reactions = useSelectMyLikes(postId)
   const liked = !!reactions.length
@@ -86,6 +85,10 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike }: Like
       }
     }
   }, [ api, postId, keypair, liked, _onPress, onLike, onUnlike, setShowLoginPrompt ])
+  
+  useEffect(() => {
+    dispatch(fetchMyReactionsByPostIds({ api, myAddress: keypair?.address, ids: [ postId ] }))
+  }, [ keypair?.address ])
   
   return (
     <>
