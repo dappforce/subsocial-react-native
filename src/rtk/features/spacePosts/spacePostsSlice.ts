@@ -2,9 +2,10 @@
 // Custom Slice for Posts associated with a Space
 import { createAsyncThunk, createSlice, EntityId, PayloadAction } from '@reduxjs/toolkit'
 import { ApiArg, ThunkApiConfig } from 'src/rtk/app/helpers'
-import { PostId } from 'src/types/subsocial'
+import { PostId, SpaceId } from 'src/types/subsocial'
 import BN from 'bn.js'
 import { asString } from '@subsocial/utils'
+import { RootState } from 'src/rtk/app/rootReducer'
 
 type SpacePostMap = Record<EntityId, PostId[]>
 
@@ -32,6 +33,8 @@ export const fetchSpacePosts = createAsyncThunk<RefreshPayload, FetchSpacePostsA
     
   }
 )
+
+export const selectSpacePosts = (state: RootState, id: SpaceId) => state.spacePosts[id]
 
 const spacePosts = createSlice({
   name: 'spacePosts',

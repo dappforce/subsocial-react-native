@@ -82,21 +82,27 @@ export class SpaceNotFoundError extends Error {
 }
 
 export const useResolvedSpaceHandle = (id: SpaceId) => {
-  const [resolved] = useResolvedSpaceHandles([id])
-  return resolved
+  const { ids: [resolved], loading } = useResolvedSpaceHandles([id])
+  return {
+    id: resolved,
+    loading,
+  }
 }
 
 export const useResolvedSpaceHandles = (ids: SpaceId[]) => {
   const [ resolved, setResolved ] = useState<PostId[]>([])
   
-  useSubsocialInit(async (isMounted, { api }) => {
+  const loaded = useSubsocialInit(async (isMounted, { api }) => {
     const resolved = await resolveSpaceIds(api.substrate, ids)
     if (isMounted.current)
       setResolved(resolved)
     return true
   }, ids, [])
   
-  return resolved
+  return {
+    ids: resolved,
+    loading: !loaded,
+  }
 }
 
 export async function resolveSpaceId(substrate: SubsocialSubstrateApi, id: SpaceId): Promise<SpaceId> {

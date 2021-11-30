@@ -1,16 +1,23 @@
 //////////////////////////////////////////////////////////////////////
 // All the details of a space
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { StyleSheet } from 'react-native'
+import { useStore } from 'react-redux'
+import { useSubsocial } from '~comps/SubsocialContext'
 import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
-import { useCreateReloadPosts, useCreateReloadSpace, useFetchSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
-import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
-import { InfiniteScrollList, InfiniteScrollListProps } from '../Misc/InfiniteScroll'
+import { RootState } from 'src/rtk/app/rootReducer'
+import { useResolvedSpaceHandle } from 'src/rtk/app/hooks'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
+import { fetchSpacePosts, selectSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
+import { InfiniteScrollList, InfiniteScrollListProps } from '../Misc/InfiniteScroll'
+import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Data } from './Data'
 import * as Post from '../Post'
-import { assertDefinedSoft, descending } from 'src/util'
-import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
+import { descending } from 'src/util'
+
+type ListSpec = InfiniteScrollListProps<PostId>
 
 export type PostsProps = {
   id: SpaceId
@@ -18,58 +25,49 @@ export type PostsProps = {
   onPressOwner?: (postId: PostId, ownerId: AccountId) => void
 }
 export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
-  type ListSpec = InfiniteScrollListProps<PostId>
-  
-  const resolvedId = useResolvedSpaceHandle(spaceId)
-  const reloadSpace = useCreateReloadSpace()
-  const reloadPosts = useCreateReloadPosts()
-  const refreshPosts = useFetchSpacePosts()
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
+  const store = useStore<RootState>()
+  const {id: resolvedId, loading: loadingId} = useResolvedSpaceHandle(spaceId)
   const styles = useThemedStyles()
-  const isReady = !!(resolvedId && reloadSpace && reloadPosts && refreshPosts)
+  const [ ids, setIds ] = useState<PostId[]>([])
   
-  const loadIds = useCallback(async () => {
-    const res = await (refreshPosts?.({ id: resolvedId }))
-    const raw = (res?.payload as RefreshPayload)?.posts ?? []
-    return [ ...raw ].sort(descending)
-  }, [refreshPosts, resolvedId])
+  const loadInitial = useCallback<ListSpec['loadInitial']>(async (pageSize) => {
+    await dispatch(fetchSpacePosts({ api, id: resolvedId }))
+    const ids = selectSpacePosts(store.getState(), resolvedId) ?? []
+    
+    setIds([...new Set(ids)].sort(descending))
+    return [ids.slice(0, pageSize), 1]
+  }, [ resolvedId ])
   
-  const loader: ListSpec['loader'] = async (ids) => {
-    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Space/Posts/loader' })) {
-      await reloadPosts({ ids })
-    }
-    return ids
-  }
+  const loadMore = useCallback<ListSpec['loadMore']>(async (page, pageSize) => {
+    return ids.slice(page * pageSize, (page + 1) * pageSize)
+  }, [ ids ])
   
-  const loadInitial: ListSpec['loadInitial'] = async () => {
-    await reloadSpace!({ id: spaceId })
-  }
-  
-  const renderSpace: ListSpec['renderHeader'] = () => {
-    return (
-      <Data
-        id={spaceId}
-        showTags
-        showSocials
-        showAbout
-        showFollowButton
-        containerStyle={styles.space}
-      />
-    )
-  }
+  const loadItems = useCallback<ListSpec['loadItems']>(async (ids) => {
+    await dispatch(fetchPosts({ api, ids }))
+  }, [ api, dispatch ])
   
   const renderItem: ListSpec['renderItem'] = (id) => <WrappedPost {...{ id, onPressMore, onPressOwner }} />
   
-  if (!isReady) {
+  if (loadingId) {
     return <SpanningActivityIndicator />
   }
   
   else {
     return (
       <InfiniteScrollList
-        ids={loadIds}
-        loader={loader}
         loadInitial={loadInitial}
-        renderHeader={renderSpace}
+        loadMore={loadMore}
+        loadItems={loadItems}
+        HeaderComponent={<Data
+          id={spaceId}
+          showTags
+          showSocials
+          showAbout
+          showFollowButton
+          containerStyle={styles.space}
+        />}
         renderItem={renderItem}
       />
     )

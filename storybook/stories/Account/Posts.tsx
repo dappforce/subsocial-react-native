@@ -10,6 +10,9 @@ import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import * as Post from '../Post'
 import config from 'config.json'
 import axios from 'axios'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
 
 type RESTResponse = {
   account: AccountId
@@ -17,57 +20,45 @@ type RESTResponse = {
   post_id: PostId
   space_id: SpaceId
 }
-["account", "block_number", "event_index", "event", "following_id", "space_id", "post_id", "comment_id", "parent_comment_id", "date", "aggregated", "agg_count"]
+
+type ListPropsSpec = InfiniteScrollListProps<PostId>
 
 export type PostsProps = {
   id: AccountId
-  onScroll?: InfiniteScrollListProps<PostId>['onScroll']
-  onScrollBeginDrag?: InfiniteScrollListProps<PostId>['onScrollBeginDrag']
-  onScrollEndDrag?: InfiniteScrollListProps<PostId>['onScrollEndDrag']
+  onScroll?: ListPropsSpec['onScroll']
+  onScrollBeginDrag?: ListPropsSpec['onScrollBeginDrag']
+  onScrollEndDrag?: ListPropsSpec['onScrollEndDrag']
 }
 export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: PostsProps) {
-  const reloadPosts = useCreateReloadPosts()
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
   
-  // fetch post IDs from offchain REST API because it's magnitudes faster
-  const url = `${config.connections.rpc.offchain}/v1/offchain/activities/${id}/posts`
+  const loadInitial = useCallback<ListPropsSpec['loadInitial']>(async (pageSize) => {
+    return [await loadFromREST(id, 0, pageSize), 1]
+  }, [ id ])
   
-  const ids = useCallback(async () => {
-    const res = await axios.get<RESTResponse[]>(url)
-    if (res.status !== 200) return []
-    
-    return res.data.map(({ post_id }) => post_id)
-  }, [ url ])
+  const loadMore = useCallback<ListPropsSpec['loadMore']>(async (page, pageSize) => {
+    return await loadFromREST(id, page, pageSize)
+  }, [ id ])
   
-  const loader = async (ids: PostId[]) => {
-    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Account/Posts/loader' })) {
-      await reloadPosts({ ids, reload: true })
-    }
-    return ids
-  }
+  const loadItems = useCallback<ListPropsSpec['loadItems']>(async (ids) => {
+    await dispatch(fetchPosts({ api, ids }))
+  }, [ api, dispatch ])
   
   const renderPost = useCallback((id: PostId) => <WrappedPost id={id} />, [])
   
-  const isReady = !!reloadPosts
-  
-  if (!isReady) {
-    return (
-      <SpanningActivityIndicator />
-    )
-  }
-  
-  else {
-    return (
-      <InfiniteScrollList
-        ids={ids}
-        loader={loader}
-        renderItem={renderPost}
-        renderEmpty={() => <Text>No posts</Text>}
-        onScroll={onScroll}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
-      />
-    )
-  }
+  return (
+    <InfiniteScrollList
+      loadInitial={loadInitial}
+      loadMore={loadMore}
+      loadItems={loadItems}
+      renderItem={renderPost}
+      EmptyComponent={<Text mode="secondary">No posts</Text>}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+    />
+  )
 }
 
 type WrappedPostProps = {
@@ -77,6 +68,14 @@ const WrappedPost = React.memo(({ id }: WrappedPostProps) => {
   const styles = useThemedStyles()
   return <Post.Preview id={id} containerStyle={styles.post} />
 })
+
+async function loadFromREST(id: AccountId, page: number, pageSize: number) {
+  const url = `${config.connections.rpc.offchain}/v1/offchain/activities/${id}/posts?offset=${page * pageSize}&limit=${pageSize}`
+  const res = await axios.get<RESTResponse[]>(url)
+  if (res.status !== 200) return []
+  
+  return res.data.map(({ post_id }) => post_id)
+}
 
 const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
   post: {

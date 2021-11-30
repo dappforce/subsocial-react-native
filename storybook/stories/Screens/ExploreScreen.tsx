@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Screen with top tabs for Latest Posts & Dotsama Spaces
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationProp, MaterialTopTabScreenProps } from '@react-navigation/material-top-tabs'
 import { useSubsocial, useSubsocialInit } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
@@ -15,6 +15,8 @@ import { asString } from '@subsocial/utils'
 import { assertDefinedSoft, descending } from 'src/util'
 import config from 'config.json'
 import { ExploreStackNav } from '~comps/ExploreStackNav'
+import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
+import { Text } from '~comps/Typography'
 
 export type ExploreNavRoutes = {
   LatestPosts: {}
@@ -68,45 +70,45 @@ function DotsamaSpacesScreen({}: DotsamaSpacesScreenProps) {
   return <Space.Suggested spaces={config.suggestedSpaces.map(asString)} />
 }
 
+type ListPropsSpec = InfiniteScrollListProps<PostId>
+
 type LatestPostsScreenProps = ExploreNavScreenProps<'LatestPosts'>
 function LatestPostsScreen({}: LatestPostsScreenProps) {
-  type ListProps = InfiniteScrollListProps<PostId>
-  
   const spaceIds = config.suggestedSpaces
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
-  const reloadPosts = useCreateReloadPosts()
+  const [ ids, setIds ] = useState<PostId[]>([])
   
-  const loadIds = useCallback(async () => {
-    if (!api) return []
-    
+  const loadInitial = useCallback<ListPropsSpec['loadInitial']>(async (pageSize) => {
     const thunkResults = await Promise.all(spaceIds.map( id => dispatch(fetchSpacePosts({ api, id })) ))
     let result = [] as PostId[]
     
     for (let thunkResult of thunkResults) {
-      result = result.concat((thunkResult.payload as RefreshPayload).posts)
+      result.splice(result.length, 0, ...(thunkResult.payload as RefreshPayload).posts)
     }
     result.sort(descending)
     
-    return result
+    setIds(result)
+    return [result.slice(0, pageSize), 1]
   }, [ api, dispatch, spaceIds ])
   
-  const loader: ListProps['loader'] = async (ids) => {
-    if (assertDefinedSoft(reloadPosts, { symbol: 'reloadPosts', tag: 'Screens/ExploreScreen/loader' })) {
-      await reloadPosts({ids})
-    }
-    return ids
-  }
+  const loadMore = useCallback<ListPropsSpec['loadMore']>(async (page, pageSize) => {
+    if (page > Math.floor(ids.length / pageSize)) return false
+    
+    return ids.slice(page * pageSize, (page + 1) * pageSize)
+  }, [ ids ])
   
-  const renderItem: ListProps['renderItem'] = (id) => <WrappedPost id={id} />
-  
-  useSubsocialInit(async (isMounted, { api }) => {
-    await Promise.all(config.suggestedSpaces.map( id => dispatch(fetchSpacePosts({ api, id })) ))
-    return true
-  }, [], [])
+  const loadItems = useCallback<ListPropsSpec['loadItems']>(async (ids) => {
+    await dispatch(fetchPosts({ api, ids }))
+  }, [ api, dispatch ])
   
   return (
-    <InfiniteScrollList ids={loadIds} {...{renderItem, loader}} />
+    <InfiniteScrollList
+      loadInitial={loadInitial}
+      loadMore={loadMore}
+      loadItems={loadItems}
+      renderItem={renderWrappedPost}
+    />
   )
 }
 
@@ -123,3 +125,4 @@ const WrappedPost = React.memo(({ id }: WrappedPostProps) => {
     />
   )
 })
+const renderWrappedPost = (id: PostId) => <WrappedPost id={id} />

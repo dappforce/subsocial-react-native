@@ -1,32 +1,41 @@
 //////////////////////////////////////////////////////////////////////
 // Space Explorer - a whole bunch of summaries
-import React from 'react'
+import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
 import { Preview } from './Preview'
 import { Divider } from 'src/components/Typography'
-import { InfiniteScrollList } from '~stories/Misc/InfiniteScroll'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
 import { useCreateReloadSpace } from 'src/rtk/app/hooks'
-import { assertDefinedSoft } from 'src/util'
 
 export type SuggestedProps = {
   spaces: SpaceId[]
 }
 export function Suggested({ spaces }: SuggestedProps) {
+  type ListSpec = InfiniteScrollListProps<SpaceId>
+  
   const reloadSpace = useCreateReloadSpace()
   const renderItem = (id: SpaceId) => <WrappedSpace id={id} />
   
-  const loader = async (ids: SpaceId[]) => {
-    if (assertDefinedSoft(reloadSpace, { symbol: 'reloadSpace', tag: 'Space/Explorer/loader' })) {
-      await Promise.all(ids.map(id => reloadSpace({ id })))
-    }
-    return ids
-  }
+  const loadInitial = useCallback<ListSpec['loadInitial']>((pageSize) => [spaces.slice(0, pageSize), 1], [ spaces ])
+  
+  const loadMore = useCallback<ListSpec['loadMore']>((page, pageSize) => {
+    if (page >= Math.floor(spaces.length / pageSize) + 1) return false
+    
+    return spaces.slice(page * pageSize, (page + 1) * pageSize)
+  }, [ spaces ])
+  
+  const loadItems = useCallback(async (ids: SpaceId[]) => {
+    await Promise.all(ids.map(id => reloadSpace({ id })))
+  }, [ reloadSpace ])
   
   return (
-    <InfiniteScrollList
-      ids={spaces}
-      {...{ loader, renderItem }}
+    <InfiniteScrollList<SpaceId>
+      loadInitial={loadInitial}
+      loadMore={loadMore}
+      loadItems={loadItems}
+      renderItem={renderItem}
+      refreshable={false}
     />
   )
 }

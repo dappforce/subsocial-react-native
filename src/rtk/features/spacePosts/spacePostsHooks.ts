@@ -2,11 +2,12 @@ import { useMemo } from 'react'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, SpaceId } from 'src/types/subsocial'
-import { fetchSpacePosts } from './spacePostsSlice'
+import { fetchSpacePosts, selectSpacePosts } from './spacePostsSlice'
 import { descending } from 'src/util'
+import { shallowEqual } from 'react-redux'
 
 export function useSelectSpacePosts(spaceId?: SpaceId): PostId[] {
-  return [...useAppSelector(state => spaceId && state.spacePosts[spaceId] || [])].sort(descending)
+  return [...useAppSelector(state => spaceId && selectSpacePosts(state, spaceId) || [], shallowEqual)].sort(descending)
 }
 
 export function useSelectSpacesPosts(spaceIds?: SpaceId[]): PostId[] {

@@ -1,233 +1,281 @@
 //////////////////////////////////////////////////////////////////////
 // Custom list implementations to help with arbitrary InfiniteScroll
-import React, { ReactElement, useCallback, useEffect, useReducer } from 'react'
-import { NativeScrollEvent, NativeSyntheticEvent, RefreshControl, SectionList, SectionListData, SectionListProps } from 'react-native'
-import { setEqual } from 'src/util'
+import React, { ReactElement } from 'react'
+import { Falsy, FlatList, FlatListProps, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, StyleSheet, View } from 'react-native'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { logger as createLogger } from '@polkadot/util'
+import { StateError } from 'src/types/errors'
+import { Text } from '~comps/Typography'
 
 const logger = createLogger('InfiniteScroll')
+
+export const DEFAULT_PAGE_SIZE = 10
 
 export interface InfiniteScrollListLoader<ID> {
   (): Promise<ID[]>
 }
-export interface DynamicDataLoader<ID> {
-  (ids: ID[]): ID[] | Promise<ID[]>
+export interface InfiniteScrollListDataInitializer<ID> {
+  (pageSize: number): [ID[], number] | Promise<[ID[], number]>
+}
+export interface InfiniteScrollListDataLoader<ID> {
+  (page: number, pageSize: number): ID[] | Promise<ID[] | Falsy> | Falsy
+}
+export interface InfiniteScrollListItemLoader<ID> {
+  (ids: ID[]): Promise<void> | void
 }
 
 type ListStage = 'INITIAL' | 'REFRESH' | 'BUSY' | 'READY'
 type ListState<ID> = {
   stage: ListStage
-  lastIdx: number
+  page: number
   ids: ID[]
-  baseIds: ID[]
+  isEnd: boolean
 }
 
 type ListActionNotify = {
-  type: 'BEGIN_EXPAND' | 'BEGIN_REFRESH'
-}
-type ListActionReset<ID> = {
-  type: 'RESET'
-  baseIds: ID[]
+  type: 'RESET' | 'BEGIN_EXPAND' | 'BEGIN_REFRESH' | 'END_OF_LIST'
 }
 type ListActionInitialize<ID> = {
   type: 'INIT'
   ids: ID[]
-  lastIdx: number
+  page?: number
 }
 type ListActionFinishExpand<ID> = {
   type: 'FINISH_EXPAND'
-  lastIdx: number
+  page: number
   newIds: ID[]
 }
 type ListActionFinishRefresh<ID> = {
   type: 'FINISH_REFRESH'
   ids: ID[]
 }
-type ListAction<ID> = ListActionNotify | ListActionReset<ID> | ListActionFinishExpand<ID> | ListActionInitialize<ID> | ListActionFinishRefresh<ID>
-
-const getInitState: <ID>() => ListState<ID> = () => ({
-  stage: 'INITIAL',
-  lastIdx: 0,
-  ids: [],
-  baseIds: [],
-})
+type ListAction<ID> = ListActionNotify | ListActionFinishExpand<ID> | ListActionInitialize<ID> | ListActionFinishRefresh<ID>
 
 type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>
 
 export type InfiniteScrollListProps<ID> = {
-  ids: ID[] | InfiniteScrollListLoader<ID>
-  loader: DynamicDataLoader<ID>
-  loadInitial?: () => Promise<void>
-  renderEmpty?: () => ReactElement
+  loadInitial: InfiniteScrollListDataInitializer<ID>
+  loadMore: InfiniteScrollListDataLoader<ID>
+  loadItems: InfiniteScrollListItemLoader<ID>
   renderItem: (id: ID) => ReactElement
-  renderHeader?: () => ReactElement
-  batchSize?: number
+  refreshable?: boolean
+  pageSize?: number
   onScroll?: (e: ScrollEvent) => void
   onScrollBeginDrag?: (e: ScrollEvent) => void
   onScrollEndDrag?: (e: ScrollEvent) => void
+  HeaderComponent?: FlatListProps<ID>['ListHeaderComponent']
+  EmptyComponent?: FlatListProps<ID>['ListEmptyComponent']
 }
-export function InfiniteScrollList<ID>({
-  ids: _ids,
-  loader,
-  loadInitial,
-  renderEmpty,
-  renderItem: _renderItem,
-  renderHeader,
-  batchSize = 10,
-  onScroll,
-  onScrollBeginDrag,
-  onScrollEndDrag,
-}: InfiniteScrollListProps<ID>)
-{
-  type SectionListSpec = SectionListProps<ID>
+
+export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListProps<ID>, ListState<ID>> {
+  constructor(props: InfiniteScrollListProps<ID>) {
+    super(props)
+    
+    this.state = this.getInitialState()
+    this.loadInit()
+  }
   
-  function reducer(state: ListState<ID>, action: ListAction<ID>): ListState<ID> {
+  private loadInit = async () => {
+    if (this.state.stage !== 'INITIAL') throw new StateError('Cannot load initial data when not in INITIAL state')
+    
+    const {
+      pageSize = DEFAULT_PAGE_SIZE,
+      loadInitial,
+    } = this.props
+    
+    const [ ids, page ] = await loadInitial(pageSize)
+    this.dispatch({ type: 'INIT', ids, page })
+  }
+  
+  private loadBatch = async (): Promise<[ ID[], number ]> => {
+    const {
+      pageSize = DEFAULT_PAGE_SIZE,
+      loadMore,
+      loadItems,
+    } = this.props
+    
+    let added: ID[] = []
+    let newPage = this.state.page
+    
+    while (added.length < pageSize) {
+      const more = await loadMore(newPage++, pageSize)
+      if (!more) {
+        this.dispatch({ type: 'END_OF_LIST' })
+        break
+      }
+      
+      added.splice(added.length, 0, ...more)
+    }
+    
+    await loadItems(added)
+    
+    return [ added, newPage ]
+  }
+  
+  loadMore = async () => {
+    const {
+      stage,
+      isEnd,
+    } = this.state
+    
+    if (stage !== 'READY' || isEnd) return
+    
+    logger.debug('loading more')
+    this.dispatch({ type: 'BEGIN_EXPAND' })
+    
+    const [ newIds, newPage ] = await this.loadBatch()
+    
+    this.dispatch({ type: 'FINISH_EXPAND', newIds, page: newPage })
+  }
+  
+  private dispatch = (action: ListAction<ID>) => {
     switch (action.type) {
       case 'RESET': {
-        return {
-          ...state,
-          stage: 'INITIAL',
-          lastIdx: 0,
-          ids: [],
-          baseIds: action.baseIds,
-        }
+        this.setState(this.getInitialState())
+        return
       }
       
       case 'INIT': {
-        return {
-          ...state,
+        this.setState({
+          ...this.state,
           stage: 'READY',
-          lastIdx: action.lastIdx,
+          page: action.page ?? 1,
           ids: action.ids,
-        }
+        })
+        return
       }
       
       case 'BEGIN_EXPAND': {
-        return {
-          ...state,
+        this.setState({
+          ...this.state,
           stage: 'BUSY',
-        }
+        })
+        return
       }
       
       case 'FINISH_EXPAND': {
-        return {
-          ...state,
+        this.setState({
+          ...this.state,
           stage: 'READY',
-          lastIdx: action.lastIdx,
-          ids: [...state.ids, ...action.newIds],
-        }
+          page: action.page,
+          ids: this.state.ids.concat(action.newIds),
+        })
+        return
       }
       
       case 'BEGIN_REFRESH': {
-        return {
-          ...state,
+        this.setState({
+          ...this.state,
           stage: 'REFRESH',
-        }
+        })
+        return
       }
       
       case 'FINISH_REFRESH': {
-        return {
-          ...state,
+        this.setState({
+          ...this.state,
           stage: 'READY',
           ids: action.ids
-        }
+        })
+        return
+      }
+      
+      case 'END_OF_LIST': {
+        this.setState({
+          ...this.state,
+          isEnd: true,
+        })
+        return
       }
     }
   }
   
-  const [ state, dispatch ] = useReducer(reducer, getInitState<ID>())
-  const { stage, lastIdx, ids, baseIds } = state
-  
-  // TODO: Use ScrollView.HeaderComponent instead of SectionList workaround
-  // I simply didn't know ScrollView supported headers
-  const sections: SectionListData<ID>[] = [{ data: stage !== 'INITIAL' ? ids : [] }]
-  
-  async function loadBatch(ids: ID[], lastIdx: number): Promise<[ ID[], number ]> {
-    if (lastIdx >= ids.length) return [ [], lastIdx ]
+  private onRefresh = async () => {
+    this.dispatch({ type: 'BEGIN_REFRESH' })
     
-    let added: ID[] = []
+    const [ newIds ] = await this.props.loadInitial(this.props.pageSize ?? DEFAULT_PAGE_SIZE)
     
-    let newLastIdx = lastIdx
-    while (added.length < batchSize && newLastIdx < ids.length) {
-      const targetIdx = Math.min(newLastIdx + batchSize, ids.length)
-      const sublist = ids.slice(newLastIdx, targetIdx)
-      added = added.concat(await loader(sublist))
-      newLastIdx = targetIdx
+    this.dispatch({ type: 'FINISH_REFRESH', ids: newIds })
+  }
+  
+  render() {
+    const { stage, ids } = this.state
+    const {
+      refreshable = true,
+      renderItem,
+      HeaderComponent,
+      EmptyComponent,
+      onScroll,
+      onScrollBeginDrag,
+      onScrollEndDrag,
+    } = this.props
+    
+    if (stage === 'INITIAL') {
+      return <SpanningActivityIndicator />
     }
     
-    return [ added, newLastIdx ]
-  }
-  
-  async function loadMore() {
-    if (lastIdx >= baseIds.length) return
-    
-    if (stage !== 'READY') return
-    
-    logger.debug('loading more')
-    dispatch({ type: 'BEGIN_EXPAND' })
-    
-    const [ newIds, newLastIdx ] = await loadBatch(baseIds, lastIdx)
-    
-    dispatch({ type: 'FINISH_EXPAND', newIds, lastIdx: newLastIdx })
-  }
-  
-  async function loadInit(ids: ID[]) {
-    await loadInitial?.()
-    return await loadBatch(ids, 0)
-  }
-  
-  useEffect(() => {
-    (async() => {
-      const newIds = typeof(_ids) === 'function' ? await _ids() : _ids
-      
-      if (!setEqual(new Set(newIds), new Set(ids))) {
-        dispatch({ type: 'RESET', baseIds: newIds })
-        const [ loaded, lastIdx ] = await loadInit(newIds)
-        dispatch({ type: 'INIT', ids: loaded, lastIdx })
-      }
-    })()
-  }, [ _ids ])
-  
-  const renderSectionHeader: SectionListSpec['renderSectionHeader'] = ({}) => renderHeader?.() || null
-  const renderItem: SectionListSpec['renderItem'] = ({ item: id }) => _renderItem(id)
-  
-  const onRefresh = useCallback(async () => {
-    if (typeof(_ids) === 'function' && stage === 'READY') {
-      dispatch({ type: 'BEGIN_REFRESH' })
-      
-      const newIds = await _ids()
-      
-      dispatch({ type: 'FINISH_REFRESH', ids: newIds })
+    else {
+      return (
+        <FlatList
+          data={ids}
+          renderItem={({ item: id }) => renderItem(id)}
+          ListHeaderComponent={HeaderComponent}
+          ListFooterComponent={<ListLoading isLoading={stage !== 'READY'} />}
+          ListEmptyComponent={EmptyComponent}
+          onEndReached={this.loadMore}
+          onEndReachedThreshold={1}
+          onScroll={onScroll}
+          onScrollBeginDrag={onScrollBeginDrag}
+          onScrollEndDrag={onScrollEndDrag}
+          keyExtractor={(id) => id+''}
+          refreshControl={refreshable
+          ? <RefreshControl
+              refreshing={stage === 'REFRESH'}
+              onRefresh={this.onRefresh}
+            />
+          : undefined
+          }
+        />
+      )
     }
-  }, [ _ids ])
-  
-  if (stage === 'INITIAL') {
-    return <SpanningActivityIndicator />
   }
   
-  else if (!baseIds.length) {
-    return renderEmpty?.() || null
+  reset() {
+    this.dispatch({ type: 'RESET' })
+    this.loadInit()
   }
   
-  else {
+  private getInitialState = (): ListState<ID> => ({
+    stage: 'INITIAL',
+    page: 0,
+    ids: [],
+    isEnd: false,
+  })
+}
+
+type ListLoadingProps = {
+  isLoading: boolean
+}
+function ListLoading({ isLoading }: ListLoadingProps) {
+  if (isLoading) {
     return (
-      <SectionList
-        {...{ sections, renderItem, renderSectionHeader }}
-        onEndReached={loadMore}
-        onEndReachedThreshold={1}
-        onScroll={onScroll}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
-        keyExtractor={(id) => id+''}
-        refreshControl={typeof(_ids) === 'function'
-        ? <RefreshControl
-            refreshing={stage === 'REFRESH'}
-            onRefresh={onRefresh}
-          />
-        : undefined
-        }
-      />
+      <View style={styles.listLoading}>
+        <Text mode="secondary">Loading more content...</Text>
+        <SpanningActivityIndicator />
+      </View>
     )
   }
+  else {
+    return null
+  }
 }
+
+const styles = StyleSheet.create({
+  listLoading: {
+    height: 80,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 10,
+  },
+})

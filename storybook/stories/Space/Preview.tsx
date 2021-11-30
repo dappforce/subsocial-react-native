@@ -11,7 +11,7 @@ export type PreviewProps = Omit<DataRawProps, 'data' | 'preview' | 'state'> & {
   id: SpaceId
 }
 export const Preview = React.memo(({ id, ...props }: PreviewProps) => {
-  const resolvedId = useResolvedSpaceHandle(id)
+  const { id: resolvedId } = useResolvedSpaceHandle(id)
   const reloadSpace = useCreateReloadSpace()
   const data = useSelectSpace(resolvedId)
   

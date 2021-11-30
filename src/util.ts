@@ -57,6 +57,20 @@ export function union<T>(it1: Iterable<T>, it2: Iterable<T>): Set<T> {
   return new Set([ ...it1, ...it2 ])
 }
 
+export function difference<T>(it1: Iterable<T>, it2: Iterable<T>): Set<T> {
+  const set1 = new Set(it1)
+  const set2 = new Set(it2)
+  const result = new Set<T>()
+  
+  for (let item of set1) {
+    if (!set2.has(item)) {
+      result.add(item)
+    }
+  }
+  
+  return result
+}
+
 export function setEqual<T>(set1: Set<T>, set2: Set<T>): boolean {
   for (let item of set1) {
     if (!set2.has(item)) return false

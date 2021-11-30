@@ -16,7 +16,7 @@ export type DataProps = Omit<DataRawProps, 'data'> & {
   id: SpaceId
 }
 export const Data = React.memo(({ id, ...props }: DataProps) => {
-  const realid = useResolvedSpaceHandle(id)
+  const { id: realid } = useResolvedSpaceHandle(id)
   const data = useSelectSpace(realid)
   const reloadSpace = useCreateReloadSpace()
   

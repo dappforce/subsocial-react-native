@@ -1,71 +1,60 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { StyleSheet } from 'react-native'
+import { useStore } from 'react-redux'
 import { AccountId, SpaceId } from 'src/types/subsocial'
-import {
-  useCreateReloadSpace,
-  useCreateReloadSpaceIdsRelatedToAccount,
-  useSelectSpaceIdsWhereAccountCanPost,
-} from 'src/rtk/app/hooks'
-import { useInit } from '~comps/hooks'
-import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { RootState } from 'src/rtk/app/rootReducer'
+import { fetchEntityOfSpaceIdsByFollower, selectSpaceIdsByFollower } from 'src/rtk/features/spaceIds/followedSpaceIdsSlice'
+import { fetchSpaces } from 'src/rtk/features/spaces/spacesSlice'
+import { createThemedStylesHook } from '~comps/Theming'
 import * as Space from '~stories/Space'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { Text } from '~comps/Typography'
-import { createThemedStylesHook } from '~comps/Theming'
-import { assertDefinedSoft } from 'src/util'
+
+type ListPropsSpec = InfiniteScrollListProps<SpaceId>
 
 export type SpacesProps = {
   id: AccountId
-  onScroll?: InfiniteScrollListProps<SpaceId>['onScroll']
-  onScrollBeginDrag?: InfiniteScrollListProps<SpaceId>['onScrollBeginDrag']
-  onScrollEndDrag?: InfiniteScrollListProps<SpaceId>['onScrollEndDrag']
+  onScroll?: ListPropsSpec['onScroll']
+  onScrollBeginDrag?: ListPropsSpec['onScrollBeginDrag']
+  onScrollEndDrag?: ListPropsSpec['onScrollEndDrag']
 }
 export function Spaces({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: SpacesProps) {
-  const spaces = useSelectSpaceIdsWhereAccountCanPost(id)
-  const reloadSpace = useCreateReloadSpace()
-  const reloadOwnSpaces = useCreateReloadSpaceIdsRelatedToAccount()
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
+  const store = useStore<RootState>()
+  const [ ids, setIds ] = useState<SpaceId[]>([])
   const styles = useThemedStyles()
   
-  const loader = useCallback(async (ids: SpaceId[]) => {
-    if (assertDefinedSoft(reloadSpace, { symbol: 'reloadSpace', tag: 'Post/Spaces/loader'})) {
-      await Promise.all(ids.map(id => reloadSpace({ id })))
-    }
-    return ids
-  }, [])
-  
-  const initialized = useInit(async () => {
-    if (spaces && spaces.length) return true
+  const loadInitial = useCallback<ListPropsSpec['loadInitial']>(async (pageSize) => {
+    await dispatch(fetchEntityOfSpaceIdsByFollower({ api, id, reload: true }))
+    const ids = selectSpaceIdsByFollower(store.getState(), id) ?? []
     
-    if (!reloadOwnSpaces) return false
-    
-    await reloadOwnSpaces(id)
-    return true
-  }, [ id ], [ reloadOwnSpaces ])
+    setIds(ids)
+    return [ids.slice(0, pageSize), 1]
+  }, [ api, store, id ])
   
-  const isReady = initialized && reloadSpace
+  const loadMore = useCallback<ListPropsSpec['loadMore']>(async (page, pageSize) => {
+    return ids.slice(page * pageSize, (page + 1) * pageSize)
+  }, [ id, ids ])
   
-  if (!isReady) {
-    return <SpanningActivityIndicator />
-  }
+  const loadItems = useCallback<ListPropsSpec['loadItems']>(async (ids) => {
+    await dispatch(fetchSpaces({ api, ids, reload: true }))
+  }, [ api, dispatch ])
   
-  else if (!spaces.length) {
-    return (
-      <Text mode="secondary" style={styles.noSpaces}>No spaces.</Text>
-    )
-  }
-  
-  else {
-    return (
-      <InfiniteScrollList
-        ids={spaces}
-        loader={loader}
-        renderItem={(id) => <WrappedSpace id={id} />}
-        onScroll={onScroll}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
-      />
-    )
-  }
+  return (
+    <InfiniteScrollList
+      loadInitial={loadInitial}
+      loadMore={loadMore}
+      loadItems={loadItems}
+      EmptyComponent={<Text mode="secondary" style={styles.empty}>No followed spaces</Text>}
+      renderItem={(id) => <WrappedSpace id={id} />}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
+    />
+  )
 }
 
 type WrappedSpaceProps = {
@@ -85,7 +74,7 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     borderColor: colors.divider,
     padding: 20,
   },
-  noSpaces: {
+  empty: {
     fontStyle: 'italic',
     textAlign: 'center',
   },
