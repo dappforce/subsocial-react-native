@@ -1,17 +1,16 @@
 import React, { useCallback, useState } from 'react'
 import { StyleSheet } from 'react-native'
 import { useStore } from 'react-redux'
+import { useSubsocial } from '~comps/SubsocialContext'
 import { AccountId } from 'src/types/subsocial'
-import { fetchEntityOfAccountIdsByFollower, selectAccountIdsByFollower } from 'src/rtk/features/profiles/followedAccountIdsSlice'
 import { RootState } from 'src/rtk/app/rootReducer'
-import { Preview } from './Preview'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchEntityOfAccountIdsByFollower, selectAccountIdsByFollower } from 'src/rtk/features/profiles/followedAccountIdsSlice'
+import { fetchProfiles } from 'src/rtk/features/profiles/profilesSlice'
 import { createThemedStylesHook } from '~comps/Theming'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
-import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
-import { assertDefinedSoft } from 'src/util'
-import { useSubsocial } from '~comps/SubsocialContext'
-import { useAppDispatch } from 'src/rtk/app/hooksCommon'
-import { fetchProfiles } from 'src/rtk/features/profiles/profilesSlice'
+import { Preview } from './Preview'
+import { Text } from '~comps/Typography'
 
 type ListPropsSpec = InfiniteScrollListProps<AccountId>
 
@@ -26,6 +25,7 @@ export function Follows({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Fo
   const dispatch = useAppDispatch()
   const store = useStore<RootState>()
   const [ ids, setIds ] = useState<AccountId[]>([])
+  const styles = useThemedStyles()
   
   const loadInitial = useCallback<ListPropsSpec['loadInitial']>(async (pageSize) => {
     await dispatch(fetchEntityOfAccountIdsByFollower({ api, id, reload: true }))
@@ -54,6 +54,7 @@ export function Follows({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Fo
       loadMore={loadMore}
       loadItems={loadItems}
       renderItem={renderItem}
+      EmptyComponent={<Text mode="secondary" style={styles.empty}>No followed accounts</Text>}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}
@@ -80,5 +81,9 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     padding: 20,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderColor: colors.divider,
+  },
+  empty: {
+    textAlign: 'center',
+    marginVertical: 10,
   },
 }))

@@ -4,13 +4,13 @@ import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
 import { AccountId, PostId } from 'src/types/subsocial'
+import { AxiosResponseError } from 'src/types/errors'
 import { Text } from '~comps/Typography'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { Preview } from '../Post/Preview'
-import axios from 'axios'
-import { AxiosResponseError } from 'src/types/errors'
 import { descending, difference, union } from 'src/util'
 import { logger as createLogger } from '@polkadot/util'
+import axios from 'axios'
 import config from 'config.json'
 
 const log = createLogger('Account/Upvotes')
@@ -87,6 +87,7 @@ export function Upvotes({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Up
         loadMore={loadMore}
         loadItems={loadItems}
         renderItem={renderItem}
+        EmptyComponent={<Text mode="secondary" style={styles.centerText}>No upvoted posts</Text>}
         onScroll={onScroll}
         onScrollBeginDrag={onScrollBeginDrag}
         onScrollEndDrag={onScrollEndDrag}

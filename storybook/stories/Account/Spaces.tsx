@@ -8,9 +8,9 @@ import { RootState } from 'src/rtk/app/rootReducer'
 import { fetchEntityOfSpaceIdsByFollower, selectSpaceIdsByFollower } from 'src/rtk/features/spaceIds/followedSpaceIdsSlice'
 import { fetchSpaces } from 'src/rtk/features/spaces/spacesSlice'
 import { createThemedStylesHook } from '~comps/Theming'
-import * as Space from '~stories/Space'
-import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { Text } from '~comps/Typography'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
+import * as Space from '~stories/Space'
 
 type ListPropsSpec = InfiniteScrollListProps<SpaceId>
 
@@ -77,7 +77,7 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     padding: 20,
   },
   empty: {
-    fontStyle: 'italic',
     textAlign: 'center',
+    marginVertical: 10,
   },
 }))

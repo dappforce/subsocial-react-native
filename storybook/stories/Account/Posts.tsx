@@ -1,9 +1,6 @@
 import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
-import { useCreateReloadPosts } from 'src/rtk/app/hooks'
 import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
-import { assertDefinedSoft } from 'src/util'
-import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { createThemedStylesHook } from '~comps/Theming'
 import { Text } from '~comps/Typography'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
@@ -32,6 +29,7 @@ export type PostsProps = {
 export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: PostsProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
+  const styles = useThemedStyles()
   
   const loadInitial = useCallback<ListPropsSpec['loadInitial']>(async (pageSize) => {
     return [await loadFromREST(id, 0, pageSize), 1]
@@ -53,7 +51,7 @@ export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Post
       loadMore={loadMore}
       loadItems={loadItems}
       renderItem={renderPost}
-      EmptyComponent={<Text mode="secondary">No posts</Text>}
+      EmptyComponent={<Text mode="secondary" style={styles.empty}>No posts</Text>}
       onScroll={onScroll}
       onScrollBeginDrag={onScrollBeginDrag}
       onScrollEndDrag={onScrollEndDrag}
@@ -83,5 +81,9 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     paddingBottom: 0,
     borderBottomWidth: 1,
     borderColor: colors.line,
+  },
+  empty: {
+    textAlign: 'center',
+    marginVertical: 10,
   },
 }))
