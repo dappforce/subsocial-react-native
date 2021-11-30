@@ -7,6 +7,9 @@ import * as Elements from 'react-native-elements'
 import * as IconSets from 'glyphmap'
 import { TouchableRipple, TouchableRippleProps } from './TouchableRipple'
 
+import SubiconGlyphmap from '../../assets/fonts/subicons.glyphmap.json'
+import { createIconSet } from 'react-native-vector-icons'
+
 export type AntIcon = {
   family: 'antdesign'
   name: keyof IconSets.AntDesign
@@ -63,11 +66,17 @@ export type ZocialIcon = {
   family: 'zocial'
   name: keyof IconSets.Zocial
 }
+export type SubIcon = {
+  family: 'subicon'
+  name: keyof typeof SubiconGlyphmap
+}
 
 export type AnyIcon = AntIcon | EntypoIcon | EvilIcon | FeatherIcon | FontAwesomeIcon | FontAwesome5Icon | FontistoIcon
-  | FoundationIcon | IonIcon | MaterialIcon | MaterialCommunityIcon | OctIcon | SimpleLineIcon | ZocialIcon
+  | FoundationIcon | IonIcon | MaterialIcon | MaterialCommunityIcon | OctIcon | SimpleLineIcon | ZocialIcon | SubIcon
 
 type RippleProps = Pick<TouchableRippleProps, 'rippleSize' | 'rippleBorderless'>
+
+Elements.registerCustomIconType('subicon', createIconSet(SubiconGlyphmap, 'Subicon'))
 
 export type IconProps = AnyIcon & Omit<Elements.IconProps, 'name' | 'type'> & RippleProps
 export function Icon(props: IconProps) {

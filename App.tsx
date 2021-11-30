@@ -46,6 +46,7 @@ export default function(props: {}) {
     RobotoItalic: require('./assets/fonts/Roboto-Italic.ttf'),
     RobotoMedium: require('./assets/fonts/Roboto-Medium.ttf'),
     RobotoBold: require('./assets/fonts/Roboto-Bold.ttf'),
+    Subicon: require('./assets/fonts/subicons.ttf'),
   })
   
   const ready = fontsLoaded

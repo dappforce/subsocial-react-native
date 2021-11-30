@@ -10,8 +10,9 @@ import {
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
-import { Balance, Header } from '~stories/Misc'
-import { Divider, Text } from '~comps/Typography'
+import { Preview } from './Preview'
+import { Balance } from '~stories/Misc'
+import { Button, Divider, Text } from '~comps/Typography'
 import { FollowAccountButton } from '~stories/Actions'
 import { DetailsHeaderProvider, useDetailsHeader } from './DetailsHeaderContext'
 import { Address } from './Address'
@@ -23,6 +24,7 @@ import { Spaces } from './Spaces'
 import Elevations from 'react-native-elevation'
 import Collapsible from 'react-native-collapsible'
 import { useInit } from '~comps/hooks'
+import { Icon } from '~comps/Icon'
 
 export type DetailsRoutes = {
   posts:    {}
@@ -84,11 +86,10 @@ export type DetailsHeaderProps = {
 export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
   const { address: myAddress } = useSelectKeypair() ?? {}
   const isMyAccount = myAddress === id
+  const theme = useTheme()
   const styles = useThemedStyle()
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
-  
-  const renderFollowButton = useCallback(() => <FollowAccountButton id={id} />, [ id ])
   
   useInit(async () => {
     if (!reloadProfile) return false
@@ -99,34 +100,46 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
   
   return (
     <View {...{style, onLayout}}>
-      <Header
-        title={data?.content?.name ?? id}
-        subtitle={
-          <Balance
-            address={id}
-            truncate={2}
-            integerBalanceStyle={styles.balance}
-            decimalBalanceStyle={styles.balance}
-            currencyStyle={styles.balance}
-          />
-        }
-        avatar={data?.content?.avatar}
-        actionMenuProps={{
-          primary: !isMyAccount ? renderFollowButton : undefined,
-        }}
-      />
-      
-      <View style={styles.followage}>
-        <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followingAccountsCount ?? 0}</Text>
-        <Text mode="secondary" style={styles.followageLabel}>Following</Text>
-        
-        <Text mode="secondary" style={styles.followageCount}>{data?.struct?.followersCount ?? 0}</Text>
-        <Text mode="secondary" style={styles.followageLabel}>Followers</Text>
-      </View>
+      <Preview id={id} showFollowButton={false} />
       
       {!!data?.content?.about && <Text style={styles.about}>{data?.content?.about}</Text>}
       
-      <Address id={id} />
+      <Address id={id} walletIconContainerStyle={styles.dataIcon} />
+      <View style={styles.balanceContainer}>
+        <Icon
+          family="subicon"
+          name="sub-coin"
+          color={theme.colors.divider}
+          containerStyle={styles.dataIcon}
+        />
+        <Balance
+          address={id}
+          truncate={4}
+          decimalBalanceStyle={{ fontSize: theme.fonts.primary.fontSize }}
+        />
+      </View>
+      
+      {!isMyAccount && <View style={styles.buttonRow}>
+        <Button
+          mode="outlined"
+          color={theme.colors.divider}
+          icon={() => <Icon
+            family="subicon"
+            name="send-tip"
+            color={theme.colors.textPrimary}
+          />}
+          style={styles.tipButton}
+          labelStyle={{ color: theme.colors.textPrimary }}
+          onPress={() => alert('not yet implemented')}
+        >
+          Send tips
+        </Button>
+        <FollowAccountButton
+          id={id}
+          style={styles.followButton}
+          showIcon
+        />
+      </View>}
     </View>
   )
 }
@@ -214,21 +227,32 @@ const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => Styl
     marginBottom: 10,
   },
   
-  followage: {
+  buttonRow: {
     display: 'flex',
     flexDirection: 'row',
+    marginTop: 20,
     marginBottom: 10,
   },
-  followageLabel: {
-    color: colors.textSecondary,
-    marginRight: 10,
+  tipButton: {
+    flex: 1,
+    borderRadius: 40,
+    marginRight: 20,
   },
-  followageCount: {
-    fontFamily: 'RobotoMedium',
-    color: colors.textPrimary,
-    marginRight: 4,
+  followButton: {
+    flex: 1,
+    borderRadius: 40,
   },
   
+  dataIcon: {
+    marginRight: 20,
+  },
+  
+  balanceContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   balance: {
     ...fonts.secondary,
     fontFamily: 'RobotoMedium',

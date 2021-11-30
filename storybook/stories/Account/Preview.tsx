@@ -7,9 +7,10 @@ import { Head } from './Account'
 
 export type PreviewProps = {
   id: AccountId
+  showFollowButton?: boolean
   containerStyle?: StyleProp<ViewStyle>
 }
-export const Preview = React.memo(({ id, containerStyle }: PreviewProps) => {
+export const Preview = React.memo(({ id, showFollowButton = true, containerStyle }: PreviewProps) => {
   const data = useSelectProfile(id)
   const reloadProfile = useCreateReloadProfile()
   
@@ -30,6 +31,7 @@ export const Preview = React.memo(({ id, containerStyle }: PreviewProps) => {
         avatar={data?.content?.avatar}
         numFollowers={data?.struct?.followersCount ?? 0}
         numFollowing={data?.struct?.followingAccountsCount ?? 0}
+        showFollowButton={showFollowButton}
       />
     </View>
   )

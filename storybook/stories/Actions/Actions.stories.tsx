@@ -1,41 +1,32 @@
 import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react-native'
-import { boolean, number, text } from '@storybook/addon-knobs'
+import { boolean, number } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
-import { ActionMenu, FollowAccountButton, FollowSpaceButton, Panel } from './index'
+import { ActionMenu, Panel } from './index'
 import { LoginPrompt } from './LoginPrompt'
 import { LogoutButton } from './LogoutButton'
 import { Button } from '~comps/Typography'
 import CenterView from '~stories/CenterView'
+import { FollowButtonBase } from './FollowButton'
 
 storiesOf('Actions', module)
   .addDecorator(getStory => <CenterView>{getStory()}</CenterView>)
-  .add('Follow Account Button', () => (
-    <SubsocialProvider>
-      <FollowAccountButton
-        id={text('Address', '3tiKakuy6RaHWThsHts23De8XwpaNdvw8PwwXcJqeVSN6w8w')}
-        showIcon={boolean('Show Icon', false)}
+  .add('Follow Button', () => (
+    <CenterView>
+      <FollowButtonBase
+        isFollowing={boolean('Is Following', false)}
+        showIcon={boolean('Show Icon', true)}
+        onPress={action('onPress')}
       />
-      <LogoutButton />
-    </SubsocialProvider>
-  ))
-  .add('Follow Space Button', () => (
-    <SubsocialProvider>
-      <FollowSpaceButton
-        id={text('ID', '1')}
-        showIcon={boolean('Show Icon', false)}
-      />
-      <LogoutButton />
-    </SubsocialProvider>
+    </CenterView>
   ))
   .add('Action Menu', () => {
     const renderPrimary = () => <>
       <ActionMenu.Primary>
-        <FollowAccountButton
-          id={text('Follow Address', '3tiKakuy6RaHWThsHts23De8XwpaNdvw8PwwXcJqeVSN6w8w')}
-          onFollow={action('follow')}
-          onUnfollow={action('unfollow')}
+        <FollowButtonBase
+          isFollowing={boolean('isFollowing', false)}
+          onPress={action('Press Follow')}
         />
       </ActionMenu.Primary>
     </>;

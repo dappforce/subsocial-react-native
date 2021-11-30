@@ -2,12 +2,13 @@
 // General purpose FollowButton encompassing following & follow-state
 // logic.
 import React, { useCallback, useState } from 'react'
-import { Icon } from 'react-native-elements'
+import { StyleProp, TextStyle } from 'react-native'
 import { useInit } from '~comps/hooks'
 import { useCreateReloadAccountIdsByFollower, useSelectAccountIdsByFollower, useSelectKeypair } from 'src/rtk/app/hooks'
 import { useSubstrate } from '~comps/SubstrateContext'
 import { AccountId, EntityId, SpaceId } from 'src/types/subsocial'
 import { Button, ButtonProps } from '~comps/Typography'
+import { Icon } from '~comps/Icon'
 import { LoginPrompt } from './LoginPrompt'
 import { send as sendTx } from 'src/tx'
 import { assertDefinedSoft } from 'src/util'
@@ -42,6 +43,54 @@ export type GenericFollowButtonProps = {
   unfollowTx: string
 }
 
+export type FollowButtonBaseProps = Omit<ButtonProps, 'children' | 'onPress' | 'icon'> & {
+  isFollowing: boolean
+  showIcon?: boolean
+  labelStyle?: StyleProp<TextStyle>
+  onPress: () => void
+}
+export function FollowButtonBase({
+  isFollowing,
+  showIcon,
+  labelStyle,
+  onPress,
+  ...props
+}: FollowButtonBaseProps)
+{
+  const extraProps: Partial<ButtonProps> = {
+    ...props,
+    onPress,
+  }
+  
+  // need this branch because the mere presence of the "icon" prop already alters appearance
+  if (showIcon) {
+    extraProps.icon = ({ size, color }) => {
+      return (
+        <Icon
+          family="subicon"
+          name={isFollowing ? 'followed' : 'follow'}
+          size={size}
+          color={color}
+        />
+      )
+    }
+  }
+  
+  return (
+    <Button
+      {...extraProps}
+      mode={isFollowing ? 'outlined' : 'contained'}
+      labelStyle={[
+        { fontSize: 15 },
+        showIcon && { marginLeft: 14 },
+        labelStyle
+      ]}
+    >
+      {isFollowing ? "Following" : "Follow"}
+    </Button>
+  )
+}
+
 export function FollowButton({
   targetId,
   follows,
@@ -53,7 +102,6 @@ export function FollowButton({
   onFollow,
   onUnfollow,
   showIcon = false,
-  labelStyle,
   ...props
 }: CommonFollowButtonProps & GenericFollowButtonProps)
 {
@@ -114,30 +162,15 @@ export function FollowButton({
     }
   }, [ targetId, address, unfollowTx, followTx, isFollowing, _onPress, onFollow, onUnfollow ])
   
-  const extraProps: Partial<ButtonProps> = {
-    ...props,
-    onPress,
-  }
-  
-  // need this branch because the mere presence of the "icon" prop already alters appearance
-  if (showIcon) {
-    extraProps.icon = ({ size, color }) => <Icon name="people-circle-outline" type="ionicon" {...{ size, color }} />
-  }
-  
   return (
     <>
-      <Button
-        {...extraProps}
-        mode={isFollowing ? 'outlined' : 'contained'}
-        labelStyle={[
-          { fontSize: 15 },
-          showIcon && { marginLeft: 8 },
-          labelStyle
-        ]}
+      <FollowButtonBase
+        {...props}
         loading={!initialized || isLoading}
-      >
-        {isFollowing ? "Unfollow" : "Follow"}
-      </Button>
+        isFollowing={isFollowing}
+        showIcon={showIcon}
+        onPress={onPress}
+      />
       <LoginPrompt visible={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
     </>
   )

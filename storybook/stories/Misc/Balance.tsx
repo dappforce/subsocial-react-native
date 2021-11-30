@@ -68,7 +68,7 @@ function defaultBalanceFormat(balance: BN, decimals: number, currency: string, t
   // TODO: i18n probably
   return {
     integer: balance.div(divisor).toNumber().toLocaleString('en'),
-    decimal: '0'.repeat(truncate).substr(fractional.length) + fractional.substr(0, truncate),
+    decimal: (fractional + '0'.repeat(decimals)).substr(0, truncate),
     currency,
   }
 }

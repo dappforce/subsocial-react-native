@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import Clipboard from '@react-native-community/clipboard'
 import QRCode from 'react-native-qrcode-svg'
 import Snackbar from 'react-native-snackbar'
@@ -14,8 +14,10 @@ import SubIdSvg from 'assets/subid-logo.svg'
 
 export type AddressProps = {
   id: AccountId
+  containerStyle?: StyleProp<ViewStyle>
+  walletIconContainerStyle?: StyleProp<ViewStyle>
 }
-export const Address = React.memo(({ id }: AddressProps) => {
+export const Address = React.memo(({ id, containerStyle, walletIconContainerStyle }: AddressProps) => {
   const theme = useTheme()
   const styles = useMemo(() => createStyles(theme), [ theme ])
   const [ showQR, setShowQR ] = useState(false)
@@ -23,17 +25,18 @@ export const Address = React.memo(({ id }: AddressProps) => {
   const iconSize = 20
   const rippleSize = 16
   
-  const MyIcon = useCallback(({ ...props }: IconProps) => {
+  const MyIcon = useCallback(({ size, color, containerStyle, ...props }: IconProps) => {
     return (
       <Icon
-        size={iconSize}
-        color={theme.colors.textPrimary}
-        containerStyle={styles.actionIconContainer} {...props}
+        {...props}
+        size={size ?? iconSize}
+        color={color ?? theme.colors.divider}
+        containerStyle={[styles.actionIconContainer, containerStyle, walletIconContainerStyle]}
         rippleSize={rippleSize}
         rippleBorderless={true}
       />
     )
-  }, [])
+  }, [ theme, walletIconContainerStyle ])
   
   const onCopy = useCallback(() => {
     Clipboard.setString(id)
@@ -49,14 +52,14 @@ export const Address = React.memo(({ id }: AddressProps) => {
   }, [ id ])
   
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       <View style={styles.address}>
-        <MyIcon family="ionicon" name="wallet-outline" color={theme.colors.divider} containerStyle={styles.walletIcon} />
+        <MyIcon family="subicon" name="wallet" color={theme.colors.divider} containerStyle={styles.walletIcon} />
         <Text>{truncateAddress(id)}</Text>
       </View>
       
-      <MyIcon family="ionicon" name="copy-outline" onPress={onCopy} />
-      <MyIcon family="ionicon" name="qr-code-outline" onPress={onShowQR} />
+      <MyIcon family="subicon" name="copy" onPress={onCopy} />
+      <MyIcon family="subicon" name="qr-code" onPress={onShowQR} />
       <TouchableRipple
         style={styles.actionIconContainer}
         rippleSize={rippleSize}
@@ -105,8 +108,8 @@ function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalP
     else {
       return ({ size }) => (
         <Icon
-          family="ionicon"
-          name="copy-outline"
+          family="subicon"
+          name="copy"
           size={size}
           color={theme.colors.background}
         />
@@ -172,25 +175,19 @@ const createStyles = ({ colors }: Theme) => StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
   },
   address: {
-    flex: 1,
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: 40,
-    padding: 4,
-    marginRight: 10,
-    borderColor: colors.line,
   },
   walletIcon: {
-    margin: 4,
+    marginVertical: 4,
     marginRight: 8,
+    marginLeft: 0,
   },
   actionIconContainer: {
-    marginLeft: 10,
+    marginLeft: 20,
   },
   modalContainer: {
     display: 'flex',

@@ -12,8 +12,9 @@ export type HeadProps = {
   avatar?: string
   numFollowers: number
   numFollowing: number
+  showFollowButton?: boolean
 }
-export function Head({ id, name, avatar, numFollowers, numFollowing }: HeadProps) {
+export function Head({ id, name, avatar, numFollowers, numFollowing, showFollowButton }: HeadProps) {
   const { address: myAddress } = useSelectKeypair() ?? {}
   const isMyAccount = myAddress === id
   
@@ -29,7 +30,7 @@ export function Head({ id, name, avatar, numFollowers, numFollowing }: HeadProps
       subtitle={`${numFollowers} Followers · ${numFollowing} Following`}
       avatar={avatar}
       actionMenuProps={{
-        primary: !isMyAccount ? renderPrimary : undefined
+        primary: !isMyAccount && showFollowButton ? renderPrimary : undefined
       }}
     />
   )
