@@ -96,6 +96,8 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
     
     let added: ID[] = []
     let newPage = this.state.page
+    const t0 = Date.now()
+    let warned = false
     
     while (added.length < pageSize) {
       const more = await loadMore(newPage++, pageSize)
@@ -105,6 +107,11 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
       }
       
       added.splice(added.length, 0, ...more)
+      
+      if (Date.now() - t0 > 3000 && !warned) {
+        logger.warn(`Loading new batch takes a while... (>${Date.now() - t0}ms)`)
+        warned = true
+      }
     }
     
     await loadItems(added)

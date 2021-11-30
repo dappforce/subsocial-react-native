@@ -36,6 +36,8 @@ export function Spaces({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Spa
   }, [ api, store, id ])
   
   const loadMore = useCallback<ListPropsSpec['loadMore']>(async (page, pageSize) => {
+    if (page > Math.floor(ids.length / pageSize)) return false
+    
     return ids.slice(page * pageSize, (page + 1) * pageSize)
   }, [ id, ids ])
   
