@@ -10,7 +10,7 @@ import { RefreshPayload, fetchSpacePosts } from 'src/rtk/features/spacePosts/spa
 import { useTheme } from '~comps/Theming'
 import * as Space from '../Space'
 import * as Post from '../Post'
-import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { asString } from '@subsocial/utils'
 import { assertDefinedSoft, descending } from 'src/util'
 import config from 'config.json'
@@ -70,7 +70,7 @@ function DotsamaSpacesScreen({}: DotsamaSpacesScreenProps) {
 
 type LatestPostsScreenProps = ExploreNavScreenProps<'LatestPosts'>
 function LatestPostsScreen({}: LatestPostsScreenProps) {
-  type ListProps = DynamicExpansionListProps<PostId>
+  type ListProps = InfiniteScrollListProps<PostId>
   
   const spaceIds = config.suggestedSpaces
   const { api } = useSubsocial()
@@ -106,7 +106,7 @@ function LatestPostsScreen({}: LatestPostsScreenProps) {
   }, [], [])
   
   return (
-    <DynamicExpansionList ids={loadIds} {...{renderItem, loader}} />
+    <InfiniteScrollList ids={loadIds} {...{renderItem, loader}} />
   )
 }
 

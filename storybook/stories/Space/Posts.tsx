@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native'
 import { AccountId, PostId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadPosts, useCreateReloadSpace, useFetchSpacePosts, useResolvedSpaceHandle } from 'src/rtk/app/hooks'
 import { RefreshPayload } from 'src/rtk/features/spacePosts/spacePostsSlice'
-import { DynamicExpansionList, DynamicExpansionListProps } from '../Misc/InfiniteScroll'
+import { InfiniteScrollList, InfiniteScrollListProps } from '../Misc/InfiniteScroll'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { Data } from './Data'
 import * as Post from '../Post'
@@ -18,7 +18,7 @@ export type PostsProps = {
   onPressOwner?: (postId: PostId, ownerId: AccountId) => void
 }
 export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
-  type ListSpec = DynamicExpansionListProps<PostId>
+  type ListSpec = InfiniteScrollListProps<PostId>
   
   const resolvedId = useResolvedSpaceHandle(spaceId)
   const reloadSpace = useCreateReloadSpace()
@@ -65,7 +65,7 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   
   else {
     return (
-      <DynamicExpansionList
+      <InfiniteScrollList
         ids={loadIds}
         loader={loader}
         loadInitial={loadInitial}

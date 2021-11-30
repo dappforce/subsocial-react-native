@@ -4,7 +4,7 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { Preview } from './Preview'
 import { Divider } from 'src/components/Typography'
-import { DynamicExpansionList } from '~stories/Misc/InfiniteScroll'
+import { InfiniteScrollList } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
 import { useCreateReloadSpace } from 'src/rtk/app/hooks'
 import { assertDefinedSoft } from 'src/util'
@@ -24,7 +24,7 @@ export function Suggested({ spaces }: SuggestedProps) {
   }
   
   return (
-    <DynamicExpansionList
+    <InfiniteScrollList
       ids={spaces}
       {...{ loader, renderItem }}
     />

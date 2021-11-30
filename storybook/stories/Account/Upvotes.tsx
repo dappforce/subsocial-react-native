@@ -3,7 +3,7 @@ import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
 import { AccountId, PostId } from 'src/types/subsocial'
-import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { Preview } from '../Post/Preview'
 import { default as axios } from 'axios'
 import config from 'config.json'
@@ -14,9 +14,9 @@ type OffchainResponse = {
 
 export type UpvotesProps = {
   id: AccountId
-  onScroll?: DynamicExpansionListProps<PostId>['onScroll']
-  onScrollBeginDrag?: DynamicExpansionListProps<PostId>['onScrollBeginDrag']
-  onScrollEndDrag?: DynamicExpansionListProps<PostId>['onScrollEndDrag']
+  onScroll?: InfiniteScrollListProps<PostId>['onScroll']
+  onScrollBeginDrag?: InfiniteScrollListProps<PostId>['onScrollBeginDrag']
+  onScrollEndDrag?: InfiniteScrollListProps<PostId>['onScrollEndDrag']
 }
 export function Upvotes({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: UpvotesProps) {
   const url = `${config.connections.rpc.offchain}/v1/offchain/activities/${id}/reactions`
@@ -39,7 +39,7 @@ export function Upvotes({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Up
   }, [ id ])
   
   return (
-    <DynamicExpansionList
+    <InfiniteScrollList
       ids={ids}
       loader={loader}
       renderItem={renderItem}

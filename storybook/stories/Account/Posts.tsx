@@ -6,7 +6,7 @@ import { assertDefinedSoft } from 'src/util'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { createThemedStylesHook } from '~comps/Theming'
 import { Text } from '~comps/Typography'
-import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import * as Post from '../Post'
 import config from 'config.json'
 import axios from 'axios'
@@ -21,9 +21,9 @@ type RESTResponse = {
 
 export type PostsProps = {
   id: AccountId
-  onScroll?: DynamicExpansionListProps<PostId>['onScroll']
-  onScrollBeginDrag?: DynamicExpansionListProps<PostId>['onScrollBeginDrag']
-  onScrollEndDrag?: DynamicExpansionListProps<PostId>['onScrollEndDrag']
+  onScroll?: InfiniteScrollListProps<PostId>['onScroll']
+  onScrollBeginDrag?: InfiniteScrollListProps<PostId>['onScrollBeginDrag']
+  onScrollEndDrag?: InfiniteScrollListProps<PostId>['onScrollEndDrag']
 }
 export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: PostsProps) {
   const reloadPosts = useCreateReloadPosts()
@@ -57,7 +57,7 @@ export function Posts({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Post
   
   else {
     return (
-      <DynamicExpansionList
+      <InfiniteScrollList
         ids={ids}
         loader={loader}
         renderItem={renderPost}

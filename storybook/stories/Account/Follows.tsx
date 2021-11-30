@@ -7,15 +7,15 @@ import { selectAccountIdsByFollower } from 'src/rtk/features/profiles/followedAc
 import { RootState } from 'src/rtk/app/rootReducer'
 import { Preview } from './Preview'
 import { createThemedStylesHook } from '~comps/Theming'
-import { DynamicExpansionList, DynamicExpansionListProps } from '~stories/Misc'
+import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { assertDefinedSoft } from 'src/util'
 
 export type FollowsProps = {
   id: AccountId
-  onScroll?: DynamicExpansionListProps<AccountId>['onScroll']
-  onScrollBeginDrag?: DynamicExpansionListProps<AccountId>['onScrollBeginDrag']
-  onScrollEndDrag?: DynamicExpansionListProps<AccountId>['onScrollEndDrag']
+  onScroll?: InfiniteScrollListProps<AccountId>['onScroll']
+  onScrollBeginDrag?: InfiniteScrollListProps<AccountId>['onScrollBeginDrag']
+  onScrollEndDrag?: InfiniteScrollListProps<AccountId>['onScrollEndDrag']
 }
 export function Follows({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: FollowsProps) {
   const reload = useCreateReloadAccountIdsByFollower()
@@ -48,7 +48,7 @@ export function Follows({ id, onScroll, onScrollBeginDrag, onScrollEndDrag }: Fo
   
   else {
     return (
-      <DynamicExpansionList
+      <InfiniteScrollList
         {...{
           ids,
           loader,

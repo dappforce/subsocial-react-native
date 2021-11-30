@@ -8,7 +8,7 @@ import { logger as createLogger } from '@polkadot/util'
 
 const logger = createLogger('InfiniteScroll')
 
-export interface DynamicExpansionListLoader<ID> {
+export interface InfiniteScrollListLoader<ID> {
   (): Promise<ID[]>
 }
 export interface DynamicDataLoader<ID> {
@@ -55,8 +55,8 @@ const getInitState: <ID>() => ListState<ID> = () => ({
 
 type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>
 
-export type DynamicExpansionListProps<ID> = {
-  ids: ID[] | DynamicExpansionListLoader<ID>
+export type InfiniteScrollListProps<ID> = {
+  ids: ID[] | InfiniteScrollListLoader<ID>
   loader: DynamicDataLoader<ID>
   loadInitial?: () => Promise<void>
   renderEmpty?: () => ReactElement
@@ -67,7 +67,7 @@ export type DynamicExpansionListProps<ID> = {
   onScrollBeginDrag?: (e: ScrollEvent) => void
   onScrollEndDrag?: (e: ScrollEvent) => void
 }
-export function DynamicExpansionList<ID>({
+export function InfiniteScrollList<ID>({
   ids: _ids,
   loader,
   loadInitial,
@@ -78,7 +78,7 @@ export function DynamicExpansionList<ID>({
   onScroll,
   onScrollBeginDrag,
   onScrollEndDrag,
-}: DynamicExpansionListProps<ID>)
+}: InfiniteScrollListProps<ID>)
 {
   type SectionListSpec = SectionListProps<ID>
   
