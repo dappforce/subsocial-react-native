@@ -244,14 +244,14 @@ const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => Styl
   },
   
   dataIcon: {
-    marginRight: 20,
+    marginRight: 15,
   },
   
   balanceContainer: {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 12,
   },
   balance: {
     ...fonts.secondary,

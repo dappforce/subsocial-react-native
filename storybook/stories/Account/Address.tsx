@@ -6,7 +6,7 @@ import Snackbar from 'react-native-snackbar'
 import * as Linking from 'expo-linking'
 import { Icon, IconProps } from '~comps/Icon'
 import { AccountId } from 'src/types/subsocial'
-import { Theme, useTheme } from '~comps/Theming'
+import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { TouchableRipple } from '~comps/TouchableRipple'
 import { Button, ButtonProps, Text } from '~comps/Typography'
 import { Modal } from '~stories/Misc'
@@ -16,10 +16,11 @@ export type AddressProps = {
   id: AccountId
   containerStyle?: StyleProp<ViewStyle>
   walletIconContainerStyle?: StyleProp<ViewStyle>
+  actionIconContainerStyle?: StyleProp<ViewStyle>
 }
-export const Address = React.memo(({ id, containerStyle, walletIconContainerStyle }: AddressProps) => {
+export const Address = React.memo(({ id, containerStyle, walletIconContainerStyle, actionIconContainerStyle }: AddressProps) => {
   const theme = useTheme()
-  const styles = useMemo(() => createStyles(theme), [ theme ])
+  const styles = useThemedStyles()
   const [ showQR, setShowQR ] = useState(false)
   
   const iconSize = 20
@@ -31,12 +32,12 @@ export const Address = React.memo(({ id, containerStyle, walletIconContainerStyl
         {...props}
         size={size ?? iconSize}
         color={color ?? theme.colors.divider}
-        containerStyle={[styles.actionIconContainer, containerStyle, walletIconContainerStyle]}
+        containerStyle={[styles.actionIconContainer, containerStyle]}
         rippleSize={rippleSize}
         rippleBorderless={true}
       />
     )
-  }, [ theme, walletIconContainerStyle ])
+  }, [ theme, styles ])
   
   const onCopy = useCallback(() => {
     Clipboard.setString(id)
@@ -54,12 +55,12 @@ export const Address = React.memo(({ id, containerStyle, walletIconContainerStyl
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.address}>
-        <MyIcon family="subicon" name="wallet" color={theme.colors.divider} containerStyle={styles.walletIcon} />
+        <MyIcon family="subicon" name="wallet" color={theme.colors.divider} containerStyle={[styles.walletIcon, walletIconContainerStyle]} />
         <Text>{truncateAddress(id)}</Text>
       </View>
       
-      <MyIcon family="subicon" name="copy" onPress={onCopy} />
-      <MyIcon family="subicon" name="qr-code" onPress={onShowQR} />
+      <MyIcon family="subicon" name="copy" onPress={onCopy} containerStyle={actionIconContainerStyle} />
+      <MyIcon family="subicon" name="qr-code" onPress={onShowQR} containerStyle={actionIconContainerStyle} />
       <TouchableRipple
         style={styles.actionIconContainer}
         rippleSize={rippleSize}
@@ -82,7 +83,7 @@ type AddressQRModalProps = {
   id: AccountId
   visible: boolean
   onClose: () => void
-  styles: ReturnType<typeof createStyles>
+  styles: ReturnType<typeof useThemedStyles>
   theme: Theme
 }
 function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalProps) {
@@ -170,7 +171,7 @@ function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalP
 
 const truncateAddress = (id: AccountId) => id.substr(0, 6) + '...' + id.substr(-6)
 
-const createStyles = ({ colors }: Theme) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'row',
@@ -209,4 +210,4 @@ const createStyles = ({ colors }: Theme) => StyleSheet.create({
   modalButton: {
     flex: 1,
   },
-})
+}))

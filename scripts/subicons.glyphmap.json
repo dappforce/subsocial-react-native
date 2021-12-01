@@ -2,8 +2,8 @@
   "send-tip": 59392,
   "wallet": 59393,
   "qr-code": 59394,
-  "sub-coin": 59395,
   "followed": 59396,
   "follow": 59397,
-  "copy": 59398
+  "copy": 59398,
+  "sub-coin": 59399
 }
