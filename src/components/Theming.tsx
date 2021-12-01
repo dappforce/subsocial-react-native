@@ -178,6 +178,7 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, { color
     backgroundColor: colors.scaffold,
     borderLeftColor: colors.line,
     borderLeftWidth: 3,
+    marginLeft: 6,
     ...base.code_block,
   },
   code_inline: {
@@ -188,6 +189,7 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, { color
     backgroundColor: colors.scaffold,
     borderLeftColor: colors.line,
     borderLeftWidth: 3,
+    paddingLeft: 6,
     ...base.blockquote,
   },
 })

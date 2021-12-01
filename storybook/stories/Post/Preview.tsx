@@ -98,10 +98,8 @@ export const PreviewData = React.memo(({
           secondary: renderActions
         }}
       />
-      <Pressable onPress={() => onPressMore?.(id)}>
-        <Head {...{ title, image }} preview />
-        <Body content={content} preview />
-      </Pressable>
+      <Head {...{ title, image }} preview />
+      <Body content={content} preview onPressMore={() => onPressMore?.(id)} />
       
       <Divider style={{ marginTop: 16 }} />
       

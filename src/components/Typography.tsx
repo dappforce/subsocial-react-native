@@ -7,8 +7,7 @@ import RN, { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextStyle, Vie
 import * as Linking from 'expo-linking'
 import * as Paper from 'react-native-paper'
 import * as Elements from 'react-native-elements'
-import Md, { MarkdownProps as MdProps } from 'react-native-markdown-display'
-import { createThemedStylesHook, reduceMarkdownTheme, Theme, useTheme } from './Theming'
+import { createThemedStylesHook, Theme, useTheme } from './Theming'
 
 export type TextProps = RN.TextProps & React.PropsWithChildren<{
   /** Defaults to 'primary' */
@@ -126,19 +125,6 @@ export function Link({ children: label, url, onPress, style, ...props }: LinkPro
       {label}
     </Text>
   )
-}
-
-export type MarkdownProps = MdProps & {
-  children: string
-}
-export function Markdown({ children, style, ...props }: MarkdownProps) {
-  const theme = useTheme()
-  
-  const rootstyles = useMemo(() => (
-    reduceMarkdownTheme(style ?? {}, theme)
-  ), [ style, theme ])
-  
-  return <Md {...props} style={rootstyles} mergeStyle={false}>{children}</Md>
 }
 
 type PaperChipProps = React.ComponentProps<typeof Paper.Chip>

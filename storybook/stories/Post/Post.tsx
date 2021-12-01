@@ -9,13 +9,12 @@ import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSele
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
 import { ActionMenuProps } from '~stories/Actions'
-import { Link, Markdown, Text, Title } from '~comps/Typography'
+import { Markdown } from '~stories/Misc'
+import { Link, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
-import { summarizeMd } from '@subsocial/utils'
 import { Age } from 'src/util'
 import { useInit } from '~comps/hooks'
 
-const SUMMARY_LIMIT = 200
 const IMAGE_PREVIEW_HEIGHT = 160
 
 export type PostOwnerProps = {
@@ -142,38 +141,12 @@ export type BodyProps = {
   content: string
   preview?: boolean
   previewStyle?: StyleProp<TextStyle>
+  onPressMore?: () => void
 }
-export function Body({ content, previewStyle, preview = false }: BodyProps) {
-  if (preview) {
-    const { summary, isShowMore } = summarizeAndStrip(content, { limit: SUMMARY_LIMIT })
-    
-    return (
-      <Text style={previewStyle}>
-        {summary}
-        {isShowMore && <Link mode="primary" style={{ fontFamily: 'Roboto500' }}> Read more</Link>}
-      </Text>
-    )
-  }
-  
-  else {
-    return <Markdown>{content}</Markdown>
-  }
-}
-
-type StrippedSummary = {
-  summary: string
-  isShowMore: boolean 
-}
-function summarizeAndStrip(content: string, opts?: { limit: number }): StrippedSummary {
-  let { summary, isShowMore } = summarizeMd(content, opts)
-  
-  if (summary)
-    summary = summary.replace(/(\n\r|\r\n|\n|\r)+/g, '  ')
-  
-  return {
-    summary,
-    isShowMore,
-  }
+export function Body({ content, previewStyle, onPressMore, preview = false }: BodyProps) {
+  return (
+    <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>{content}</Markdown>
+  )
 }
 
 const styles = StyleSheet.create({

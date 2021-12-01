@@ -5,12 +5,8 @@ import { SpaceId, SpaceWithSomeDetails } from 'src/types/subsocial'
 import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
-import { Header, SocialLinks as Socials, Tags } from '~stories/Misc'
+import { Header, Markdown, SocialLinks as Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowSpaceButton } from '~stories/Actions'
-import { Markdown, Text } from '~comps/Typography'
-import { summarizeMd } from '@subsocial/utils'
-
-const SUMMARY_LIMIT = 200
 
 export type DataProps = Omit<DataRawProps, 'data'> & {
   id: SpaceId
@@ -154,18 +150,15 @@ export function About({ data, preview, onPressMore: _onPressMore }: AboutProps) 
   
   if (!data?.content?.about) return null
   
-  if (preview) {
-    const {summary, isShowMore} = summarizeMd(data.content.about, { limit: SUMMARY_LIMIT })
-    
-    return (
-      <Text onPress={onPressMore} style={styles.item}>
-        {summary}
-        {isShowMore && <Text style={{fontWeight: 'bold'}}>{' '}Read more</Text>}
-      </Text>
-    )
-  }
-  
-  return <Markdown style={mdStyles}>{data!.content!.about!}</Markdown>
+  return (
+    <Markdown
+      style={mdStyles}
+      summary={preview}
+      onPressMore={onPressMore}
+    >
+      {data.content.about}
+    </Markdown>
+  )
 }
 
 const styles = StyleSheet.create({
