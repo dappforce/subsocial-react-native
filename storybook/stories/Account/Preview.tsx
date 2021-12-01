@@ -3,6 +3,7 @@ import { StyleProp, View, ViewStyle } from 'react-native'
 import { useCreateReloadProfile, useSelectProfile } from 'src/rtk/app/hooks'
 import { AccountId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
+import { getDisplayName } from './util'
 import { Head } from './Account'
 
 export type PreviewProps = {
@@ -27,7 +28,7 @@ export const Preview = React.memo(({ id, showFollowButton = true, containerStyle
     <View style={containerStyle}>
       <Head
         id={id}
-        name={data?.content?.name ?? id.toString()}
+        name={getDisplayName(data)}
         avatar={data?.content?.avatar}
         numFollowers={data?.struct?.followersCount ?? 0}
         numFollowing={data?.struct?.followingAccountsCount ?? 0}

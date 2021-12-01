@@ -1,9 +1,20 @@
 //////////////////////////////////////////////////////////////////////
 // Common & general purpose hooks
-import { DependencyList, MutableRefObject, useEffect, useRef, useState } from 'react'
+import { DependencyList, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface InitCallback {
   (isMounted: MutableRefObject<boolean>): boolean | Promise<boolean>
+}
+
+/** Like useCallback, except returns `undefined` if any item in the dependency list is falsy. */
+export function useOptionalCallback<T extends (...args: any[]) => any>(callback: T, deps: DependencyList, needed: DependencyList = deps): T | undefined {
+  return useMemo<T | undefined>(() => {
+    for (const dep of needed) {
+      if (!dep) return undefined
+    }
+    
+    return callback
+  }, deps)
 }
 
 /**

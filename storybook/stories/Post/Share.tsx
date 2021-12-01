@@ -1,68 +1,53 @@
 //////////////////////////////////////////////////////////////////////
 // Specialized action panel share item for posts
-import React, { useCallback } from 'react'
-import { Share } from 'react-native'
+import React from 'react'
 import { createPostSlug, HasTitleOrBody } from '@subsocial/utils/slugify'
-import { Panel } from '../Actions/Panel'
+import { Panel, PanelShareItemProps } from '../Actions/Panel'
 import { PostId } from 'src/types/subsocial'
 import { useSelectPost, useSelectSpace } from 'src/rtk/app/hooks'
-import Constants from 'expo-constants'
+import { useInit } from '~comps/hooks'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchPost } from 'src/rtk/features/posts/postsSlice'
+import { fetchSpace } from 'src/rtk/features/spaces/spacesSlice'
 
-export class SharePostEvent {
-  #_isDefaultPrevented = false
-  
-  constructor (public readonly postId: PostId) {}
-  
-  preventDefault() {
-    this.#_isDefaultPrevented = true
-  }
-  
-  get isDefaultPrevented() {
-    return this.#_isDefaultPrevented
-  }
-}
-
-export type SharePostActionProps = {
+export type SharePostActionProps = Omit<PanelShareItemProps, 'shareMessage' | 'shareUrl'> & {
   postId: PostId
-  onPress?: (e: SharePostEvent) => void | Promise<void>
-  onShare?: (e: SharePostEvent) => void | Promise<void>
 }
-
-export function SharePostAction({ postId, onPress: _onPress, onShare }: SharePostActionProps) {
+export function SharePostAction({ postId, ...props }: SharePostActionProps) {
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
   const data = useSelectPost(postId)
+  const spaceId = data?.post.struct.spaceId
   const space = useSelectSpace(data?.post.struct.spaceId)
   
-  const onPress = useCallback(async () => {
-    const evt = new SharePostEvent(postId)
-    await _onPress?.(evt)
+  useInit(async () => {
+    if (data && space) return true
     
-    if (!evt.isDefaultPrevented) {
-      const url = makePostUrl(space?.struct.handle, postId, data?.post.content)
-      
-      if (Constants.platform?.ios) {
-        await Share.share({
-          message: 'Check out this post on Subsocial!',
-          url,
-        })
-      }
-      else {
-        await Share.share({ message: `Check out this post on Subsocial! ${makePostUrl(space?.struct.handle, postId, data?.post.content)}`})
-      }
-      
-      await onShare?.(evt)
+    if (!data) {
+      dispatch(fetchPost({ api, id: postId }))
+      return false
     }
-  }, [ postId, space?.struct.handle ])
+    
+    if (!space && spaceId) {
+      dispatch(fetchSpace({ api, id: spaceId }))
+    }
+    
+    return true
+  }, [ postId ], [ spaceId ])
   
   return (
     <Panel.ShareItem
-      onPress={onPress}
+      {...props}
       label={data?.post.struct.sharesCount}
-      disabled={!space?.struct.handle}
+      shareMessage={data?.post.struct.isComment ? 'Check out this comment on Subsocial!' : 'Check out this post on Subsocial!'}
+      shareUrl={makePostUrl(space?.struct.handle, postId, data?.post.content)}
     />
   )
 }
 
 function makePostUrl(spaceHandle: undefined | string, postId: PostId, content: HasTitleOrBody | undefined) {
-  if (!spaceHandle || !content) throw new Error('Space handle or post content undefined')
-  return `https://app.subsocial.network/@${spaceHandle}/${createPostSlug(postId, content)}`
+  spaceHandle = spaceHandle || 'subsocial'
+  const page = content ? createPostSlug(postId, content) : postId
+  return `https://app.subsocial.network/@${spaceHandle}/${page}`
 }

@@ -8,10 +8,9 @@ import { shallowEqual } from 'react-redux'
 import { useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { useSubsocial } from '~comps/SubsocialContext'
-import { useFetchMyReactionsByPostId } from 'src/rtk/features/reactions/myPostReactionsHooks'
 import { fetchMyReactionsByPostIds, selectMyReactionsByPostIds } from 'src/rtk/features/reactions/myPostReactionsSlice'
 import { PostId } from 'src/types/subsocial'
-import { Panel } from '../Actions/Panel'
+import { Panel, PanelLikeItemProps } from '../Actions/Panel'
 import { LoginPrompt } from '~stories/Actions'
 import * as tx from 'src/tx'
 import { logger as createLogger } from '@polkadot/util'
@@ -34,13 +33,13 @@ export class LikeEvent {
   }
 }
 
-export type LikeActionProps = {
+export type LikeActionProps = Omit<PanelLikeItemProps, 'liked' | 'likesCount' | 'onPress'> & {
   postId: PostId
   onPress?: (event: LikeEvent) => void
   onLike?: (event: LikeEvent) => void
   onUnlike?: (event: LikeEvent) => void
 }
-export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike }: LikeActionProps) {
+export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...props }: LikeActionProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const keypair = useSelectKeypair()
@@ -93,6 +92,7 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike }: Like
   return (
     <>
       <Panel.LikeItem
+        {...props}
         liked={liked}
         likesCount={postData?.post.struct.upvotesCount ?? 0}
         onPress={onPress}

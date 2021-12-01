@@ -10,6 +10,7 @@ import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { TouchableRipple } from '~comps/TouchableRipple'
 import { Button, ButtonProps, Text } from '~comps/Typography'
 import { Modal } from '~stories/Misc'
+import { truncateAddress } from './util'
 import SubIdSvg from 'assets/subid-logo.svg'
 
 export type AddressProps = {
@@ -168,8 +169,6 @@ function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalP
     </Modal>
   )
 }
-
-const truncateAddress = (id: AccountId) => id.substr(0, 6) + '...' + id.substr(-6)
 
 const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
   container: {

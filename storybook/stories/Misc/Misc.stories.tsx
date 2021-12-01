@@ -35,6 +35,7 @@ storiesOf('Misc', module)
       <Markdown
         summary={boolean('Summary', false)}
         mergeStyle={boolean('Merge Style', false)}
+        onPressMore={action('onPressMore')}
       >
         {require('assets/example.md.js')}
       </Markdown>
