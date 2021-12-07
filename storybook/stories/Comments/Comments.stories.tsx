@@ -6,6 +6,9 @@ import { boolean, number } from '@storybook/addon-knobs'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 import { Comment } from './Comment'
+import { RawCommentThread } from './Thread'
+import { Text } from '~comps/Typography'
+import { DummyThreadData } from './DummyData'
 
 storiesOf('Comments', module)
   .addDecorator(getStory => (
@@ -20,6 +23,17 @@ storiesOf('Comments', module)
         onPressMore={action('onPressMore')}
         onPressProfile={action('onPressProfile')}
         preview={boolean('Preview', true)}
+      />
+    </CenterView>
+  ))
+  .add('Thread', () => (
+    <CenterView style={styles.padded}>
+      <Text>Note: These comments are fabricated for testing purposes!</Text>
+      <RawCommentThread
+        parent={DummyThreadData.parentComment}
+        replies={DummyThreadData.replies}
+        profiles={DummyThreadData.profiles}
+        containerStyle={{ padding: 20 }}
       />
     </CenterView>
   ))
