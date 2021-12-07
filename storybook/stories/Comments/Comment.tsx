@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
-import { ProfileData, PostData, PostId, AccountId } from 'src/types/subsocial'
+import { ProfileData, PostData, PostId, AccountId, PostStructWithRoot } from 'src/types/subsocial'
 import { Age } from 'src/util'
 import { useInit, useOptionalCallback } from '~comps/hooks'
 import { IpfsAvatar } from '~comps/IpfsImage'
@@ -17,6 +17,7 @@ import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
+import { Opt } from 'src/types'
 
 const log = createLogger('Comment')
 
@@ -30,21 +31,33 @@ export const Comment = React.memo(({ id, ...props }: CommentProps) => {
   const post = useSelectPost(id)
   const profileId = post?.post.struct.ownerId
   const profile = useSelectProfile(profileId)
+  const parentId = (post?.post.struct as Opt<PostStructWithRoot>)?.rootPostId
   
   useInit(async () => {
-    if (post && profile) return true
+    if (post) return true
     
     if (!post) {
       dispatch(fetchPost({ api, id, reload: true }))
-      return false
     }
+    return true
+  }, [ id ], [])
+  
+  useInit(async () => {
+    if (profile) return true
     
-    if (!profile && profileId) {
+    if (profileId) {
       dispatch(fetchProfile({ api, id: profileId, reload: true }))
+    }
+    return true
+  }, [ profileId ], [])
+
+  useInit(async () => {
+    if (parentId) {
+      dispatch(fetchPost({ api, id, reload: false }))
     }
     
     return true
-  }, [ id ], [ profileId ])
+  }, [ parentId ], [])
   
   return <CommentData {...props} post={post?.post} profile={profile} />
 })

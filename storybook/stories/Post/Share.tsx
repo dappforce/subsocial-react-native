@@ -3,13 +3,14 @@
 import React from 'react'
 import { createPostSlug, HasTitleOrBody } from '@subsocial/utils/slugify'
 import { Panel, PanelShareItemProps } from '../Actions/Panel'
-import { PostId } from 'src/types/subsocial'
+import { PostId, PostStructWithRoot } from 'src/types/subsocial'
 import { useSelectPost, useSelectSpace } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchSpace } from 'src/rtk/features/spaces/spacesSlice'
+import { Opt } from 'src/types'
 
 export type SharePostActionProps = Omit<PanelShareItemProps, 'shareMessage' | 'shareUrl'> & {
   postId: PostId
@@ -18,23 +19,33 @@ export function SharePostAction({ postId, ...props }: SharePostActionProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const data = useSelectPost(postId)
-  const spaceId = data?.post.struct.spaceId
-  const space = useSelectSpace(data?.post.struct.spaceId)
+  const parentId = (data?.post.struct as Opt<PostStructWithRoot>)?.rootPostId
+  const parentPost = useSelectPost(parentId?.toString())
+  const spaceId = parentPost?.post.struct.spaceId
+  const space = useSelectSpace(spaceId)
   
   useInit(async () => {
-    if (data && space) return true
-    
     if (!data) {
       dispatch(fetchPost({ api, id: postId }))
-      return false
     }
-    
-    if (!space && spaceId) {
-      dispatch(fetchSpace({ api, id: spaceId }))
-    }
-    
     return true
-  }, [ postId ], [ spaceId ])
+  }, [ postId ], [])
+  
+  useInit(async () => {
+    if (space) return true
+    
+    if (spaceId) {
+      dispatch(fetchSpace({ api, id: spaceId, reload: false }))
+    }
+    return true
+  }, [ spaceId ], [])
+  
+  useInit(async () => {
+    if (parentId) {
+      dispatch(fetchPost({ api, id: parentId, reload: false }))
+    }
+    return true
+  }, [ parentId ], [])
   
   return (
     <Panel.ShareItem
