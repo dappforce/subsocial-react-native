@@ -6,42 +6,47 @@ import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { shallowEqual } from 'react-redux'
 import { useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
-import { AccountId, PostData, PostId, ProfileData } from 'src/types/subsocial'
+import { PostId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
-import { Comment, CommentData } from './Comment'
+import { Comment } from './Comment'
 import { Opt } from 'src/types'
-import { selectReplyIds } from 'src/rtk/features/replies/repliesSlice'
-import { fetchPost, selectPosts } from 'src/rtk/features/posts/postsSlice'
+import { fetchPostReplyIds, selectReplyIds } from 'src/rtk/features/replies/repliesSlice'
+import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Text } from '~comps/Typography'
 
-export type CommentThreadProps = Omit<RawCommentThreadProps, 'parent' | 'replies'> & {
+export type CommentThreadProps = {
   id: Opt<PostId>
+  preview?: boolean
+  containerStyle?: StyleProp<ViewStyle>
+  threadStyle?: StyleProp<ViewStyle>
+  replyStyle?: StyleProp<ViewStyle>
 }
-export function CommentThread({ id, ...props }: CommentThreadProps) {
+export function CommentThread({ id, preview, containerStyle, threadStyle, replyStyle }: CommentThreadProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const post = useSelectPost(id)
-  const replyIds = useAppSelector<PostId[]>(
+  const replies = useAppSelector<PostId[]>(
     state => id && selectReplyIds(state, id)?.replyIds || [],
     shallowEqual
   )
-  const replies = useAppSelector<PostData[]>(state =>
-    selectPosts(state, { ids: replyIds }).map(data => data.post),
-    shallowEqual
-  )
   
-  useInit(async () => {
-    if (!id) return true
+  const postLoaded = useInit(async () => {
+    if (!id || post) return true
     
-    if (!post) {
-      dispatch(fetchPost({ api, id }))
-    }
+    await dispatch(fetchPost({ api, id }))
     return true
   }, [ id ], [])
   
-  if (!id) {
+  const repliesLoaded = useInit(async () => {
+    if (!id || replies.length) return true
+    
+    await dispatch(fetchPostReplyIds({ api, id }))
+    return true
+  }, [ id ], [])
+  
+  if (!postLoaded || !repliesLoaded) {
     return (
       <View style={styles.noid}>
         <SpanningActivityIndicator />
@@ -49,40 +54,24 @@ export function CommentThread({ id, ...props }: CommentThreadProps) {
     )
   }
   
-  else if (!post) {
-    <View style={styles.noid}>
-      <Text style={styles.notfound}>Comment not found.</Text>
-    </View>
+  else if (!id || !post) {
+    return (
+      <View style={styles.noid}>
+        <Text style={styles.notfound}>Comment not found.</Text>
+      </View>
+    )
   }
   
   else {
     return (
-      <RawCommentThread
-        {...props}
-        parent={post.post}
-        replies={replies}
-      />
+      <View style={[styles.container, containerStyle]}>
+        <Comment id={id} preview={preview} />
+        <View style={[styles.thread, threadStyle]}>
+          {replies.map(id => <Comment id={id} key={id} containerStyle={replyStyle} preview={preview} />)}
+        </View>
+      </View>
     )
   }
-}
-
-export type RawCommentThreadProps = {
-  parent: PostData
-  replies: PostData[]
-  profiles: Record<AccountId, Opt<ProfileData>>
-  containerStyle?: StyleProp<ViewStyle>
-  threadStyle?: StyleProp<ViewStyle>
-  replyStyle?: StyleProp<ViewStyle>
-}
-export function RawCommentThread({ parent, replies, profiles, containerStyle, threadStyle, replyStyle }: RawCommentThreadProps) {
-  return (
-    <View style={[styles.container, containerStyle]}>
-      <CommentData post={parent} profile={profiles[parent.struct.ownerId]} />
-      <View style={[styles.thread, threadStyle]}>
-        {replies.map(reply => <CommentData post={reply} profile={profiles[reply.struct.ownerId]} key={reply.id} containerStyle={replyStyle} />)}
-      </View>
-    </View>
-  )
 }
 
 const styles = StyleSheet.create({

@@ -6,9 +6,8 @@ import { boolean, number } from '@storybook/addon-knobs'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 import { Comment } from './Comment'
-import { RawCommentThread } from './Thread'
-import { Text } from '~comps/Typography'
-import { DummyThreadData } from './DummyData'
+import { CommentThread } from './Thread'
+import { Divider } from '~comps/Typography'
 
 storiesOf('Comments', module)
   .addDecorator(getStory => (
@@ -27,13 +26,17 @@ storiesOf('Comments', module)
     </CenterView>
   ))
   .add('Thread', () => (
-    <CenterView style={styles.padded}>
-      <Text>Note: These comments are fabricated for testing purposes!</Text>
-      <RawCommentThread
-        parent={DummyThreadData.parentComment}
-        replies={DummyThreadData.replies}
-        profiles={DummyThreadData.profiles}
-        containerStyle={{ padding: 20 }}
+    <CenterView>
+      <CommentThread
+        id={number('Root Comment ID 1', 21513) + ''}
+        preview={boolean('Preview', true)}
+        containerStyle={styles.thread}
+      />
+      <Divider />
+      <CommentThread
+        id={number('Root Comment ID 2', 21514) + ''}
+        preview={boolean('Preview', true)}
+        containerStyle={styles.thread}
       />
     </CenterView>
   ))
@@ -41,5 +44,9 @@ storiesOf('Comments', module)
 const styles = StyleSheet.create({
   padded: {
     padding: 20,
+  },
+  thread: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
   },
 })

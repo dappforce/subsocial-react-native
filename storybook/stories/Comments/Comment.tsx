@@ -67,6 +67,7 @@ export type CommentDataProps = {
   profile?: ProfileData
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
+  panelStyle?: StyleProp<ViewStyle>
   onPressMore?: () => void
   onPressProfile?: (accountId: AccountId) => void
 }
@@ -75,6 +76,7 @@ export const CommentData = React.memo(({
   profile,
   preview,
   containerStyle,
+  panelStyle,
   onPressMore,
   onPressProfile: _onPressProfile,
 }: CommentDataProps) =>
@@ -85,7 +87,7 @@ export const CommentData = React.memo(({
     if (profile) {
       _onPressProfile?.(profile.id)
     }
-  }, [ profile, _onPressProfile ], [ _onPressProfile ])
+  }, [ profile, _onPressProfile ], [])
   
   if (post && !post.struct.isComment) {
     log.warn(`Post ${post.id} is not a comment`)
@@ -120,10 +122,20 @@ export const CommentData = React.memo(({
             {post?.content?.body ?? ''}
           </Markdown>
           
-          <ActionPanel style={styles.panel}>
-            <LikeAction postId={post?.id.toString() ?? ''} containerStyle={styles.panelIcon} />
-            <ActionPanel.ReplyItem replyCount={0} onPress={() => alert('not yet implemented')} containerStyle={styles.panelIcon} />
-            <SharePostAction postId={post?.id.toString() ?? ''} containerStyle={styles.panelIcon} />
+          <ActionPanel style={[styles.panel, panelStyle]}>
+            <LikeAction
+              postId={post?.id.toString() ?? ''}
+              containerStyle={styles.panelIcon}
+            />
+            <ActionPanel.ReplyItem
+              replyCount={post?.struct.repliesCount ?? 0}
+              onPress={() => alert('not yet implemented')}
+              containerStyle={styles.panelIcon}
+            />
+            <SharePostAction
+              postId={post?.id.toString() ?? ''}
+              containerStyle={styles.panelIcon}
+            />
           </ActionPanel>
         </View>
       </View>
@@ -169,6 +181,7 @@ const useThemedStyles = createThemedStylesHook((theme) => StyleSheet.create({
   
   panel: {
     justifyContent: 'flex-start',
+    marginVertical: 15,
   },
   panelIcon: {
     marginRight: 20,
