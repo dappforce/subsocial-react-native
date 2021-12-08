@@ -28,7 +28,7 @@ export const Preview = React.memo(({ id, showFollowButton = true, containerStyle
     <View style={containerStyle}>
       <Head
         id={id}
-        name={getDisplayName(data)}
+        name={getDisplayName(id, data)}
         avatar={data?.content?.avatar}
         numFollowers={data?.struct?.followersCount ?? 0}
         numFollowing={data?.struct?.followingAccountsCount ?? 0}

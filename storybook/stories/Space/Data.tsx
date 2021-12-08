@@ -58,7 +58,7 @@ export const DataRaw = React.memo(({
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const onPressSpace = useCallback(() => {
-    const spaceId = data?.struct?.id
+    const spaceId = data?.id
     
     if (spaceId) {
       if (_onPressSpace) {
@@ -68,7 +68,7 @@ export const DataRaw = React.memo(({
         nav.push('Space', { spaceId })
       }
     }
-  }, [ data, _onPressSpace ])
+  }, [ data?.id, _onPressSpace ])
   
   return (
     <View style={[ { width: '100%' }, containerStyle ]}>

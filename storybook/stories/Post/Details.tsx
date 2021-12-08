@@ -4,14 +4,22 @@ import React from 'react'
 import { ScrollView, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useInit } from '~comps/hooks'
-import { useCreateReloadPost, useCreateReloadProfile, useCreateReloadSpace, useSelectPost } from 'src/rtk/app/hooks'
-import { PostId } from 'src/types/subsocial'
+import { fetchPost } from 'src/rtk/features/posts/postsSlice'
+import { fetchSpace } from 'src/rtk/features/spaces/spacesSlice'
+import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
+import { fetchPostReplyIds } from 'src/rtk/features/replies/repliesSlice'
+import { useSelectPost, useSelectReplyIds } from 'src/rtk/app/hooks'
+import { AccountId, PostId } from 'src/types/subsocial'
+import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
+import { SharePostAction } from './Share'
 import { Preview as SpacePreview } from '../Space/Preview'
-import { Divider } from '~comps/Typography'
-import { Panel as ActionPanel } from '../Actions'
-import { Tags } from '~stories/Misc'
+import { CommentThread } from '../Comments'
+import { Panel as ActionPanel, ShareEvent } from '../Actions'
+import { Tags } from '../Misc'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 
 export type DetailsProps = {
   id: PostId
@@ -21,28 +29,54 @@ export type DetailsProps = {
   onPressLike?: (evt: LikeEvent) => void
   onLike?: (evt: LikeEvent) => void
   onUnlike?: (evt: LikeEvent) => void
+  onPressShare?: (evt: ShareEvent) => void
+  onShare?: (evt: ShareEvent) => void
+  onPressReply?: (id: PostId) => void
+  onPressReplyOwner?: (id: AccountId) => void
 }
-export function Details({ id, containerStyle, onPressOwner, onPressSpace, onPressLike, onLike, onUnlike }: DetailsProps) {
-  const reloadPost    = useCreateReloadPost()
-  const reloadProfile = useCreateReloadProfile()
-  const reloadSpace   = useCreateReloadSpace()
+export function Details({
+  id,
+  containerStyle,
+  onPressOwner,
+  onPressSpace,
+  onPressLike,
+  onLike,
+  onUnlike,
+  onPressShare,
+  onShare,
+  onPressReply,
+  onPressReplyOwner,
+}: DetailsProps) {
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
   
   const data = useSelectPost(id)
   const { spaceId, ownerId } = data?.post?.struct ?? {}
+  const replies = useSelectReplyIds(id)
   
   useInit(async () => {
-    if (!data) {
-      reloadPost({ id })
-      return false
-    }
-    
-    await Promise.all([
-      spaceId && reloadSpace({ id: spaceId }),
-      ownerId && reloadProfile({ id: ownerId }),
-    ])
-    
+    dispatch(fetchPost({ api, id, reload: true }))
     return true
-  }, [ id ], [ spaceId, ownerId ])
+  }, [ id ], [])
+  
+  useInit(async () => {
+    if (!spaceId) return false
+    
+    dispatch(fetchSpace({ api, id: spaceId }))
+    return true
+  }, [ id ], [ spaceId ])
+  
+  useInit(async () => {
+    if (!ownerId) return false
+    
+    dispatch(fetchProfile({ api, id: ownerId, reload: true }))
+    return true
+  }, [ id ], [ ownerId ])
+  
+  const loadingReplies = !useInit(async () => {
+    await dispatch(fetchPostReplyIds({ api, id }))
+    return true
+  }, [ id ], [])
   
   if (!data) {
     return (
@@ -76,10 +110,14 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace, onPres
             onLike={onLike}
             onUnlike={onUnlike}
           />
-          <ActionPanel.ShareItem label onPress={() => alert('not yet implemented, sorry')} />
+          <SharePostAction
+            postId={id}
+            onPress={onPressShare}
+            onShare={onShare}
+          />
         </ActionPanel>
         
-        <Divider style={[{marginTop: 0, marginBottom: 20}]} />
+        <Divider style={[{ marginTop: 0, marginBottom: 20 }]} />
         
         <SpacePreview
           id={data?.post?.struct?.spaceId ?? ''}
@@ -90,7 +128,20 @@ export function Details({ id, containerStyle, onPressOwner, onPressSpace, onPres
         
         <Divider style={styles.divider} />
         
-        {/* TODO: Comments! */}
+        {loadingReplies
+        ? <View style={styles.loadingReplies}><ActivityIndicator /></View>
+        : replies.map(id => (
+            <>
+              <CommentThread
+                key={id}
+                id={id}
+                onPressReply={onPressReply}
+                onPressProfile={onPressReplyOwner}
+              />
+              <Divider style={styles.threadDivider} />
+            </>
+          ))
+        }
       </ScrollView>
     )
   }
@@ -108,6 +159,16 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   divider: {
-    marginVertical: 10,
+    marginVertical: 15,
+  },
+  threadDivider: {
+    marginVertical: 0,
+    marginBottom: 15,
+  },
+  loadingReplies: {
+    width: '100%',
+    height: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })

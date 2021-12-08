@@ -14,5 +14,5 @@ export function getDisplayName(id: AccountId | undefined, profile: ProfileData |
   
   if (profile?.content?.name) return profile.content.name
   
-  return id.substr(0, 6) + '...' + id.substr(-6)
+  return id.substring(0, 6) + '...' + id.substring(id.length - 6)
 }

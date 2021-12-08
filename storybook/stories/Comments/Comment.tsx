@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
+import { Pressable, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
 import { useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { ProfileData, PostData, PostId, AccountId, PostStructWithRoot } from 'src/types/subsocial'
 import { Age } from 'src/util'
@@ -117,12 +117,11 @@ export const CommentData = React.memo(({
             {/* TODO: Action Menu */}
           </View>
           
-          <Markdown
-            onPressMore={onPressMore}
-            summary={preview}
-          >
-            {post?.content?.body ?? ''}
-          </Markdown>
+          <Pressable onPress={onPressMore}>
+            <Markdown summary={preview}>
+              {post?.content?.body ?? ''}
+            </Markdown>
+          </Pressable>
           
           <ActionPanel style={[styles.panel, panelStyle]}>
             <LikeAction

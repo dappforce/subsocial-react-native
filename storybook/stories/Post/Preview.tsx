@@ -9,8 +9,8 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
-import { SharePostAction, SharePostEvent } from './Share'
-import { ActionMenu, Panel as ActionPanel } from '../Actions'
+import { SharePostAction } from './Share'
+import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
@@ -36,8 +36,8 @@ type PreviewDataProps = {
   onPressLike?: (evt: LikeEvent) => void
   onLike?: (evt: LikeEvent) => void
   onUnlike?: (evt: LikeEvent) => void
-  onPressShare?: (evt: SharePostEvent) => void
-  onShare?: (evt: SharePostEvent) => void
+  onPressShare?: (evt: ShareEvent) => void
+  onShare?: (evt: ShareEvent) => void
 }
 export const PreviewData = React.memo(({
   id,

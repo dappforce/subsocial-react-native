@@ -191,7 +191,7 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
   },
   divider: {
     width: '100%',
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: colors.divider,
   },
 }))
