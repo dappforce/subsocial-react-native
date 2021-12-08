@@ -3,10 +3,9 @@
 // RNP-equivalents.
 // Components here adhere to our custom extended theming.
 import React, { useMemo } from 'react'
-import RN, { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextStyle, ViewStyle } from 'react-native'
+import RN, { Falsy, GestureResponderEvent, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import * as Linking from 'expo-linking'
 import * as Paper from 'react-native-paper'
-import * as Elements from 'react-native-elements'
 import { createThemedStylesHook, Theme, useTheme } from './Theming'
 
 export type TextProps = RN.TextProps & React.PropsWithChildren<{
@@ -160,14 +159,17 @@ Chip.paperMode = {
   'outlined': 'outlined',
 } as Record<string, NonNullable<PaperChipProps['mode']>>
 
-export type DividerProps = Elements.DividerProps
-export function Divider(props: DividerProps) {
-  const { colors } = useTheme()
-  return <Elements.Divider color={colors.divider} {...props} />
+export type DividerProps = {
+  color?: string
+  style?: StyleProp<ViewStyle>
+}
+export function Divider({ color, style }: DividerProps) {
+  const styles = useThemedStyles()
+  return <View style={[styles.divider, !!color && { backgroundColor: color }, style]} />
 }
 
 
-const useThemedStyles = createThemedStylesHook(({ colors }) => ({
+const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
   span: {
     fontFamily: 'RobotoItalic',
     color: colors.primary,
@@ -186,5 +188,10 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => ({
   },
   chipLabel: {
     color: colors.textSecondary,
+  },
+  divider: {
+    width: '100%',
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.divider,
   },
 }))
