@@ -61,6 +61,7 @@ export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: 
 export function useMountState() {
   const isMounted = useRef(true)
   useEffect(() => {
+    isMounted.current = true
     return () => { isMounted.current = false }
   }, [])
   return isMounted
