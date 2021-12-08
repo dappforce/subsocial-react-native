@@ -1,12 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 // Thread of comments - uses base Comment
 // TODO: Show parent comments above active comment, similar to Twitter
-import React from 'react'
+import React, { useCallback } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { shallowEqual } from 'react-redux'
 import { useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
-import { PostId } from 'src/types/subsocial'
+import { AccountId, PostId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { Comment } from './Comment'
@@ -15,6 +15,8 @@ import { fetchPostReplyIds, selectReplyIds } from 'src/rtk/features/replies/repl
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Text } from '~comps/Typography'
+import { useNavigation } from '@react-navigation/native'
+import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 
 export type CommentThreadProps = {
   id: Opt<PostId>
@@ -22,8 +24,18 @@ export type CommentThreadProps = {
   containerStyle?: StyleProp<ViewStyle>
   threadStyle?: StyleProp<ViewStyle>
   replyStyle?: StyleProp<ViewStyle>
+  onPressReply?: (replyId: PostId) => void
+  onPressProfile?: (accountId: AccountId) => void
 }
-export function CommentThread({ id, preview, containerStyle, threadStyle, replyStyle }: CommentThreadProps) {
+export function CommentThread({
+  id,
+  preview,
+  containerStyle,
+  threadStyle,
+  replyStyle,
+  onPressReply: _onPressReply,
+  onPressProfile: _onPressProfile,
+}: CommentThreadProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const post = useSelectPost(id)
@@ -31,6 +43,25 @@ export function CommentThread({ id, preview, containerStyle, threadStyle, replyS
     state => id && selectReplyIds(state, id)?.replyIds || [],
     shallowEqual
   )
+  const nav = useNavigation<Opt<ExploreStackNavigationProp>>()
+  
+  const onPressReply = useCallback((id: PostId) => {
+    if (_onPressReply) {
+      _onPressReply(id)
+    }
+    else {
+      nav?.push?.('Comment', { commentId: id })
+    }
+  }, [ _onPressReply ])
+  
+  const onPressProfile = useCallback((id: AccountId) => {
+    if (_onPressProfile) {
+      _onPressProfile(id)
+    }
+    else {
+      nav?.push?.('Account', { accountId: id })
+    }
+  }, [ _onPressProfile ])
   
   const postLoaded = useInit(async () => {
     if (!id || post) return true
@@ -65,9 +96,23 @@ export function CommentThread({ id, preview, containerStyle, threadStyle, replyS
   else {
     return (
       <View style={[styles.container, containerStyle]}>
-        <Comment id={id} preview={preview} />
+        <Comment
+          id={id}
+          preview={preview}
+          onPressMore={() => onPressReply(id)}
+          onPressProfile={onPressProfile}
+        />
         <View style={[styles.thread, threadStyle]}>
-          {replies.map(id => <Comment id={id} key={id} containerStyle={replyStyle} preview={preview} />)}
+          {replies.map(id => (
+            <Comment
+              id={id}
+              key={id}
+              containerStyle={replyStyle}
+              preview={preview}
+              onPressMore={() => onPressReply(id)}
+              onPressProfile={onPressProfile}
+            />
+          ))}
         </View>
       </View>
     )

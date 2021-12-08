@@ -31,12 +31,16 @@ storiesOf('Comments', module)
         id={number('Root Comment ID 1', 21513) + ''}
         preview={boolean('Preview', true)}
         containerStyle={styles.thread}
-      />
+        onPressReply={action('onPressReply')}
+        onPressProfile={action('onPressProfile')}
+        />
       <Divider />
       <CommentThread
         id={number('Root Comment ID 2', 21514) + ''}
         preview={boolean('Preview', true)}
         containerStyle={styles.thread}
+        onPressReply={action('onPressReply')}
+        onPressProfile={action('onPressProfile')}
       />
     </CenterView>
   ))

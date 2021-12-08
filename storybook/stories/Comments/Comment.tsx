@@ -84,10 +84,10 @@ export const CommentData = React.memo(({
   const styles = useThemedStyles()
   
   const onPressProfile = useOptionalCallback(() => {
-    if (profile) {
-      _onPressProfile?.(profile.id)
+    if (post) {
+      _onPressProfile?.(post.struct.ownerId)
     }
-  }, [ profile, _onPressProfile ], [])
+  }, [ post?.struct.ownerId, _onPressProfile ], [])
   
   if (post && !post.struct.isComment) {
     log.warn(`Post ${post.id} is not a comment`)
