@@ -1,10 +1,19 @@
+import { Falsy } from 'react-native'
+import { shallowEqual } from 'react-redux'
 import { useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, PostStruct, PostData } from 'src/types/subsocial'
 import { upsertContent } from '../contents/contentsSlice'
 import { removePost, upsertPost } from '../posts/postsSlice'
-import { upsertReplyIdsByPostId, ReplyIdsByPostId, selectReplyIdsEntities } from './repliesSlice'
+import { upsertReplyIdsByPostId, ReplyIdsByPostId, selectReplyIdsEntities, selectReplyIds } from './repliesSlice'
 import { useActions } from 'src/rtk/app/helpers'
 import { useCreateReloadPosts } from '../posts/postsHooks'
+
+export const useSelectReplyIds = (postId: PostId | Falsy) => {
+  return useAppSelector(
+    state => postId && selectReplyIds(state, postId)?.replyIds || [],
+    shallowEqual
+  )
+}
 
 type RemoveReplyParams = {
   parentId: PostId,

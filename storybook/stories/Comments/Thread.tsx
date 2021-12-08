@@ -4,7 +4,7 @@
 import React, { useCallback } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { shallowEqual } from 'react-redux'
-import { useSelectPost } from 'src/rtk/app/hooks'
+import { useSelectPost, useSelectReplyIds } from 'src/rtk/app/hooks'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { AccountId, PostId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
@@ -17,6 +17,7 @@ import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Text } from '~comps/Typography'
 import { useNavigation } from '@react-navigation/native'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
+import { Replies } from './Replies'
 
 export type CommentThreadProps = {
   id: Opt<PostId>
@@ -39,10 +40,7 @@ export function CommentThread({
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const post = useSelectPost(id)
-  const replies = useAppSelector<PostId[]>(
-    state => id && selectReplyIds(state, id)?.replyIds || [],
-    shallowEqual
-  )
+  const replies = useSelectReplyIds(id)
   const nav = useNavigation<Opt<ExploreStackNavigationProp>>()
   
   const onPressReply = useCallback((id: PostId) => {
@@ -102,18 +100,13 @@ export function CommentThread({
           onPressMore={() => onPressReply(id)}
           onPressProfile={onPressProfile}
         />
-        <View style={[styles.thread, threadStyle]}>
-          {replies.map(id => (
-            <Comment
-              id={id}
-              key={id}
-              containerStyle={replyStyle}
-              preview={preview}
-              onPressMore={() => onPressReply(id)}
-              onPressProfile={onPressProfile}
-            />
-          ))}
-        </View>
+        <Replies
+          replies={replies}
+          containerStyle={[styles.thread, threadStyle]}
+          replyStyle={replyStyle}
+          onPressReply={onPressReply}
+          onPressProfile={onPressProfile}
+        />
       </View>
     )
   }
