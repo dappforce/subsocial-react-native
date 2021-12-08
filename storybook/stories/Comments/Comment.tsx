@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
 import { useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { ProfileData, PostData, PostId, AccountId, PostStructWithRoot } from 'src/types/subsocial'
 import { Age } from 'src/util'
@@ -70,6 +70,7 @@ export type CommentDataProps = {
   panelStyle?: StyleProp<ViewStyle>
   onPressMore?: () => void
   onPressProfile?: (accountId: AccountId) => void
+  onLayout?: ViewProps['onLayout']
 }
 export const CommentData = React.memo(({
   post,
@@ -79,6 +80,7 @@ export const CommentData = React.memo(({
   panelStyle,
   onPressMore,
   onPressProfile: _onPressProfile,
+  onLayout,
 }: CommentDataProps) =>
 {
   const styles = useThemedStyles()
@@ -101,7 +103,7 @@ export const CommentData = React.memo(({
   
   else {
     return (
-      <View style={[styles.container, containerStyle]}>
+      <View style={[styles.container, containerStyle]} onLayout={onLayout}>
         <View style={styles.left}>
           <IpfsAvatar cid={profile?.content?.avatar} onPress={onPressProfile} size={30} />
         </View>

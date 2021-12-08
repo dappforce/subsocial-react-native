@@ -1,13 +1,17 @@
-import React from 'react'
-import { StyleSheet } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { ScrollView, StyleSheet } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
 import { action } from '@storybook/addon-actions'
 import { boolean, number } from '@storybook/addon-knobs'
-import { SubsocialProvider } from '~comps/SubsocialContext'
+import { SubsocialProvider, useSubsocial } from '~comps/SubsocialContext'
 import CenterView from '../CenterView'
 import { Comment } from './Comment'
 import { CommentThread } from './Thread'
 import { Divider } from '~comps/Typography'
+import { PostId } from '@subsocial/api/flat-subsocial/dto'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
+import { fetchPostReplyIds } from 'src/rtk/features/replies/repliesSlice'
 
 storiesOf('Comments', module)
   .addDecorator(getStory => (
@@ -25,14 +29,22 @@ storiesOf('Comments', module)
       />
     </CenterView>
   ))
-  .add('Thread', () => (
-    <CenterView>
+  .add('Thread', () => <ThreadStory />)
+
+function ThreadStory({}: {}) {
+  const [ scrollRef, setScrollRef ] = useState<ScrollView | null>(null)
+  
+  return (
+    <ScrollView ref={setScrollRef}>
+      <CommentLoader comments={[ '21515', '21516', '21519' ]} />
       <CommentThread
-        id={number('Root Comment ID 1', 21513) + ''}
+        id={number('Root Comment ID 1', 21520) + ''}
         preview={boolean('Preview', true)}
         containerStyle={styles.thread}
         onPressReply={action('onPressReply')}
         onPressProfile={action('onPressProfile')}
+        hideTrail={boolean('Hide Trail', false)}
+        scrollTo={scrollRef?.scrollTo}
         />
       <Divider />
       <CommentThread
@@ -42,8 +54,24 @@ storiesOf('Comments', module)
         onPressReply={action('onPressReply')}
         onPressProfile={action('onPressProfile')}
       />
-    </CenterView>
-  ))
+    </ScrollView>
+  )
+}
+
+type CommentLoaderProps = {
+  comments: PostId[]
+}
+function CommentLoader({ comments }: CommentLoaderProps) {
+  const { api } = useSubsocial()
+  const dispatch = useAppDispatch()
+  
+  useEffect(() => {
+    dispatch(fetchPosts({ api, ids: comments }))
+    comments.forEach( id => dispatch(fetchPostReplyIds({ api, id }) ))
+  }, [ comments ])
+  
+  return null
+}
 
 const styles = StyleSheet.create({
   padded: {

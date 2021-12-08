@@ -1,10 +1,10 @@
 import { createAsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 import { isEmptyArray } from '@subsocial/utils'
 import BN from 'bn.js'
-import { CommonFetchProps, createSelectUnknownIds, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
+import { ApiArg, CommonFetchProps, createSelectUnknownIds, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from 'src/rtk/app/rootReducer'
-import { AccountId, PostId, PostWithSomeDetails } from 'src/types/subsocial'
-import { fetchPosts } from '../posts/postsSlice'
+import { AccountId, PostId, PostStructWithRoot, PostWithSomeDetails } from 'src/types/subsocial'
+import { fetchPost, fetchPosts, selectPost } from '../posts/postsSlice'
 
 export type ReplyIdsByPostId = {
   /** `id` is a parent id of replies. */
@@ -14,10 +14,9 @@ export type ReplyIdsByPostId = {
 
 export type RepliesByPostIdMap = Record<PostId, PostWithSomeDetails[]>
 
-// TODO rename to simply adapter
-const replyIdsAdapter = createEntityAdapter<ReplyIdsByPostId>()
+const adapter = createEntityAdapter<ReplyIdsByPostId>()
 
-const replyIdsSelectors = replyIdsAdapter.getSelectors<RootState>(state => state.replyIds)
+const selectors = adapter.getSelectors<RootState>(state => state.replyIds)
 
 // Rename the exports for readability in component usage
 export const {
@@ -26,12 +25,16 @@ export const {
   selectEntities: selectReplyIdsEntities,
   selectAll: selectAllReplyIds,
   selectTotal: selectTotalParentIds
-} = replyIdsSelectors
+} = selectors
 
 type Args = {}
 
 export type SelectOnePostRepliesArgs = SelectOneArgs<Args>
 export type SelectManyPostRepliesArgs = SelectManyArgs<Args>
+export type SelectReplyParentArgs = ApiArg & {
+  id: PostId
+  onlyComments?: boolean
+}
 
 type FetchManyPostRepliesArgs = CommonFetchProps & {
   id: PostId,
@@ -39,6 +42,23 @@ type FetchManyPostRepliesArgs = CommonFetchProps & {
 }
 
 const selectUnknownParentIds = createSelectUnknownIds(selectParentIds)
+
+export function selectReplyParentId (state: RootState, { id: postId, onlyComments }: SelectReplyParentArgs) {
+  const id = Object.values(state.replyIds.entities).find(reply => {
+    if (!reply) return false
+    
+    return reply.replyIds.includes(postId.toString())
+  })?.id
+  
+  if (!onlyComments) return id
+  
+  if (!id) return undefined
+  
+  const parent = selectPost(state, { id })
+  if (!parent?.post.struct.isComment) return undefined
+  
+  return id
+}
 
 export function selectManyReplyIds (state: RootState, { ids: parentIds }: SelectManyPostRepliesArgs): ReplyIdsByPostId[] {
   if (isEmptyArray(parentIds)) return []
@@ -69,9 +89,9 @@ export function selectManyReplyIds (state: RootState, { ids: parentIds }: Select
 export const fetchPostReplyIds = createAsyncThunk<ReplyIdsByPostId[], FetchManyPostRepliesArgs, ThunkApiConfig>(
   'replyIds/fetchMany',
   async (args, { getState, dispatch }) => {
-    const { id: parentId, myAddress, api } = args
+    const { id: parentId, myAddress, api, reload } = args
     
-    const parentIds = selectUnknownParentIds(getState(), [ parentId ])
+    const parentIds = reload ? [ parentId ] : selectUnknownParentIds(getState(), [ parentId ])
     if (!parentIds.length) {
       // Nothing to load: all ids are known and their replyIds are already loaded.
       return []
@@ -80,7 +100,7 @@ export const fetchPostReplyIds = createAsyncThunk<ReplyIdsByPostId[], FetchManyP
     const replyBnIds = await api.substrate.getReplyIdsByPostId(new BN(parentId))
     const replyIds = replyBnIds.map(id => id.toString())
 
-    await dispatch(fetchPosts({ api, withReactionByAccount: myAddress, ids: replyIds, withSpace: false }))
+    await dispatch(fetchPosts({ api, withReactionByAccount: myAddress, ids: replyIds, withSpace: false, reload }))
 
     return [ {
       id: parentId,
@@ -89,16 +109,19 @@ export const fetchPostReplyIds = createAsyncThunk<ReplyIdsByPostId[], FetchManyP
   }
 )
 
+// TODO: postReply = createAsyncThunk for posting own reply w/ signed tx. Also upsertOne immediately & removeOne when failed
+
 const replyIds = createSlice({
   name: 'replyIds',
-  initialState: replyIdsAdapter.getInitialState(),
+  initialState: adapter.getInitialState(),
   reducers: {
-    upsertReplyIdsByPostId: replyIdsAdapter.upsertOne,
-    removeReplyIdsByPostId: replyIdsAdapter.removeOne,
+    upsertReplyIdsByPostId: adapter.upsertOne,
+    removeReplyIdsByPostId: adapter.removeOne,
   },
   extraReducers: builder => {
-    builder.addCase(fetchPostReplyIds.fulfilled, replyIdsAdapter.upsertMany)
-  }
+      builder
+        .addCase(fetchPostReplyIds.fulfilled, adapter.upsertMany)
+    }
 })
 
 export const {
