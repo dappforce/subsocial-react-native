@@ -130,7 +130,7 @@ export const CommentData = React.memo(({
               containerStyle={styles.panelIcon}
             />
             <ActionPanel.ReplyItem
-              replyCount={post?.struct.repliesCount ?? 0}
+              replyCount={post?.struct.visibleRepliesCount ?? 0}
               onPress={() => alert('not yet implemented')}
               containerStyle={styles.panelIcon}
             />
