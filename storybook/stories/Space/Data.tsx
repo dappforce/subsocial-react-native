@@ -74,9 +74,9 @@ export const DataRaw = React.memo(({
     <View style={[ { width: '100%' }, containerStyle ]}>
       <Head {...{ titlePlaceholder, data, showFollowButton }} onPressSpace={onPressSpace} />
       
-      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} />}
-      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={{ marginBottom: 10 }} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} style={{ marginBottom: 8 }} />}
+      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.item} />}
+      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={styles.item} />}
+      {showTags    && <Tags tags={data?.content?.tags??[]} style={{ marginVertical: 10 }} />}
     </View>
   )
 })
@@ -139,9 +139,10 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
 export type AboutProps = {
   data?: SpaceWithSomeDetails
   preview: boolean
+  containerStyle?: StyleProp<ViewStyle>
   onPressMore?: (id: SpaceId) => void
 }
-export function About({ data, preview, onPressMore: _onPressMore }: AboutProps) {
+export function About({ data, preview, containerStyle, onPressMore: _onPressMore }: AboutProps) {
   const onPressMore = useCallback(() => {
     if (data?.id) {
       _onPressMore?.(data.id)
@@ -154,6 +155,7 @@ export function About({ data, preview, onPressMore: _onPressMore }: AboutProps) 
     <Markdown
       style={mdStyles}
       summary={preview}
+      containerStyle={containerStyle}
       onPressMore={onPressMore}
     >
       {data.content.about}
@@ -163,8 +165,8 @@ export function About({ data, preview, onPressMore: _onPressMore }: AboutProps) 
 
 const styles = StyleSheet.create({
   item: {
-    marginBottom: 16,
-  },
+    marginBottom: 20,
+  }
 })
 
 const mdStyles = StyleSheet.create({

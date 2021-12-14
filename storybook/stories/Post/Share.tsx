@@ -3,7 +3,7 @@
 import React from 'react'
 import { createPostSlug, HasTitleOrBody } from '@subsocial/utils/slugify'
 import { Panel, PanelShareItemProps } from '../Actions/Panel'
-import { PostId, PostStructWithRoot } from 'src/types/subsocial'
+import { CommentStruct, PostId } from 'src/types/subsocial'
 import { useSelectPost, useSelectSpace } from 'src/rtk/app/hooks'
 import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
@@ -19,9 +19,9 @@ export function SharePostAction({ postId, ...props }: SharePostActionProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   const data = useSelectPost(postId)
-  const parentId = (data?.post.struct as Opt<PostStructWithRoot>)?.rootPostId
-  const parentPost = useSelectPost(parentId?.toString())
-  const spaceId = parentPost?.post.struct.spaceId
+  const rootId = (data?.post.struct as Opt<CommentStruct>)?.rootPostId
+  const rootPost = useSelectPost(rootId?.toString())
+  const spaceId = rootPost?.post.struct.spaceId
   const space = useSelectSpace(spaceId)
   
   useInit(async () => {
@@ -41,11 +41,11 @@ export function SharePostAction({ postId, ...props }: SharePostActionProps) {
   }, [ spaceId ], [])
   
   useInit(async () => {
-    if (parentId) {
-      dispatch(fetchPost({ api, id: parentId, reload: false }))
+    if (rootId) {
+      dispatch(fetchPost({ api, id: rootId, reload: false }))
     }
     return true
-  }, [ parentId ], [])
+  }, [ rootId ], [])
   
   return (
     <Panel.ShareItem
