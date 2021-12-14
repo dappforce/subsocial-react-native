@@ -1,19 +1,20 @@
 //////////////////////////////////////////////////////////////////////
 // Main Screen consisting of Bottom Tabs navigation
-import React, { ReactNode, useMemo, useState } from 'react'
+import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { BottomTabNavigationProp, BottomTabScreenProps, createBottomTabNavigator, BottomTabBar, BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
-import { useLoadKeypair } from 'src/rtk/app/hooks'
+import { useLoadKeypair, useSelectReplyTo } from 'src/rtk/app/hooks'
 import { BottomTabHeader } from '~stories/Misc/NavHeader'
-import { MainScreenAuxContext, MainScreenAuxState, useMainScreenAux } from './MainScreenAux'
 import { ExploreScreen } from './ExploreScreen'
 import { Text } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { MyAccountDetails } from '~stories/Account'
-import { Opt } from 'src/types'
 import Elevations from 'react-native-elevation'
+import { EventListenerCallback } from '@react-navigation/native'
+import { BottomTabNavigationEventMap } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
+import { ReplyInput } from '~stories/Comments'
 
 export type Routes = {
   Home: {}
@@ -27,58 +28,73 @@ export type MainNavScreenProps<S extends keyof Routes> = BottomTabScreenProps<Ro
 
 const Tabs = createBottomTabNavigator<Routes>()
 
+type TabPressCallback = EventListenerCallback<BottomTabNavigationEventMap, 'tabPress'>
+
 export type MainScreenProps = {
   
 }
 export function MainScreen({}: MainScreenProps) {
   const theme = useTheme()
-  const [ auxComp, setAuxComp ] = useState<Opt<ReactNode>>(undefined)
-  const auxState = useMemo<Opt<MainScreenAuxState>>(() => ({
-    setAuxiliary: setAuxComp,
-    auxiliary: auxComp,
-  }), [ auxComp, setAuxComp ])
   useLoadKeypair()
   
   return (
-    <MainScreenAuxContext.Provider value={auxState}>
-      <Tabs.Navigator
-        backBehavior="history"
-        detachInactiveScreens
-        tabBar={(props) => <MainScreenTabBar {...props} />}
-        screenOptions={{
-          tabBarShowLabel: false,
-          tabBarActiveTintColor: theme.colors.primary,
-          tabBarInactiveTintColor: theme.colors.divider,
-          tabBarStyle: {
-            backgroundColor: theme.colors.backgroundMenu,
-            ...Elevations[0],
-          },
-          header: BottomTabHeader,
+    <Tabs.Navigator
+      backBehavior="history"
+      detachInactiveScreens
+      tabBar={(props) => <MainScreenTabBar {...props} />}
+      screenOptions={{
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.divider,
+        tabBarStyle: {
+          backgroundColor: theme.colors.backgroundMenu,
+          borderTopWidth: 0,
+          ...Elevations[0],
+        },
+        header: BottomTabHeader,
+      }}
+    >
+      <Tabs.Screen
+        name="Home"
+        component={ExploreScreen}
+        options={{
+          tabBarIcon: renderHomeIcon,
+          headerShown: false,
         }}
-      >
-        <Tabs.Screen name="Home" component={ExploreScreen} options={{tabBarIcon: renderHomeIcon, headerShown: false}} />
-        <Tabs.Screen name="Search" component={TempSearchScreen} options={{tabBarIcon: renderSearchIcon}} />
-        <Tabs.Screen name="Notifications" component={TempNotifScreen} options={{tabBarIcon: renderNotifIcon}} />
-        <Tabs.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            title: 'My Profile',
-            tabBarIcon: (props) => <MyIpfsAvatar {...props} />,
-          }}
-        />
-      </Tabs.Navigator>
-    </MainScreenAuxContext.Provider>
+      />
+      <Tabs.Screen
+        name="Search"
+        component={TempSearchScreen}
+        options={{
+          tabBarIcon: renderSearchIcon,
+        }}
+      />
+      <Tabs.Screen
+        name="Notifications"
+        component={TempNotifScreen}
+        options={{
+          tabBarIcon: renderNotifIcon,
+        }}
+      />
+      <Tabs.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          title: 'My Profile',
+          tabBarIcon: (props) => <MyIpfsAvatar {...props} />,
+        }}
+      />
+    </Tabs.Navigator>
   )
 }
 
 const MainScreenTabBar = React.memo((props: BottomTabBarProps) => {
   const styles = useThemedStyles()
-  const { auxiliary } = useMainScreenAux() ?? {}
+  const replyTo = useSelectReplyTo()
   
   return (
     <View style={styles.tabBar}>
-      {auxiliary}
+      {!!replyTo && <ReplyInput postId={replyTo} />}
       <BottomTabBar {...props} />
     </View>
   )

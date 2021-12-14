@@ -1,13 +1,12 @@
 import React from 'react'
 import { Pressable, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
 import { useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
-import { ProfileData, PostData, PostId, AccountId, PostStructWithRoot } from 'src/types/subsocial'
-import { Age } from 'src/util'
+import { ProfileData, PostData, PostId, AccountId, CommentStruct } from 'src/types/subsocial'
 import { useInit, useOptionalCallback } from '~comps/hooks'
 import { IpfsAvatar } from '~comps/IpfsImage'
 import { createThemedStylesHook } from '~comps/Theming'
 import { Text } from '~comps/Typography'
-import { getDisplayName } from '~stories/Account'
+import { getDisplayName } from '~stories/Account/util'
 import { Markdown } from '~stories/Misc'
 import { Panel as ActionPanel } from '~stories/Actions'
 import { LikeAction } from '~stories/Post/Likes'
@@ -18,6 +17,7 @@ import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Opt } from 'src/types'
+import Age from 'src/util/Age'
 
 const log = createLogger('Comment')
 
@@ -31,7 +31,7 @@ export const Comment = React.memo(({ id, ...props }: CommentProps) => {
   const post = useSelectPost(id)
   const profileId = post?.post.struct.ownerId
   const profile = useSelectProfile(profileId)
-  const parentId = (post?.post.struct as Opt<PostStructWithRoot>)?.rootPostId
+  const parentId = (post?.post.struct as Opt<CommentStruct>)?.rootPostId
   
   useInit(async () => {
     if (post) return true

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { storiesOf } from '@storybook/react-native'
-import { boolean, number } from '@storybook/addon-knobs'
+import { boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import { ActionMenu, Panel } from './index'
@@ -50,7 +50,9 @@ storiesOf('Actions', module)
           onPress={action('pressReply')}
         />}
         <Panel.ShareItem
+          shareUrl={text('Share Url', 'https://subsocial.io')}
           onPress={action('pressShare')}
+          onShare={action('onShare')}
         />
       </Panel>
     </CenterView>

@@ -6,7 +6,7 @@ import { ActivityIndicator } from 'react-native-paper'
 import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
-import { useSelectPost, useSelectReplyIds } from 'src/rtk/app/hooks'
+import { useSelectPost, useSelectReplyIds, useReplyTo } from 'src/rtk/app/hooks'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchSpace } from 'src/rtk/features/spaces/spacesSlice'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
@@ -59,6 +59,8 @@ export function Details({
   const data = useSelectPost(id)
   const { spaceId, ownerId } = data?.post?.struct ?? {}
   const replies = useSelectReplyIds(id)
+  
+  useReplyTo(id)
   
   useInit(async () => {
     dispatch(fetchPost({ api, id, reload: true }))
