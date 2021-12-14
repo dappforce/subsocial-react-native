@@ -2,21 +2,19 @@
 // Screen with top tabs for Latest Posts & Dotsama Spaces
 import React, { useCallback, useState } from 'react'
 import { createMaterialTopTabNavigator, MaterialTopTabNavigationProp, MaterialTopTabScreenProps } from '@react-navigation/material-top-tabs'
-import { useSubsocial, useSubsocialInit } from '~comps/SubsocialContext'
+import { useSubsocial } from '~comps/SubsocialContext'
 import { PostId } from 'src/types/subsocial'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
-import { useCreateReloadPosts } from 'src/rtk/app/hooks'
 import { RefreshPayload, fetchSpacePosts } from 'src/rtk/features/spacePosts/spacePostsSlice'
+import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
 import { useTheme } from '~comps/Theming'
+import { ExploreStackNav } from '~comps/ExploreStackNav'
 import * as Space from '../Space'
 import * as Post from '../Post'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc'
+import { descending } from 'src/util/algo'
 import { asString } from '@subsocial/utils'
-import { assertDefinedSoft, descending } from 'src/util'
 import config from 'config.json'
-import { ExploreStackNav } from '~comps/ExploreStackNav'
-import { fetchPosts } from 'src/rtk/features/posts/postsSlice'
-import { Text } from '~comps/Typography'
 
 export type ExploreNavRoutes = {
   LatestPosts: {}
