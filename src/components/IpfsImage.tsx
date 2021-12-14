@@ -5,7 +5,10 @@ import React, { useEffect, useState } from 'react'
 import { Falsy, GestureResponderEvent, Image as RNImage, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image'
 import { Avatar } from 'react-native-paper'
+import { useTheme } from './Theming'
+import { Icon } from './Icon'
 import config from 'config.json'
+import { useFetchProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 
 type CID = string
 
@@ -102,3 +105,22 @@ function getScaledSize(wantW: undefined | number, realW: number, realH: number):
   
   return [wantW, wantW * realH/realW]
 }
+
+export type MyIpfsAvatarProps = IpfsAvatarProps & {
+  color?: string
+}
+
+export const MyIpfsAvatar = React.memo(({ color, size }: MyIpfsAvatarProps) => {
+  const { address } = useSelectKeypair() ?? {}
+  const theme = useTheme()
+  const profile = useSelectProfile(address)
+  const avatar = profile?.content?.avatar
+  useFetchProfile({ id: address ?? '', withContent: true })
+  
+  if (address) {
+    return <IpfsAvatar cid={avatar} size={size} />
+  }
+  else {
+    return <Icon family="ionicon" name="person-circle-outline" size={size} color={color ?? theme.colors.primary} />
+  }
+})

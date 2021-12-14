@@ -8,10 +8,9 @@ import { BottomTabHeader } from '~stories/Misc/NavHeader'
 import { ExploreScreen } from './ExploreScreen'
 import { Text } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
+import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { MyAccountDetails } from '~stories/Account'
 import { Opt } from 'src/types'
-import { useFetchProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
-import { IpfsAvatar } from '~comps/IpfsImage'
 
 export type Routes = {
   Home: {}
@@ -142,17 +141,3 @@ const renderSearchIcon = ({ color, size }: TabBarIconProps) => {
 const renderNotifIcon = ({ color, size }: TabBarIconProps) => {
   return <Icon family="ionicon" name="notifications-outline" color={color} size={size} />
 }
-
-const MyIpfsAvatar = React.memo(({ color, size }: TabBarIconProps) => {
-  const { address } = useSelectKeypair() ?? {}
-  const profile = useSelectProfile(address)
-  const avatar = profile?.content?.avatar
-  useFetchProfile({ id: address ?? '', withContent: true })
-  
-  if (address) {
-    return <IpfsAvatar cid={avatar} size={size} />
-  }
-  else {
-    return <Icon family="ionicon" name="person-circle-outline" size={size} color={color} />
-  }
-})
