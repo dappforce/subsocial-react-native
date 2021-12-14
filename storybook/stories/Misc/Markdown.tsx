@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Generic helper to render markdown text with preview option.
 import React from 'react'
-import { StyleProp, StyleSheet, TextStyle } from 'react-native'
+import { StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import Md, { MarkdownProps as MdProps } from 'react-native-markdown-display'
 import { Link, Text } from '~comps/Typography'
 import { createThemedStylesHook, reduceMarkdownTheme, Theme, useTheme } from '~comps/Theming'
@@ -13,6 +13,7 @@ export type MarkdownProps = MdProps & {
   children: string
   summary?: boolean
   summaryStyle?: StyleProp<TextStyle>
+  containerStyle?: StyleProp<ViewStyle>
   onPressMore?: () => void
 }
 export const Markdown = React.memo(({
@@ -21,6 +22,7 @@ export const Markdown = React.memo(({
   mergeStyle = false,
   style,
   summaryStyle,
+  containerStyle,
   onPressMore,
   ...props
 }: MarkdownProps) =>
@@ -32,29 +34,33 @@ export const Markdown = React.memo(({
     const { summary, isShowMore } = summarizeAndStrip(content, { limit: SUMMARY_LIMIT })
     
     return (
-      <Text style={summaryStyle} onPress={onPressMore}>
-        {summary}{' '}
-        {isShowMore && 
-        <Link
-          mode="primary"
-          style={styles.readMore}
-          onPress={onPressMore}
-        >
-          Read more
-        </Link>}
-      </Text>
+      <View style={containerStyle}>
+        <Text style={summaryStyle} onPress={onPressMore}>
+          {summary}{' '}
+          {isShowMore && 
+          <Link
+            mode="primary"
+            style={styles.readMore}
+            onPress={onPressMore}
+          >
+            Read more
+          </Link>}
+        </Text>
+      </View>
     )
   }
   
   else {
     return (
-      <Md
-        {...props}
-        style={rootstyles}
-        mergeStyle={mergeStyle}
-      >
-        {content}
-      </Md>
+      <View style={containerStyle}>
+        <Md
+          {...props}
+          style={rootstyles}
+          mergeStyle={mergeStyle}
+        >
+          {content}
+        </Md>
+      </View>
     )
   }
 })

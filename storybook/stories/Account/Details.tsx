@@ -11,8 +11,8 @@ import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { Preview } from './Preview'
-import { Balance } from '~stories/Misc'
-import { Button, Divider, Text } from '~comps/Typography'
+import { Balance, Markdown } from '~stories/Misc'
+import { Button, Divider } from '~comps/Typography'
 import { FollowAccountButton } from '~stories/Actions'
 import { DetailsHeaderProvider, useDetailsHeader } from './DetailsHeaderContext'
 import { Address } from './Address'
@@ -102,7 +102,7 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
     <View {...{style, onLayout}}>
       <Preview id={id} showFollowButton={false} />
       
-      {!!data?.content?.about && <Text style={styles.about}>{data?.content?.about}</Text>}
+      {!!data?.content?.about && <Markdown containerStyle={styles.about}>{data?.content?.about}</Markdown>}
       
       <Address id={id} walletIconContainerStyle={styles.dataIcon} />
       <View style={styles.balanceContainer}>
