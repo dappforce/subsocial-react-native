@@ -5,10 +5,13 @@ import React, { useEffect, useState } from 'react'
 import { Falsy, GestureResponderEvent, Image as RNImage, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image'
 import { Avatar } from 'react-native-paper'
+import { useSubsocial } from './SubsocialContext'
 import { useTheme } from './Theming'
+import { useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
 import config from 'config.json'
-import { useFetchProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 
 type CID = string
 
@@ -111,11 +114,16 @@ export type MyIpfsAvatarProps = IpfsAvatarProps & {
 }
 
 export const MyIpfsAvatar = React.memo(({ color, size }: MyIpfsAvatarProps) => {
+  const { api } = useSubsocial()
   const { address } = useSelectKeypair() ?? {}
   const theme = useTheme()
   const profile = useSelectProfile(address)
   const avatar = profile?.content?.avatar
-  useFetchProfile({ id: address ?? '', withContent: true })
+  const dispatch = useAppDispatch()
+  
+  useEffect(() => {
+    dispatch(fetchProfile({ api, id: address ?? '' }))
+  }, [ address ])
   
   if (address) {
     return <IpfsAvatar cid={avatar} size={size} />

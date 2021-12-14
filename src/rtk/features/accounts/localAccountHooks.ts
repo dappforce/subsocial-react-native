@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
-import { checkForStoredKeypair, selectHasStoredKeypair, selectKeypair } from './localAccountSlice'
+import { useInit } from '~comps/hooks'
+import { checkForStoredKeypair, loadKeypair, selectHasStoredKeypair, selectKeypair } from './localAccountSlice'
 
 export const useSelectKeypair = () => useAppSelector(selectKeypair)
 
@@ -12,4 +13,14 @@ export const useCheckForStoredKeypair = () => {
   }, [])
   
   return useAppSelector(selectHasStoredKeypair)
+}
+
+export const useLoadKeypair = () => {
+  const keypair = useSelectKeypair()
+  const dispatch = useAppDispatch()
+  
+  return useInit(async () => {
+    if (!keypair) await dispatch(loadKeypair())
+    return true
+  }, [], [])
 }

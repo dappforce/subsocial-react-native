@@ -4,13 +4,16 @@ import React, { ReactNode, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { BottomTabNavigationProp, BottomTabScreenProps, createBottomTabNavigator, BottomTabBar, BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
+import { useLoadKeypair } from 'src/rtk/app/hooks'
 import { BottomTabHeader } from '~stories/Misc/NavHeader'
+import { MainScreenAuxContext, MainScreenAuxState, useMainScreenAux } from './MainScreenAux'
 import { ExploreScreen } from './ExploreScreen'
 import { Text } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { MyAccountDetails } from '~stories/Account'
 import { Opt } from 'src/types'
+import Elevations from 'react-native-elevation'
 
 export type Routes = {
   Home: {}
@@ -21,13 +24,6 @@ export type Routes = {
 
 export type MainNavigationProp = BottomTabNavigationProp<Routes>
 export type MainNavScreenProps<S extends keyof Routes> = BottomTabScreenProps<Routes, S>
-export type MainScreenAuxState = {
-  setAuxiliary: (comp: Opt<ReactNode>) => void
-  auxiliary: Opt<ReactNode>
-}
-
-export const MainScreenAuxContext = React.createContext<Opt<MainScreenAuxState>>(undefined)
-export const useMainScreenAux = () => React.useContext(MainScreenAuxContext)
 
 const Tabs = createBottomTabNavigator<Routes>()
 
@@ -41,6 +37,7 @@ export function MainScreen({}: MainScreenProps) {
     setAuxiliary: setAuxComp,
     auxiliary: auxComp,
   }), [ auxComp, setAuxComp ])
+  useLoadKeypair()
   
   return (
     <MainScreenAuxContext.Provider value={auxState}>
@@ -54,6 +51,7 @@ export function MainScreen({}: MainScreenProps) {
           tabBarInactiveTintColor: theme.colors.divider,
           tabBarStyle: {
             backgroundColor: theme.colors.backgroundMenu,
+            ...Elevations[0],
           },
           header: BottomTabHeader,
         }}
