@@ -1,14 +1,16 @@
 //////////////////////////////////////////////////////////////////////
 // Post Details Page
 import React from 'react'
-import { ScrollView, StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { ScrollView, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { ActivityIndicator } from 'react-native-paper'
 import { useInit } from '~comps/hooks'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { useSelectPost, useSelectReplyIds } from 'src/rtk/app/hooks'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchSpace } from 'src/rtk/features/spaces/spacesSlice'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { fetchPostReplyIds } from 'src/rtk/features/replies/repliesSlice'
-import { useSelectPost, useSelectReplyIds } from 'src/rtk/app/hooks'
 import { AccountId, PostId } from 'src/types/subsocial'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner } from './Post'
@@ -18,12 +20,13 @@ import { Preview as SpacePreview } from '../Space/Preview'
 import { CommentThread } from '../Comments'
 import { Panel as ActionPanel, ShareEvent } from '../Actions'
 import { Tags } from '../Misc'
-import { useSubsocial } from '~comps/SubsocialContext'
-import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 
 export type DetailsProps = {
   id: PostId
-  containerStyle?: StyleProp<TextStyle>
+  containerStyle?: StyleProp<ViewStyle>
+  scrollerStyle?: StyleProp<ViewStyle>
+  contentContainerStyle?: StyleProp<ViewStyle>
+  commentContainerStyle?: StyleProp<ViewStyle>
   onPressOwner?: () => void
   onPressSpace?: () => void
   onPressLike?: (evt: LikeEvent) => void
@@ -37,6 +40,9 @@ export type DetailsProps = {
 export function Details({
   id,
   containerStyle,
+  scrollerStyle,
+  contentContainerStyle,
+  commentContainerStyle,
   onPressOwner,
   onPressSpace,
   onPressLike,
@@ -88,61 +94,65 @@ export function Details({
   
   else {
     return (
-      <ScrollView style={[ styles.container, containerStyle ]}>
-        <PostOwner
-          postId={id}
-          postData={data?.post}
-          {...{ onPressOwner, onPressSpace }}
-        />
-        <Head 
-          title={data?.post?.content?.title}
-          titleStyle={{ marginBottom: 0 }} // Markdown adds indents as well
-          image={data?.post?.content?.image}
-        />
-        <Body
-          content={data?.post?.content?.body ?? ''}
-        />
-        <Tags tags={data?.post?.content?.tags ?? []} />
-        <ActionPanel style={{ marginVertical: 20, justifyContent: 'space-between' }}>
-          <LikeAction
-            postId={id}
-            onPress={onPressLike}
-            onLike={onLike}
-            onUnlike={onUnlike}
-          />
-          <SharePostAction
-            postId={id}
-            onPress={onPressShare}
-            onShare={onShare}
-          />
-        </ActionPanel>
-        
-        <Divider style={[{ marginTop: 0, marginBottom: 20 }]} />
-        
-        <SpacePreview
-          id={data?.post?.struct?.spaceId ?? ''}
-          showFollowButton
-          showAbout
-          onPressSpace={onPressSpace}
-        />
-        
-        <Divider style={styles.divider} />
-        
-        {loadingReplies
-        ? <View style={styles.loadingReplies}><ActivityIndicator /></View>
-        : replies.map(id => (
-            <>
-              <CommentThread
-                key={id}
-                id={id}
-                onPressReply={onPressReply}
-                onPressProfile={onPressReplyOwner}
+      <View style={styles.container}>
+        <ScrollView style={[ styles.scroller, scrollerStyle ]}>
+          <View style={[ styles.content, contentContainerStyle ]}>
+            <PostOwner
+              postId={id}
+              postData={data?.post}
+              {...{ onPressOwner, onPressSpace }}
+            />
+            <Head 
+              title={data?.post?.content?.title}
+              titleStyle={{ marginBottom: 0 }} // Markdown adds indents as well
+              image={data?.post?.content?.image}
+            />
+            <Body
+              content={data?.post?.content?.body ?? ''}
+            />
+            <Tags tags={data?.post?.content?.tags ?? []} />
+            <ActionPanel style={{ marginVertical: 20, justifyContent: 'space-between' }}>
+              <LikeAction
+                postId={id}
+                onPress={onPressLike}
+                onLike={onLike}
+                onUnlike={onUnlike}
               />
-              <Divider style={styles.threadDivider} />
-            </>
-          ))
-        }
-      </ScrollView>
+              <SharePostAction
+                postId={id}
+                onPress={onPressShare}
+                onShare={onShare}
+              />
+            </ActionPanel>
+            
+            <Divider style={[{ marginTop: 0, marginBottom: 20 }]} />
+            
+            <SpacePreview
+              id={data?.post?.struct?.spaceId ?? ''}
+              showFollowButton
+              showAbout
+              onPressSpace={onPressSpace}
+            />
+          </View>
+          
+          <Divider style={styles.divider} />
+          
+          {loadingReplies
+          ? <View style={styles.loadingReplies}><ActivityIndicator /></View>
+          : replies.map(id => (
+              <View key={id}>
+                <CommentThread
+                  id={id}
+                  onPressReply={onPressReply}
+                  onPressProfile={onPressReplyOwner}
+                  containerStyle={[ styles.comment, commentContainerStyle ]}
+                />
+                <Divider style={styles.commentDivider} />
+              </View>
+            ))
+          }
+        </ScrollView>
+      </View>
     )
   }
 }
@@ -156,14 +166,22 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  scroller: {
+    flex: 1,
+  },
+  content: {
     padding: 20,
   },
   divider: {
-    marginVertical: 15,
-  },
-  threadDivider: {
     marginVertical: 0,
-    marginBottom: 15,
+  },
+  comment: {
+    padding: 20,
+    paddingBottom: 0,
+  },
+  commentDivider: {
+    marginVertical: 0,
   },
   loadingReplies: {
     width: '100%',
