@@ -6,7 +6,7 @@ import * as Linking from 'expo-linking'
 import { NamedLink } from '@subsocial/types'
 import { AnyIcon, IconRaw } from '~comps/Icon'
 import { useTheme } from '~comps/Theming'
-import { partition } from 'src/util'
+import { partition } from 'src/util/algo'
 
 type LinkRecord = {
   url: string

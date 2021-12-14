@@ -8,7 +8,7 @@
 // TODO: Hot cache in memory?
 import * as fs from 'expo-file-system'
 import { CommentContent, CommonContent, PostContent, ProfileContent, SharedPostContent, SpaceContent } from '@subsocial/types'
-import { pairs } from './util'
+import { pairs } from './util/algo'
 
 export type CID = string
 

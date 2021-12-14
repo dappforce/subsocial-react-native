@@ -15,7 +15,7 @@ import { InfiniteScrollList, InfiniteScrollListProps } from '../Misc/InfiniteScr
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Data } from './Data'
 import * as Post from '../Post'
-import { descending } from 'src/util'
+import { descending } from 'src/util/algo'
 
 type ListSpec = InfiniteScrollListProps<PostId>
 

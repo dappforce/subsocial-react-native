@@ -9,7 +9,7 @@ import { SubsocialApi } from '@subsocial/api'
 import { SubstrateState, useSubstrate } from './SubstrateContext'
 import { useTheme } from './Theming'
 import { Text } from './Typography'
-import { assertDefined } from 'src/util'
+import { assertDefined } from 'src/util/assert'
 import config from 'config.json'
 import { useInit } from './hooks'
 

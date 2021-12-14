@@ -21,7 +21,7 @@ import {
 } from '@polkadot/util-crypto'
 import * as SecureStore from 'expo-secure-store'
 import { Falsy } from 'react-native'
-import { assert } from 'src/util'
+import { assert } from 'src/util/assert'
 
 // Official Polkadot dev phrase & seed - DO NOT USE IN PRODUCTION, THESE ARE WELL KNOWN
 const DEV_PHRASE = 'bottom drive obey lake curtain smoke basket hold race lonely fit walk'

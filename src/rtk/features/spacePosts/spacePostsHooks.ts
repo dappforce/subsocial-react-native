@@ -3,7 +3,7 @@ import { useSubsocial } from '~comps/SubsocialContext'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { PostId, SpaceId } from 'src/types/subsocial'
 import { fetchSpacePosts, selectSpacePosts } from './spacePostsSlice'
-import { descending } from 'src/util'
+import { descending } from 'src/util/algo'
 import { shallowEqual } from 'react-redux'
 
 export function useSelectSpacePosts(spaceId?: SpaceId): PostId[] {

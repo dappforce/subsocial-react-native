@@ -10,10 +10,10 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
 import { ActionMenuProps } from '~stories/Actions'
 import { Markdown } from '~stories/Misc'
-import { Link, Text, Title } from '~comps/Typography'
+import { Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
-import { Age } from 'src/util'
 import { useInit } from '~comps/hooks'
+import Age from 'src/util/Age'
 
 const IMAGE_PREVIEW_HEIGHT = 160
 

@@ -11,7 +11,7 @@ import { Button, ButtonProps } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
 import { LoginPrompt } from './LoginPrompt'
 import { send as sendTx } from 'src/tx'
-import { assertDefinedSoft } from 'src/util'
+import { assertDefinedSoft } from 'src/util/assert'
 import { useCreateReloadSpaceIdsByFollower, useSelectSpaceIdsByFollower } from 'src/rtk/features/spaceIds/followedSpaceIdsHooks'
 
 export class FollowEvent {
