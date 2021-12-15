@@ -1,14 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 // A container view to workaround an issue in Storybook where the
 // scene view would not be resized upon showing the keyboard.
-import React, { useEffect, useMemo, useRef } from 'react'
-import { Animated, Easing, Keyboard, KeyboardEventListener, Platform, StyleProp, StyleSheet, ViewProps, ViewStyle } from 'react-native'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Keyboard, KeyboardEventListener, Platform, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
 
-export type KeyboardAdjustedViewProps = Animated.AnimatedProps<ViewProps> & {
+export type KeyboardAdjustedViewProps = ViewProps & {
   disabled?: boolean
   extraPadding?: number
-  /** On Android, duration provided in KeyboardEvent is 0, so we use this instead */
-  duration?: number
   adjustedStyle?: StyleProp<ViewStyle>
   disabledStyle?: StyleProp<ViewStyle>
 }
@@ -16,18 +14,15 @@ export type KeyboardAdjustedViewProps = Animated.AnimatedProps<ViewProps> & {
 export const KeyboardAdjustedView = React.memo(({
   children,
   disabled,
-  duration: _duration = 300,
   extraPadding = 0,
   style: _style,
   disabledStyle,
 }: KeyboardAdjustedViewProps) => {
-  const duration = useRef<number>(0)
-  const keyboardHeight = useMemo(() => new Animated.Value(0), [])
-  const padding = useMemo(() => Animated.add(keyboardHeight, extraPadding), [ extraPadding ])
+  const [ keyboardHeight, setKeyboardHeight ] = useState(0)
   const style = useMemo(() => {
-    const res: Animated.AnimatedProps<ViewProps>['style'] = [styles.container]
-    const animatedStyle: Animated.WithAnimatedObject<ViewStyle> = {
-      paddingBottom: padding
+    const res: StyleProp<ViewStyle> = [styles.container]
+    const animatedStyle: ViewStyle = {
+      paddingBottom: keyboardHeight,
     }
     
     if (disabled) {
@@ -40,27 +35,15 @@ export const KeyboardAdjustedView = React.memo(({
     res.push(_style)
     
     return res
-  }, [ disabled, _style, disabledStyle, padding ])
-  
-  useEffect(() => {
-    duration.current = _duration
-  }, [ _duration ])
+  }, [ disabled, _style, disabledStyle, keyboardHeight ])
   
   useEffect(() => {
     const onKeyboardShow: KeyboardEventListener = e => {
-      Animated.timing(keyboardHeight, {
-        duration: e.duration || duration.current,
-        toValue: e.endCoordinates.height,
-        useNativeDriver: false,
-      }).start()
+      setKeyboardHeight(e.endCoordinates.height + extraPadding)
     }
     
     const onKeyboardHide: KeyboardEventListener = e => {
-      Animated.timing(keyboardHeight, {
-        duration: e.duration || duration.current,
-        toValue: 0,
-        useNativeDriver: false,
-      }).start()
+      setKeyboardHeight(0)
     }
     
     if (Platform.OS === 'android') {
@@ -85,9 +68,9 @@ export const KeyboardAdjustedView = React.memo(({
   }, [])
   
   return (
-    <Animated.View style={style}>
+    <View style={style}>
       {children}
-    </Animated.View>
+    </View>
   )
 })
 
