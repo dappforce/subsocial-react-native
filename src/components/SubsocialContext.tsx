@@ -105,7 +105,7 @@ function stateReducer(state: SubsocialState, action: StateAction): SubsocialStat
         const api = new SubsocialApi({
           substrateApi: substrate.api!,
           ipfsNodeUrl: config.connections.ipfs,
-          offchainUrl: config.connections.ws.offchain,
+          offchainUrl: config.connections.rpc.offchain,
         })
         
         return { ...state, api, connectionState: 'CONNECTED' }
