@@ -41,6 +41,7 @@ export function Posts({ id: spaceId, onPressMore, onPressOwner }: PostsProps) {
   }, [ resolvedId ])
   
   const loadMore = useCallback<ListSpec['loadMore']>(async (page, pageSize) => {
+    if (page*pageSize >= ids.length) return undefined
     return ids.slice(page * pageSize, (page + 1) * pageSize)
   }, [ ids ])
   
