@@ -11,7 +11,7 @@ import { incClientNonce, selectKeypair } from './rtk/features/accounts/localAcco
 import { createTempId, isComment } from './util/post'
 import { asBn, getNewIdFromEvent } from './util/substrate'
 import { logger as createLogger } from '@polkadot/util'
-import store from './rtk/app/store'
+import type { AppDispatch, AppStore } from './rtk/app/store'
 
 const log = createLogger('tx')
 
@@ -35,12 +35,14 @@ export type SendArgs = {
   api: ApiPromise
   tx: string
   unsigned?: boolean
+  store: AppStore
   args?: any[] | (() => any[] | Promise<any[]>)
 }
 export async function send({
   api,
   tx,
   unsigned,
+  store,
   args = [],
 }: SendArgs): Promise<ISubmittableResult>
 {
@@ -76,11 +78,12 @@ export async function send({
 export type BuildPostArgs = (cid: string) => any[]
 export type CreatePostArgs = {
   api: SubsocialApi
+  store: AppStore
   content: CommentContent
   buildArgs: BuildPostArgs
 }
 
-export function createPost({ api, content, buildArgs }: CreatePostArgs) {
+export function createPost({ api, store, content, buildArgs }: CreatePostArgs) {
   const id = createTempId()
   
   return {
@@ -93,6 +96,7 @@ export function createPost({ api, content, buildArgs }: CreatePostArgs) {
         try {
           const result = await send({
             api: await api.substrate.api,
+            store,
             tx: 'posts.createPost',
             args: buildArgs(cid.toString()),
           })

@@ -4,8 +4,6 @@ import { boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
 import { ActionMenu, Panel } from './index'
-import { LoginPrompt } from './LoginPrompt'
-import { LogoutButton } from './LogoutButton'
 import { Button } from '~comps/Typography'
 import CenterView from '~stories/CenterView'
 import { FollowButtonBase } from './FollowButton'
@@ -55,16 +53,6 @@ storiesOf('Actions', module)
           onShare={action('onShare')}
         />
       </Panel>
-    </CenterView>
-  ))
-  .add('Login', () => (
-    <CenterView style={{display: 'flex', flexDirection: 'column'}}>
-      <ModalWrapper label="Login">
-        {(visible, setVisible) => (
-          <LoginPrompt visible={visible} onClose={() => setVisible(false)} />
-        )}
-      </ModalWrapper>
-      <LogoutButton />
     </CenterView>
   ))
 

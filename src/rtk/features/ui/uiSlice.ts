@@ -3,6 +3,7 @@ import { PostId } from 'src/types/subsocial'
 
 export type UIState = {
   replyTo?: PostId
+  prompt?: 'login' | 'unlock' | 'confirmTx'
 }
 
 const SLICE = 'ui'
@@ -21,12 +22,20 @@ const slice = createSlice({
     clearReplyTo: (state) => {
       delete state.replyTo
     },
+    setPrompt: (state, action: PayloadAction<UIState['prompt']>) => {
+      state.prompt = action.payload
+    },
+    clearPrompt: (state) => {
+      delete state.prompt
+    },
   },
 })
 
 export const {
   setReplyTo,
   clearReplyTo,
+  setPrompt,
+  clearPrompt,
 } = slice.actions
 
 export default slice.reducer

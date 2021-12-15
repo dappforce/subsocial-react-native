@@ -6,10 +6,13 @@ import { StyleProp, TextStyle } from 'react-native'
 import { useInit } from '~comps/hooks'
 import { useCreateReloadAccountIdsByFollower, useSelectAccountIdsByFollower, useSelectKeypair } from 'src/rtk/app/hooks'
 import { useSubstrate } from '~comps/SubstrateContext'
+import { useStore } from 'react-redux'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { RootState } from 'src/rtk/app/rootReducer'
+import { setPrompt } from 'src/rtk/features/ui/uiSlice'
 import { AccountId, EntityId, SpaceId } from 'src/types/subsocial'
 import { Button, ButtonProps } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
-import { LoginPrompt } from './LoginPrompt'
 import { send as sendTx } from 'src/tx'
 import { assertDefinedSoft } from 'src/util/assert'
 import { useCreateReloadSpaceIdsByFollower, useSelectSpaceIdsByFollower } from 'src/rtk/features/spaceIds/followedSpaceIdsHooks'
@@ -106,10 +109,12 @@ export function FollowButton({
 }: CommonFollowButtonProps & GenericFollowButtonProps)
 {
   const { api } = useSubstrate() ?? {}
-  const { address } = useSelectKeypair() ?? {}
+  const keypair = useSelectKeypair()
+  const address = keypair?.address
+  const store   = useStore<RootState>()
+  const dispatch = useAppDispatch()
   const isFollowing = !!address && follows.includes(targetId)
   
-  const [ showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [ isLoading, setIsLoading ] = useState(false)
   
   const initialized = useInit(async () => {
@@ -123,7 +128,11 @@ export function FollowButton({
   
   const onPress = useCallback(async () => {
     if (!address) {
-      setShowLoginPrompt(true)
+      dispatch(setPrompt('login'))
+      return
+    }
+    else if (keypair.isLocked()) {
+      dispatch(setPrompt('unlock'))
       return
     }
     
@@ -141,6 +150,7 @@ export function FollowButton({
       if (!evt.isDefaultPrevented) {
         await sendTx({
           api,
+          store,
           tx: isFollowing
             ? unfollowTx
             : followTx,
@@ -160,19 +170,16 @@ export function FollowButton({
     finally {
       setIsLoading(false)
     }
-  }, [ targetId, address, unfollowTx, followTx, isFollowing, _onPress, onFollow, onUnfollow ])
+  }, [ targetId, keypair, address, unfollowTx, followTx, isFollowing, _onPress, onFollow, onUnfollow ])
   
   return (
-    <>
-      <FollowButtonBase
-        {...props}
-        loading={!initialized || isLoading}
-        isFollowing={isFollowing}
-        showIcon={showIcon}
-        onPress={onPress}
-      />
-      <LoginPrompt visible={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
-    </>
+    <FollowButtonBase
+      {...props}
+      loading={!initialized || isLoading}
+      isFollowing={isFollowing}
+      showIcon={showIcon}
+      onPress={onPress}
+    />
   )
 }
 

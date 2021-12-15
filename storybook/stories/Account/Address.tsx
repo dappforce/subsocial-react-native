@@ -9,7 +9,7 @@ import { AccountId } from 'src/types/subsocial'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
 import { TouchableRipple } from '~comps/TouchableRipple'
 import { Button, ButtonProps, Text } from '~comps/Typography'
-import { Modal } from '~stories/Misc'
+import { Modal } from '~stories/Modals/Modal'
 import { truncateAddress } from './util'
 import SubIdSvg from 'assets/subid-logo.svg'
 

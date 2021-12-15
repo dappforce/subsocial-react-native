@@ -4,17 +4,18 @@
 // -----
 // Differs from Web App in that we only have likes, according to Figma
 import React, { useCallback, useEffect, useState } from 'react'
-import { shallowEqual } from 'react-redux'
+import { shallowEqual, useStore } from 'react-redux'
 import { useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch, useAppSelector } from 'src/rtk/app/hooksCommon'
 import { useSubsocial } from '~comps/SubsocialContext'
+import { RootState } from 'src/rtk/app/rootReducer'
 import { fetchMyReactionsByPostIds, selectMyReactionsByPostIds } from 'src/rtk/features/reactions/myPostReactionsSlice'
+import { setPrompt } from 'src/rtk/features/ui/uiSlice'
 import { PostId } from 'src/types/subsocial'
 import { Panel, PanelLikeItemProps } from '../Actions/Panel'
-import { LoginPrompt } from '~stories/Actions'
-import * as tx from 'src/tx'
 import { logger as createLogger } from '@polkadot/util'
 import { ReactionKind } from '@subsocial/types/substrate/classes'
+import * as tx from 'src/tx'
 
 const log = createLogger('Post/Likes')
 let loggedMultipleLikes = false
@@ -41,12 +42,12 @@ export type LikeActionProps = Omit<PanelLikeItemProps, 'liked' | 'likesCount' | 
 }
 export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...props }: LikeActionProps) {
   const { api } = useSubsocial()
+  const store = useStore<RootState>()
   const dispatch = useAppDispatch()
   const keypair = useSelectKeypair()
   const reactions = useSelectMyLikes(postId)
   const liked = !!reactions.length
   const postData = useSelectPost(postId)
-  const [ showLoginPrompt, setShowLoginPrompt ] = useState(false)
   
   if (reactions.length > 1 && !loggedMultipleLikes) {
     loggedMultipleLikes = true
@@ -55,7 +56,10 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...pro
   
   const onPress = useCallback(async () => {
     if (!keypair) {
-      setShowLoginPrompt(true)
+      dispatch(setPrompt('login'))
+    }
+    else if (keypair.isLocked()) {
+      dispatch(setPrompt('unlock'))
     }
     
     else {
@@ -68,6 +72,7 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...pro
         if (liked) {
           await tx.send({
             api: substrate,
+            store,
             tx: 'reactions.deletePostReaction',
             args: [ postId, reactions[0].reactionId ],
           })
@@ -76,6 +81,7 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...pro
         else {
           await tx.send({
             api: substrate,
+            store,
             tx: 'reactions.createPostReaction',
             args: [ postId, new ReactionKind('Upvote')],
           })
@@ -83,22 +89,19 @@ export function LikeAction({ postId, onPress: _onPress, onLike, onUnlike, ...pro
         }
       }
     }
-  }, [ api, postId, keypair, liked, _onPress, onLike, onUnlike, setShowLoginPrompt ])
+  }, [ api, postId, keypair, liked, _onPress, onLike, onUnlike ])
   
   useEffect(() => {
     dispatch(fetchMyReactionsByPostIds({ api, myAddress: keypair?.address, ids: [ postId ] }))
   }, [ keypair?.address ])
   
   return (
-    <>
-      <Panel.LikeItem
-        {...props}
-        liked={liked}
-        likesCount={postData?.post.struct.upvotesCount ?? 0}
-        onPress={onPress}
-      />
-      {showLoginPrompt && <LoginPrompt visible onClose={() => setShowLoginPrompt(false)} />}
-    </>
+    <Panel.LikeItem
+      {...props}
+      liked={liked}
+      likesCount={postData?.post.struct.upvotesCount ?? 0}
+      onPress={onPress}
+    />
   )
 }
 

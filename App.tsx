@@ -4,12 +4,15 @@ import React from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { NavigationContainer } from '@react-navigation/native'
+import { Provider as ReduxProvider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
 import AppLoading from 'expo-app-loading'
 import * as Linking from 'expo-linking'
 import { SubstrateProvider } from '~comps/SubstrateContext'
 import { reduceNavigationTheme, ThemeProvider } from '~comps/Theming'
-import { Provider as ReduxProvider } from 'react-redux'
+import { MainScreen } from '~stories/Screens'
+import { SubsocialProvider } from '~comps/SubsocialContext'
+import { ModalPortal } from '~stories/Modals'
 import { useFonts } from 'expo-font'
 import store from 'src/rtk/app/store'
 import StorybookUI from './storybook'
@@ -65,9 +68,13 @@ export default function(props: {}) {
       <ThemeProvider theme={theme} dark={dark}>
         <SubstrateProvider endpoint={config.connections.ws.substrate}>
           <SafeAreaProvider>
+            <ModalPortal />
             <NavigationContainer linking={linking} theme={reduceNavigationTheme(theme, dark)}>
               <StatusBar backgroundColor={theme.colors.appBar} />
               <SafeAreaView style={[ styles.container, { backgroundColor: theme.colors.background } ]}>
+                {/* <SubsocialProvider>
+                  <MainScreen />
+                </SubsocialProvider> */}
                 <StorybookUI {...props} />
               </SafeAreaView>
             </NavigationContainer>

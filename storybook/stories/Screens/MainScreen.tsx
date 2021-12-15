@@ -11,10 +11,8 @@ import { Text } from '~comps/Typography'
 import { Icon } from '~comps/Icon'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { MyAccountDetails } from '~stories/Account'
-import Elevations from 'react-native-elevation'
-import { EventListenerCallback } from '@react-navigation/native'
-import { BottomTabNavigationEventMap } from '@react-navigation/bottom-tabs/lib/typescript/src/types'
 import { ReplyInput } from '~stories/Comments'
+import Elevations from 'react-native-elevation'
 
 export type Routes = {
   Home: {}
@@ -28,13 +26,12 @@ export type MainNavScreenProps<S extends keyof Routes> = BottomTabScreenProps<Ro
 
 const Tabs = createBottomTabNavigator<Routes>()
 
-type TabPressCallback = EventListenerCallback<BottomTabNavigationEventMap, 'tabPress'>
-
 export type MainScreenProps = {
   
 }
 export function MainScreen({}: MainScreenProps) {
   const theme = useTheme()
+  const styles = useThemedStyles()
   useLoadKeypair()
   
   return (
@@ -94,7 +91,7 @@ const MainScreenTabBar = React.memo((props: BottomTabBarProps) => {
   
   return (
     <View style={styles.tabBar}>
-      {!!replyTo && <ReplyInput postId={replyTo} />}
+      {!!replyTo && <ReplyInput postId={replyTo} containerStyle={styles.replyTo} />}
       <BottomTabBar {...props} />
     </View>
   )
@@ -134,6 +131,10 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  replyTo: {
+    paddingTop: 10,
+    paddingHorizontal: 20,
   },
 }))
 

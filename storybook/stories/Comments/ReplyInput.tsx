@@ -1,31 +1,116 @@
-import React from 'react'
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { useSelectKeypair } from 'src/rtk/app/hooks'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Animated, StyleProp, StyleSheet, TextInput, TextStyle, View, ViewStyle } from 'react-native'
+import { useStore } from 'react-redux'
+import { useMyProfile, useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
+import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { RootState } from 'src/rtk/app/rootReducer'
+import { setPrompt } from 'src/rtk/features/ui/uiSlice'
+import { createComment } from 'src/tx'
 import { PostId } from 'src/types/subsocial'
-import { Icon } from '~comps/Icon'
-import { IpfsAvatar, MyIpfsAvatar } from '~comps/IpfsImage'
-import { useTheme } from '~comps/Theming'
+import { MyIpfsAvatar } from '~comps/IpfsImage'
+import { useSubsocial } from '~comps/SubsocialContext'
+import { createThemedStylesHook, useTheme } from '~comps/Theming'
+import { getDisplayName } from '~stories/Account/util'
+
+const SUMMARY_LENGTH = 120
 
 export type ReplyInputProps = {
   postId: PostId
+  containerStyle?: StyleProp<ViewStyle>
+  inputStyle?: StyleProp<TextStyle>
 }
 
-export const ReplyInput = React.memo(({ postId }: ReplyInputProps) => {
+export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: ReplyInputProps) => {
+  const { api } = useSubsocial()
+  const store = useStore<RootState>()
+  const dispatch = useAppDispatch()
   const theme = useTheme()
-  const { address } = useSelectKeypair() ?? {}
+  const styles = useThemedStyles()
+  const keypair = useSelectKeypair()
+  const address = keypair?.address
+  const post = useSelectPost(postId)
+  const myProfile = useMyProfile()
+  
+  const alpha = useMemo(() => new Animated.Value(0), [])
+  const bgc = alpha.interpolate({
+    inputRange: [0, 1],
+    outputRange: [theme.colors.input, theme.colors.background],
+  })
+  
+  const [ comment, setComment ] = useState('')
+  
+  const onFocus = useCallback(() => {
+    Animated.timing(alpha, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: false,
+    }).start()
+  }, [ alpha ])
+  
+  const onBlur = useCallback(() => {
+    Animated.timing(alpha, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: false,
+    }).start()
+  }, [ alpha ])
+  
+  const onSubmit = useCallback(() => {
+    if (!keypair) {
+      dispatch(setPrompt('login'))
+    }
+    else if (keypair.isLocked()) {
+      dispatch(setPrompt('unlock'))
+    }
+    
+    if (post) {
+      createComment({
+        api,
+        store,
+        parent: post.post.struct,
+        content: {
+          body: comment,
+          isShowMore: comment.length > SUMMARY_LENGTH,
+          summary: comment.substring(0, SUMMARY_LENGTH),
+          format: 'md',
+        },
+      })
+    }
+  }, [ keypair, post ])
   
   return (
-    <View style={styles.container}>
-      <MyIpfsAvatar size={30} color={theme.colors.divider} />
+    <View style={[styles.container, containerStyle]}>
+      <MyIpfsAvatar size={30} color={theme.colors.divider} style={styles.avatar} />
+      
+      <Animated.View style={[styles.inputContainer, { backgroundColor: bgc }]}>
+        <TextInput
+          onFocus={onFocus}
+          onBlur={onBlur}
+          placeholder={address ? 'Add comment as ' + getDisplayName(address, myProfile) : 'Please login to comment'}
+          style={[styles.input, inputStyle]}
+          blurOnSubmit
+          onChangeText={v => setComment(v)}
+          onSubmitEditing={onSubmit}
+        />
+      </Animated.View>
     </View>
   )
 })
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'row',
-    paddingTop: 10,
-    paddingHorizontal: 20,
   },
-})
+  avatar: {
+    marginRight: 10,
+  },
+  inputContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    borderRadius: 40,
+  },
+  input: {
+    width: '100%',
+  },
+}))

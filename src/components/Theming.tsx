@@ -23,6 +23,7 @@ export type Theme = {
     background: string
     backgroundMenu: string
     backgroundMenuHover: string
+    input: string
     backdrop: string
     scaffold: string
     appBar: string

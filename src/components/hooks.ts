@@ -64,5 +64,22 @@ export function useMountState() {
     isMounted.current = true
     return () => { isMounted.current = false }
   }, [])
-  return isMounted
+  return {
+    get current() { return isMounted.current },
+    /** Utility to resolve/continue Promise only if still mounted.
+     * 
+     * @example
+     * ```js
+     * const isMounted = useMountedState()
+     * 
+     * useEffect(() => {
+     *   (async() => {
+     *     const value = await someAsyncCall().then(isMounted.gate)
+     *     console.log('guaranteed to be still mounted')
+     *   })()
+     * }, [])
+     * ```
+     */
+    gate: <T>(v: T) => new Promise((resolve) => {isMounted.current && resolve(v)}),
+  }
 }

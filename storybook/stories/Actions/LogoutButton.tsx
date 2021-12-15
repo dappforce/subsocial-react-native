@@ -8,7 +8,7 @@ import Snackbar from 'react-native-snackbar'
 import { useSelectKeypair } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { forgetKeypair } from 'src/rtk/features/accounts/localAccountSlice'
-import { Modal } from '~stories/Misc/Modal'
+import { Modal } from '~stories/Modals/Modal'
 import { Button, Text } from '~comps/Typography'
 
 export type LogoutButtonProps = {

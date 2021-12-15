@@ -1,3 +1,7 @@
+//////////////////////////////////////////////////////////////////////
+// Generic base modal component building upon RN's Modal.
+// Because I didn't like the way RNP's Modal was implemented, and RNE
+// doesn't have one.
 import React, { useCallback, useMemo } from 'react'
 import { GestureResponderEvent, Modal as RNModal, ModalProps as RNModalProps, Pressable, StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import { Icon } from '~comps/Icon'

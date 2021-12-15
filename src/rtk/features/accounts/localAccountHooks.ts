@@ -28,6 +28,15 @@ export const useLoadKeypair = () => {
   }, [], [])
 }
 
+/** Convenience Hook to load & select keypair.
+ * Note: does not unlock keypair.
+ */
+export const useKeypair = () => {
+  const keypair = useSelectKeypair()
+  useLoadKeypair()
+  return keypair
+}
+
 export const useMyProfile = () => {
   const { api } = useSubsocial()
   const { address } = useSelectKeypair() ?? {}

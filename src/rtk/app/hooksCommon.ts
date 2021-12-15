@@ -4,9 +4,9 @@ import { useEffect, useRef, useState } from 'react'
 import { createSelectorHook, shallowEqual, useDispatch } from 'react-redux'
 import { useSubsocialInit } from '~comps/SubsocialContext'
 import { ApiArg, FetchManyArgs, FetchOneArgs, SelectManyArgs, SelectOneArgs, ThunkApiConfig } from 'src/rtk/app/helpers'
-import { RootState } from './rootReducer'
 import { AppDispatch } from 'src/rtk/app/store'
 import isDeepEqual from 'fast-deep-equal/es6'
+import type { RootState } from './rootReducer'
 
 const log = newLogger('useFetchEntities')
 
