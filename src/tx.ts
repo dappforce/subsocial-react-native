@@ -4,9 +4,9 @@ import { ApiPromise } from '@polkadot/api'
 import { SubmittableExtrinsic } from '@polkadot/api/types'
 import { ISubmittableResult } from '@polkadot/types/types'
 import { SubsocialApi } from '@subsocial/api'
-import { Comment, IpfsContent, OptionId } from '@subsocial/types/substrate/classes'
+import { Comment, IpfsContent, OptionId, PostExtension } from '@subsocial/types/substrate/classes'
 import { PostId as SubstratePostId } from '@subsocial/types/substrate/interfaces'
-import { PostContent, PostId, PostStruct } from './types/subsocial'
+import { CommentContent, PostId, PostStruct } from './types/subsocial'
 import { incClientNonce, selectKeypair } from './rtk/features/accounts/localAccountSlice'
 import { createTempId, isComment } from './util/post'
 import { asBn, getNewIdFromEvent } from './util/substrate'
@@ -76,7 +76,7 @@ export async function send({
 export type BuildPostArgs = (cid: string) => any[]
 export type CreatePostArgs = {
   api: SubsocialApi
-  content: PostContent
+  content: CommentContent
   buildArgs: BuildPostArgs
 }
 
@@ -126,18 +126,22 @@ export function createComment({ parent, ...args }: CreateCommentArgs) {
   })
 }
 
-function createCommentExt(parent: PostStruct): Comment {
+function createCommentExt(parent: PostStruct): PostExtension {
   if (isComment(parent)) {
-    return new Comment({
-      parent_id: new OptionId(asBn(parent.id)),
-      root_post_id: asBn(parent.rootPostId) as SubstratePostId,
+    return new PostExtension({
+      Comment: new Comment({
+        parent_id: new OptionId(asBn(parent.id)),
+        root_post_id: asBn(parent.rootPostId) as SubstratePostId,
+      })
     })
   }
   
   else {
-    return new Comment({
-      parent_id: new OptionId(),
-      root_post_id: asBn(parent.id) as SubstratePostId,
+    return new PostExtension({
+      Comment: new Comment({
+        parent_id: new OptionId(),
+        root_post_id: asBn(parent.id) as SubstratePostId,
+      })
     })
   }
 }
