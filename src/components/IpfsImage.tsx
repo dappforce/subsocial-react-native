@@ -113,7 +113,7 @@ export type MyIpfsAvatarProps = IpfsAvatarProps & {
   color?: string
 }
 
-export const MyIpfsAvatar = React.memo(({ color, size }: MyIpfsAvatarProps) => {
+export const MyIpfsAvatar = React.memo(({ color, size, style, ...props }: MyIpfsAvatarProps) => {
   const { api } = useSubsocial()
   const { address } = useSelectKeypair() ?? {}
   const theme = useTheme()
@@ -126,9 +126,13 @@ export const MyIpfsAvatar = React.memo(({ color, size }: MyIpfsAvatarProps) => {
   }, [ address ])
   
   if (address) {
-    return <IpfsAvatar cid={avatar} size={size} />
+    return <IpfsAvatar {...props} style={style} cid={avatar} size={size} />
   }
   else {
-    return <Icon family="ionicon" name="person-circle-outline" size={size} color={color ?? theme.colors.primary} />
+    return (
+      <View style={style}>
+        <Icon family="ionicon" name="person-circle-outline" size={size} color={color ?? theme.colors.primary} />
+      </View>
+    )
   }
 })
