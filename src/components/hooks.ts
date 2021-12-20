@@ -80,6 +80,6 @@ export function useMountState() {
      * }, [])
      * ```
      */
-    gate: <T>(v: T) => new Promise((resolve) => {isMounted.current && resolve(v)}),
+    gate: <T>(v: T) => new Promise<T>((resolve) => {isMounted.current && resolve(v)}),
   }
 }

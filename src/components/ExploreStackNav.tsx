@@ -10,6 +10,7 @@ import * as Space from '~stories/Space'
 import * as Post from '~stories/Post'
 import { CommentThread } from '~stories/Comments'
 import { StyleSheet } from 'react-native'
+import { useReplyTo } from 'src/rtk/app/hooks'
 
 export type ExploreRoutes = {
   Explore: { }
@@ -59,6 +60,7 @@ function PostScreen({ route }: PostScreenProps) {
 
 type CommentScreenProps = ExploreStackScreenProps<'Comment'>
 function CommentScreen({ route }: CommentScreenProps) {
+  useReplyTo(route.params.commentId)
   return <CommentThread id={route.params.commentId} containerStyle={styles.padded} />
 }
 

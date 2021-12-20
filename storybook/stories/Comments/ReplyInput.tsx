@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Animated, StyleProp, StyleSheet, TextInput, TextStyle, View, ViewStyle } from 'react-native'
 import { useStore } from 'react-redux'
+import { insertReply, replaceReply, setPrompt } from 'src/rtk/app/actions'
 import { useMyProfile, useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
-import { RootState } from 'src/rtk/app/rootReducer'
-import { setPrompt } from 'src/rtk/features/ui/uiSlice'
+import type { RootState } from 'src/rtk/app/rootReducer'
 import { createComment } from 'src/tx'
 import { PostId } from 'src/types/subsocial'
+import { useMountState } from '~comps/hooks'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
@@ -24,6 +25,7 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
   const { api } = useSubsocial()
   const store = useStore<RootState>()
   const dispatch = useAppDispatch()
+  const isMounted = useMountState()
   const theme = useTheme()
   const styles = useThemedStyles()
   const keypair = useSelectKeypair()
@@ -64,7 +66,10 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
     }
     
     if (post) {
-      createComment({
+      const {
+        tmpId,
+        id,
+      } = createComment({
         api,
         store,
         parent: post.post.struct,
@@ -75,8 +80,13 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
           format: 'md',
         },
       })
+      
+      dispatch(insertReply({ parentId: postId, postId: tmpId }))
+      id.then(isMounted.gate).then(id => {
+        dispatch(replaceReply({ parentId: postId, oldPostId: tmpId, newPostId: id }))
+      })
     }
-  }, [ keypair, post ])
+  }, [ keypair, post, postId, api, store, comment ])
   
   return (
     <View style={[styles.container, containerStyle]}>
