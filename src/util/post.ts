@@ -51,3 +51,5 @@ export function createMockStruct({ id, address, type, ...data }: MockStructArgs)
 }
 
 export const isComment = (post: PostStruct): post is CommentStruct => post.isComment
+
+export const isTempId = (id: PostId) => id.startsWith('fake-id-')

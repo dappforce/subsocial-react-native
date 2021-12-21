@@ -9,6 +9,7 @@ import { fetchMyReactionsByPostIds } from '../reactions/myPostReactionsSlice'
 import { fetchSpaces } from '../spaces/spacesSlice'
 import { selectSpaces } from 'src/rtk/features/spaces/spacesSlice'
 import BN from 'bn.js'
+import { isTempId } from 'src/util/post'
 
 const postsAdapter = createEntityAdapter<PostStruct>()
 
@@ -151,7 +152,7 @@ export const fetchPosts = createAsyncThunk<PostStruct[], FetchPostsArgs, ThunkAp
   async (args, { getState, dispatch }) => {
     const { api, ids, withReactionByAccount, withContent = true, withOwner = true, withSpace = true, reload, visibility } = args
  
-    let newIds = ids as string[]
+    let newIds = ids.filter(id => !isTempId(id+''))
 
     if (!reload) {
       newIds = selectUnknownPostIds(getState(), ids)

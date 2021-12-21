@@ -10,8 +10,7 @@ import { useInit } from '~comps/hooks'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { Comment } from './Comment'
 import { Opt } from 'src/types'
-import { fetchPostReplyIds } from 'src/rtk/features/replies/repliesSlice'
-import { fetchPost } from 'src/rtk/features/posts/postsSlice'
+import { fetchPost, fetchPostReplyIds, replaceReply } from 'src/rtk/app/actions'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { Text } from '~comps/Typography'
 import { useNavigation } from '@react-navigation/native'
@@ -115,7 +114,6 @@ export function CommentThread({
         <Comment
           id={id}
           preview={preview}
-          onPressMore={() => onPressReply(id)}
           onPressProfile={onPressProfile}
           onLayout={evt => setOffsetY(evt.nativeEvent.layout.y)}
         />

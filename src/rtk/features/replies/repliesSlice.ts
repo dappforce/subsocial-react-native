@@ -6,8 +6,11 @@ import { RootState } from 'src/rtk/app/rootReducer'
 import * as Tx from 'src/tx'
 import { AccountId, PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { fetchPost, fetchPosts, removePost, selectPost, upsertPost } from '../posts/postsSlice'
-import BN from 'bn.js'
 import { createMockStruct, MockStructArgs } from 'src/util/post'
+import { logger as createLogger } from '@polkadot/util'
+import BN from 'bn.js'
+
+const log = createLogger('repliesSlice')
 
 export type ReplyIdsByPostId = {
   /** `id` is a parent id of replies. */
@@ -155,10 +158,26 @@ const replyIds = createSlice({
       }
     },
     removeReply: (state, { payload: { parentId, postId } }: PayloadAction<ReplyPayload>) => {
+      const ntt = state.entities[parentId]
+      if (ntt) {
+        const idx = ntt.replyIds.indexOf(postId)
+        if (idx !== -1) {
+          ntt.replyIds.splice(idx, 1)
+        }
+      }
       state.entities[parentId]?.replyIds.filter(id => id !== postId)
     },
     replaceReply: (state, { payload: { parentId, oldPostId, newPostId } }: PayloadAction<ReplaceReplyPayload>) => {
-      state.entities[parentId]?.replyIds.map(id => id === oldPostId ? newPostId : id)
+      const ntt = state.entities[parentId]
+      if (ntt) {
+        const oldIdx = ntt.replyIds.indexOf(oldPostId)
+        if (oldIdx !== -1) {
+          ntt.replyIds[oldIdx] = newPostId
+        }
+        else {
+          log.debug(`Post ${parentId} does not have reply ${oldPostId}`)
+        }
+      }
     },
   },
   extraReducers: builder => {

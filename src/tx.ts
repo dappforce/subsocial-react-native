@@ -12,6 +12,7 @@ import { createTempId, isComment } from './util/post'
 import { asBn, getNewIdFromEvent } from './util/substrate'
 import { logger as createLogger } from '@polkadot/util'
 import type { AppDispatch, AppStore } from './rtk/app/store'
+import type { Opt } from './types'
 
 const log = createLogger('tx')
 
@@ -37,6 +38,9 @@ export type SendArgs = {
   unsigned?: boolean
   store: AppStore
   args?: any[] | (() => any[] | Promise<any[]>)
+  onResult?: (result: ISubmittableResult) => void
+  onSuccess?: (result: ISubmittableResult) => void
+  onFailure?: (result: ISubmittableResult | Error) => void
 }
 export async function send({
   api,
@@ -44,20 +48,37 @@ export async function send({
   unsigned,
   store,
   args = [],
+  onResult,
+  onSuccess,
+  onFailure,
 }: SendArgs): Promise<ISubmittableResult>
 {
   return new Promise(async (resolve, reject) => {
+    let unsub = () => {}
     const [ pallet, method ] = tx.split('.', 2)
     const realArgs = typeof args === 'function' ? await args() : args
+    
+    const callback = handleSendResult.bind(null, {
+      onResult,
+      onSuccess: (result) => {
+        unsub()
+        onSuccess?.(result)
+        resolve(result)
+      },
+      onFailure: (result) => {
+        unsub()
+        onFailure?.(result)
+        reject(result)
+      },
+    })
     
     const extrinsic = api.tx[pallet]?.[method]?.(...realArgs)
     if (!extrinsic)
       return reject(new Error(`Unknown ${pallet}/${method} extrinsic`))
     
     if (unsigned) {
-      extrinsic.send(callback)
+      unsub = await extrinsic.send(callback)
     }
-    
     else {
       const keypair = selectKeypair(store.getState())
       if (!keypair)
@@ -66,14 +87,76 @@ export async function send({
       // if unloaded automatically returns -1 = auto-fetch from node
       const nonce = await store.dispatch(incClientNonce()).unwrap()
       
-      extrinsic.signAndSend(keypair, { nonce }, callback)
-    }
-    
-    function callback(result: ISubmittableResult) {
-      resolve(result)
+      unsub = await extrinsic.signAndSend(keypair, { nonce }, callback)
     }
   })
 }
+
+type HandleSendResultArgs = {
+  onResult?: (result: ISubmittableResult) => void
+  onSuccess: (result: ISubmittableResult) => void
+  onFailure: (result: ISubmittableResult | Error) => void
+}
+function handleSendResult({
+  onResult,
+  onSuccess,
+  onFailure,
+}: HandleSendResultArgs, result: ISubmittableResult) {
+  onResult?.(result)
+  
+  if (!result?.status) return
+  
+  if (result.isError) {
+    return onFailure(result)
+  }
+  
+  const { status } = result
+  
+  if (status.isInBlock || status.isFinalized) {
+    const blockHash = status.isFinalized ? status.asFinalized : status.asInBlock
+    const resolution = resolveSubmittableResult(result)
+    
+    log.debug(`✔️ TX finalized/in block at hash ${blockHash.toString()}`)
+    
+    if (resolution === undefined) {
+      onFailure(new Error(`No Extrinsic result in TX ${blockHash.toString()}`))
+      return
+    }
+    
+    if (resolution) {
+      onSuccess(result)
+    }
+    else {
+      onFailure(result)
+    }
+  }
+  else {
+    log.debug(`⏱ TX status: ${status.type}`)
+  }
+}
+
+function resolveSubmittableResult(result: ISubmittableResult): Opt<boolean> {
+  let resolution: Opt<boolean> = undefined
+  function setResolution(value: boolean) {
+    if (resolution !== undefined)
+      log.warn(`Multiple Extrinsic resolutions detected, it is now ${value}`)
+    resolution = value
+  }
+  
+  result.events
+    .filter(({ event: { section }}) => section === 'system')
+    .forEach(({ event: { method }}) => {
+      if (method === 'ExtrinsicSuccess') {
+        setResolution(true)
+      }
+      else if (method === 'ExtrinsicFailed') {
+        setResolution(false)
+      }
+    })
+  
+  return resolution
+}
+
 
 export type BuildPostArgs = (cid: string) => any[]
 export type CreatePostArgs = {
@@ -94,15 +177,21 @@ export function createPost({ api, store, content, buildArgs }: CreatePostArgs) {
       
       if (cid) {
         try {
-          const result = await send({
+          await send({
             api: await api.substrate.api,
             store,
             tx: 'posts.createPost',
             args: buildArgs(cid.toString()),
+            onSuccess: (result) => {
+              const bnid = getNewIdFromEvent(result)
+              if (!bnid)
+                return reject(new Error(`Failed to extract new PostId from event`))
+              resolve(bnid.toString())
+            },
+            onFailure: (result) => {
+              reject(result)
+            },
           })
-          
-          const newId = getNewIdFromEvent(result)
-          resolve(newId.toString())
         }
         catch (err) {
           log.error(`Transaction failed: ${err}`)

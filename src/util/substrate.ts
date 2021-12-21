@@ -1,6 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Utility functions to make our lives easier when working with Substrate.
 import { ISubmittableResult } from '@polkadot/types/types'
+import type { Opt } from 'src/types'
 import BN from 'bn.js'
 
 export const asBn = (value: any): BN => BN.isBN(value) ? value : new BN(value)
@@ -18,4 +19,4 @@ export function getNewIdsFromEvent(result: ISubmittableResult): BN[] {
   }, [] as BN[])
 }
 
-export const getNewIdFromEvent = (result: ISubmittableResult) => getNewIdsFromEvent(result)[0]
+export const getNewIdFromEvent = (result: ISubmittableResult): Opt<BN> => getNewIdsFromEvent(result)[0]

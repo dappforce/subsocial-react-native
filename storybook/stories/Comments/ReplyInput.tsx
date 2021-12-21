@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Animated, StyleProp, StyleSheet, TextInput, TextStyle, View, ViewStyle } from 'react-native'
 import { useStore } from 'react-redux'
-import { insertReply, replaceReply, setPrompt } from 'src/rtk/app/actions'
+import { fetchPost, fetchPostReplyIds, insertReply, removeReply, replaceReply, setPrompt } from 'src/rtk/app/actions'
 import { useMyProfile, useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import type { RootState } from 'src/rtk/app/rootReducer'
@@ -65,11 +65,8 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
       dispatch(setPrompt('unlock'))
     }
     
-    if (post) {
-      const {
-        tmpId,
-        id,
-      } = createComment({
+    else if (post) {
+      const { tmpId, id, } = createComment({
         api,
         store,
         parent: post.post.struct,
@@ -84,6 +81,7 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
       dispatch(insertReply({ parentId: postId, postId: tmpId }))
       id.then(isMounted.gate).then(id => {
         dispatch(replaceReply({ parentId: postId, oldPostId: tmpId, newPostId: id }))
+        dispatch(fetchPost({ api, id, reload: true }))
       })
     }
   }, [ keypair, post, postId, api, store, comment ])

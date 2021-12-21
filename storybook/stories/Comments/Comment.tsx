@@ -31,7 +31,7 @@ export const Comment = React.memo(({ id, ...props }: CommentProps) => {
   const post = useSelectPost(id)
   const profileId = post?.post.struct.ownerId
   const profile = useSelectProfile(profileId)
-  const parentId = (post?.post.struct as Opt<CommentStruct>)?.rootPostId
+  const rootId = (post?.post.struct as Opt<CommentStruct>)?.rootPostId
   
   useInit(async () => {
     if (post) return true
@@ -52,12 +52,12 @@ export const Comment = React.memo(({ id, ...props }: CommentProps) => {
   }, [ profileId ], [])
 
   useInit(async () => {
-    if (parentId) {
-      dispatch(fetchPost({ api, id, reload: false }))
+    if (rootId) {
+      dispatch(fetchPost({ api, id: rootId, reload: false }))
     }
     
     return true
-  }, [ parentId ], [])
+  }, [ rootId ], [])
   
   return <CommentData {...props} post={post?.post} profile={profile} />
 })
