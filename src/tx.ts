@@ -11,7 +11,7 @@ import { incClientNonce, selectKeypair } from './rtk/features/accounts/localAcco
 import { createTempId, isComment } from './util/post'
 import { asBn, getNewIdFromEvent } from './util/substrate'
 import { logger as createLogger } from '@polkadot/util'
-import type { AppDispatch, AppStore } from './rtk/app/store'
+import type { AppStore } from './rtk/app/store'
 import type { Opt } from './types'
 
 const log = createLogger('tx')
@@ -164,47 +164,52 @@ export type CreatePostArgs = {
   store: AppStore
   content: CommentContent
   buildArgs: BuildPostArgs
+  onCreateTemporary?: (tempId: string, cid: string) => void
+  onCreatePost: (tempId: string, postId: PostId) => void
 }
 
-export function createPost({ api, store, content, buildArgs }: CreatePostArgs) {
+export async function createPost({
+  api,
+  store,
+  content,
+  buildArgs,
+  onCreateTemporary,
+  onCreatePost,
+}: CreatePostArgs)
+{
   const id = createTempId()
+  const ipfs = api.ipfs
+  const cid = await ipfs.saveComment(content)
   
-  return {
-    tmpId: id,
-    id: new Promise<PostId>(async (resolve, reject) => {
-      const ipfs = api.ipfs
-      const cid = await ipfs.saveComment(content)
-      
-      if (cid) {
-        try {
-          await send({
-            api: await api.substrate.api,
-            store,
-            tx: 'posts.createPost',
-            args: buildArgs(cid.toString()),
-            onSuccess: (result) => {
-              const bnid = getNewIdFromEvent(result)
-              if (!bnid)
-                return reject(new Error(`Failed to extract new PostId from event`))
-              resolve(bnid.toString())
-            },
-            onFailure: (result) => {
-              reject(result)
-            },
-          })
+  if (!cid) throw new Error('ipfs.saveComment returned undefined CID')
+  
+  onCreateTemporary?.(id, cid.toString())
+  
+  try {
+    await send({
+      api: await api.substrate.api,
+      store,
+      tx: 'posts.createPost',
+      args: buildArgs(cid.toString()),
+      onSuccess: (result) => {
+        const bnid = getNewIdFromEvent(result)
+        if (!bnid) {
+          log.debug('Failed to extract new PostId from result', result)
+          throw new Error('Failed to extract new PostId from event')
         }
-        catch (err) {
-          log.error(`Transaction failed: ${err}`)
-          ipfs.removeContent(cid).then(err => log.error(`Error while unpinning CID ${cid}: ${err}`))
-          reject(err)
-        }
-      }
-      
-      else {
-        log.error('ipfs.saveComment returned undefined CID')
-        reject(new Error('ipfs.saveComment returned undefined CID'))
-      }
+        
+        onCreatePost(id, bnid.toString())
+      },
+      onFailure: (result) => {
+        log.debug('createPost transaction failed with result', result)
+        throw new Error('Transaction failed')
+      },
     })
+  }
+  catch (err) {
+    ipfs.removeContent(cid).catch(err => log.error(`Error while unpinning CID ${cid}: ${err}`))
+    log.debug('Transaction failed:', err)
+    throw err
   }
 }
 

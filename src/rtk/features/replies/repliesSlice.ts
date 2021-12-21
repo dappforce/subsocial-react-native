@@ -41,11 +41,6 @@ export type SelectReplyParentArgs = {
   id: PostId
   onlyComments?: boolean
 }
-export type CreatePostReplyArgs = Tx.CreateCommentArgs & {
-  idRef?: Ref<PostId>
-  address: AccountId
-  struct?: MockStructArgs
-}
 export type ReplyPayload = {
   parentId: PostId
   postId: PostId
@@ -108,38 +103,6 @@ export const fetchPostReplyIds = createAsyncThunk<ReplyIdsByPostId[], FetchManyP
       id: parentId,
       replyIds
     } ]
-  }
-)
-
-export const createPostReply = createAsyncThunk<void, CreatePostReplyArgs, ThunkApiConfig>(
-  'replyIds/create',
-  async ({ idRef, address, struct, ...args }, { getState, dispatch }) => {
-    const { api, parent } = args
-    const { tmpId, id } = Tx.createComment(args)
-    
-    const setIdRef = (id: PostId) => {
-      if (idRef) {
-        if (typeof idRef === 'function') {
-          idRef(id)
-        }
-        else {
-          (idRef as MutableRefObject<PostId>).current = id
-        }
-      }
-    }
-    
-    // Insert temp/mock reply
-    setIdRef(tmpId)
-    const mockStruct = createMockStruct({ id: tmpId, address, type: 'comment', ...struct })
-    await dispatch(upsertPost(mockStruct))
-    await dispatch(insertReply({ parentId: parent.id, postId: tmpId }))
-    
-    // Replace temp/mock reply with on-chain data
-    const realId = await id
-    setIdRef(realId)
-    await dispatch(removePost(tmpId))
-    await dispatch(fetchPost({ api, id: realId, reload: true }))
-    await dispatch(replaceReply({ parentId: parent.id, oldPostId: tmpId, newPostId: realId }))
   }
 )
 

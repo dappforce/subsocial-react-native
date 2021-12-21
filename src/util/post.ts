@@ -21,9 +21,11 @@ export type MockStructArgs = {
   upvotesCount?: number
   downvotesCount?: number
   score?: number
+  
+  contentId?: string
 }
 
-export function createMockStruct({ id, address, type, ...data }: MockStructArgs): PostStruct {
+export function createMockStruct({ id, address, contentId, type, ...data }: MockStructArgs): PostStruct {
   return {
     id,
     ownerId: address,
@@ -32,7 +34,7 @@ export function createMockStruct({ id, address, type, ...data }: MockStructArgs)
     createdAtTime: Date.now(),
     
     hidden: false,
-    contentId: id,
+    contentId: contentId,
     isRegularPost: type === 'post',
     isSharedPost: type === 'shared',
     isComment: type === 'comment',

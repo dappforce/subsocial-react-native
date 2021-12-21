@@ -41,7 +41,7 @@ export function UnlockPrompt({ visible, onClose, modalStyle }: UnlockPromptProps
         delaySnack({ text: `Unlock wallet failed: ${(ex as Error).message}`, textColor: theme.colors.rejection })
       }
       finally {
-        if (isMounted.current) {
+        if (isMounted()) {
           setLoading(false)
         }
       }

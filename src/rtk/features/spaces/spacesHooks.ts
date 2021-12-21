@@ -94,7 +94,7 @@ export const useResolvedSpaceHandles = (ids: SpaceId[]) => {
   
   const loaded = useSubsocialInit(async (isMounted, { api }) => {
     const resolved = await resolveSpaceIds(api.substrate, ids)
-    if (isMounted.current)
+    if (isMounted())
       setResolved(resolved)
     return true
   }, ids, [])

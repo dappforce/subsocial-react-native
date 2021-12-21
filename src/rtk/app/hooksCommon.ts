@@ -58,13 +58,13 @@ export function useFetch<Args, Struct> (
       await dispatch(fetch({ ...args, api } as unknown as Args))
     }
     catch (err: any) {
-      if (isMounted.current) {
+      if (isMounted()) {
         setError(err)
         log.error(error)
       }
     }
     finally {
-      if (isMounted) {
+      if (isMounted()) {
         setLoading(false)
       }
     }

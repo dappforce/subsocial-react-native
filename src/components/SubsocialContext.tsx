@@ -145,7 +145,7 @@ export function useSubsocialEffect(
 }
 
 interface SubsocialInit {
-  (isMounted: MutableRefObject<boolean>, args: { api: SubsocialApi, substrate: ApiPromise }): boolean | Promise<boolean>
+  (isMounted: () => boolean, args: { api: SubsocialApi, substrate: ApiPromise }): boolean | Promise<boolean>
 }
 
 export function useSubsocialInit(

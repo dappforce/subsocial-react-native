@@ -1,18 +1,22 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Animated, StyleProp, StyleSheet, TextInput, TextStyle, View, ViewStyle } from 'react-native'
 import { useStore } from 'react-redux'
-import { fetchPost, fetchPostReplyIds, insertReply, removeReply, replaceReply, setPrompt } from 'src/rtk/app/actions'
+import { fetchPost, fetchPostReplyIds, insertReply, removeReply, replaceReply, setPrompt, upsertPost } from 'src/rtk/app/actions'
 import { useMyProfile, useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import type { RootState } from 'src/rtk/app/rootReducer'
 import { createComment } from 'src/tx'
 import { PostId } from 'src/types/subsocial'
+import { createMockStruct } from 'src/util/post'
+import { snack } from 'src/util/snack'
 import { useMountState } from '~comps/hooks'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { getDisplayName } from '~stories/Account/util'
+import { logger as createLogger } from '@polkadot/util'
 
+const log = createLogger('ReplyInput')
 const SUMMARY_LENGTH = 120
 
 export type ReplyInputProps = {
@@ -66,7 +70,7 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
     }
     
     else if (post) {
-      const { tmpId, id, } = createComment({
+      createComment({
         api,
         store,
         parent: post.post.struct,
@@ -76,12 +80,24 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
           summary: comment.substring(0, SUMMARY_LENGTH),
           format: 'md',
         },
+        onCreateTemporary: (tmpId, cid) => {
+          dispatch(upsertPost(createMockStruct({
+            id: tmpId,
+            address: address ?? '0',
+            type: 'comment',
+            contentId: cid,
+          })))
+          
+          dispatch(insertReply({ parentId: postId, postId: tmpId }))
+        },
+        onCreatePost: (tmpId, id) => {
+          dispatch(replaceReply({ parentId: postId, oldPostId: tmpId, newPostId: id }))
+          dispatch(fetchPost({ api, id, reload: true }))
+        }
       })
-      
-      dispatch(insertReply({ parentId: postId, postId: tmpId }))
-      id.then(isMounted.gate).then(id => {
-        dispatch(replaceReply({ parentId: postId, oldPostId: tmpId, newPostId: id }))
-        dispatch(fetchPost({ api, id, reload: true }))
+      .catch(err => {
+        snack({ text: 'Failed to post comment', textColor: theme.colors.rejection })
+        log.error('Failed to create reply', err)
       })
     }
   }, [ keypair, post, postId, api, store, comment ])

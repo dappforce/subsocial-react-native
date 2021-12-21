@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////
 // Common & general purpose hooks
-import { DependencyList, MutableRefObject, useEffect, useMemo, useRef, useState } from 'react'
+import { DependencyList, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface InitCallback {
-  (isMounted: MutableRefObject<boolean>): boolean | Promise<boolean>
+  (isMounted: () => boolean): boolean | Promise<boolean>
 }
 
 /** Like useCallback, except returns `undefined` if any item in the dependency list is falsy. */
@@ -36,7 +36,7 @@ export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: 
     if (!initialized) {
       (async() => {
         const init = await cb(isMounted)
-        if (init && isMounted.current) {
+        if (init && isMounted()) {
           setInitialized(true)
         }
       })()
@@ -60,12 +60,14 @@ export function useInit(cb: InitCallback, resetDeps: DependencyList, retryDeps: 
  */
 export function useMountState() {
   const isMounted = useRef(true)
+  const getter = useCallback(() => isMounted.current, [ isMounted ])
+  
   useEffect(() => {
     isMounted.current = true
     return () => { isMounted.current = false }
   }, [])
-  return {
-    get current() { return isMounted.current },
+  
+  return Object.assign(getter, {
     /** Utility to resolve/continue Promise only if still mounted.
      * 
      * @example
@@ -81,5 +83,5 @@ export function useMountState() {
      * ```
      */
     gate: <T>(v: T) => new Promise<T>((resolve) => {isMounted.current && resolve(v)}),
-  }
+  })
 }
