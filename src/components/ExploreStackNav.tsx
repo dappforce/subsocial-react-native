@@ -11,13 +11,14 @@ import * as Post from '~stories/Post'
 import { CommentThread } from '~stories/Comments'
 import { StyleSheet } from 'react-native'
 import { useReplyTo } from 'src/rtk/app/hooks'
+import { ScrollView } from 'react-native-gesture-handler'
 
 export type ExploreRoutes = {
   Explore: { }
   Account: { accountId: AccountId }
   Space: { spaceId: SpaceId }
-  Post: { postId: PostId }
-  Comment: { commentId: PostId }
+  Post: { postId: PostId, reply?: boolean }
+  Comment: { commentId: PostId, reply?: boolean }
 }
 
 export type ExploreStackNavigationProp = StackNavigationProp<ExploreRoutes>
@@ -55,13 +56,28 @@ function SpaceScreen({ route }: SpaceScreenProps) {
 
 type PostScreenProps = ExploreStackScreenProps<'Post'>
 function PostScreen({ route }: PostScreenProps) {
-  return <Post.Details id={route.params.postId} />
+  const {
+    postId,
+    reply,
+  } = route.params
+  
+  useReplyTo(postId, !!reply)
+  return <Post.Details id={postId} />
 }
 
 type CommentScreenProps = ExploreStackScreenProps<'Comment'>
 function CommentScreen({ route }: CommentScreenProps) {
-  useReplyTo(route.params.commentId)
-  return <CommentThread id={route.params.commentId} containerStyle={styles.padded} />
+  const {
+    commentId,
+    reply,
+  } = route.params
+  
+  useReplyTo(commentId, !!reply)
+  return (
+    <ScrollView style={styles.padded}>
+      <CommentThread id={commentId} active />
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({

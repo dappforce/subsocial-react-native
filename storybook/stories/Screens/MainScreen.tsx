@@ -91,7 +91,7 @@ const MainScreenTabBar = React.memo((props: BottomTabBarProps) => {
   
   return (
     <View style={styles.tabBar}>
-      {!!replyTo && <ReplyInput postId={replyTo} containerStyle={styles.replyTo} />}
+      {!!replyTo && <ReplyInput postId={replyTo.postId} containerStyle={styles.replyTo} autoFocus={replyTo.autoFocus} />}
       <BottomTabBar {...props} />
     </View>
   )

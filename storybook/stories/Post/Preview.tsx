@@ -9,6 +9,7 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
 import { Head, Body, PostOwner, PostOwnerProps } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
+import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
@@ -110,10 +111,7 @@ export const PreviewData = React.memo(({
           onLike={onLike}
           onUnlike={onUnlike}
         />
-        <ActionPanel.ReplyItem
-          replyCount={data?.post?.struct?.visibleRepliesCount ?? 0}
-          onPress={() => alert('not yet implemented, sorry')}
-        />
+        <ReplyAction postId={id} />
         <SharePostAction
           postId={id}
           onPress={onPressShare}

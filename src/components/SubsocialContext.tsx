@@ -137,8 +137,8 @@ export function useSubsocialEffect(
   const { api, substrate: { api: substrate } } = subsocial
   
   useEffect(() => {
-    if (!assertDefined(api, 'Subsocial API unavailable')) return
-    if (!assertDefined(substrate, 'Subsocial Substrate API unavailable')) return
+    assertDefined(api, 'Subsocial API unavailable')
+    assertDefined(substrate, 'Subsocial Substrate API unavailable')
     
     return callback({ api, substrate })
   }, [ api, substrate, ...deps ])
@@ -161,8 +161,8 @@ export function useSubsocialInit(
   const { api, substrate: { api: substrate } } = subsocial
   
   return useInit(async(isMounted) => {
-    if (!assertDefined(api, 'Subsocial API unavailable')) return true
-    if (!assertDefined(substrate, 'Subsocial Substrate API unavailable')) return true
+    assertDefined(api, 'Subsocial API unavailable')
+    assertDefined(substrate, 'Subsocial Substrate API unavailable')
     
     return await callback(isMounted, { api, substrate })
   }, [ api, substrate, ...resetDeps ], retryDeps)

@@ -1,7 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Animated, StyleProp, StyleSheet, TextInput, TextStyle, View, ViewStyle } from 'react-native'
 import { useStore } from 'react-redux'
-import { fetchPost, fetchPostReplyIds, insertReply, removeReply, replaceReply, setPrompt, upsertPost } from 'src/rtk/app/actions'
+import { fetchPost, insertReply, replaceReply, setPrompt, upsertPost } from 'src/rtk/app/actions'
 import { useMyProfile, useSelectKeypair, useSelectPost } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import type { RootState } from 'src/rtk/app/rootReducer'
@@ -9,7 +9,6 @@ import { createComment } from 'src/tx'
 import { PostId } from 'src/types/subsocial'
 import { createMockStruct } from 'src/util/post'
 import { snack } from 'src/util/snack'
-import { useMountState } from '~comps/hooks'
 import { MyIpfsAvatar } from '~comps/IpfsImage'
 import { useSubsocial } from '~comps/SubsocialContext'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
@@ -23,19 +22,20 @@ export type ReplyInputProps = {
   postId: PostId
   containerStyle?: StyleProp<ViewStyle>
   inputStyle?: StyleProp<TextStyle>
+  autoFocus?: boolean
 }
 
-export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: ReplyInputProps) => {
+export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle, autoFocus }: ReplyInputProps) => {
   const { api } = useSubsocial()
   const store = useStore<RootState>()
   const dispatch = useAppDispatch()
-  const isMounted = useMountState()
   const theme = useTheme()
   const styles = useThemedStyles()
   const keypair = useSelectKeypair()
   const address = keypair?.address
   const post = useSelectPost(postId)
   const myProfile = useMyProfile()
+  const input = useRef<TextInput>()
   
   const alpha = useMemo(() => new Animated.Value(0), [])
   const bgc = alpha.interpolate({
@@ -46,11 +46,19 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
   const [ comment, setComment ] = useState('')
   
   const onFocus = useCallback(() => {
-    Animated.timing(alpha, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start()
+    if (!keypair) {
+      dispatch(setPrompt('login'))
+    }
+    else if (keypair.isLocked()) {
+      dispatch(setPrompt('unlock'))
+    }
+    else {
+      Animated.timing(alpha, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: false,
+      }).start()
+    }
   }, [ alpha ])
   
   const onBlur = useCallback(() => {
@@ -69,15 +77,17 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
       dispatch(setPrompt('unlock'))
     }
     
-    else if (post) {
+    else if (post && comment.trim()) {
+      const cmnt = comment.trim()
+      
       createComment({
         api,
         store,
         parent: post.post.struct,
         content: {
-          body: comment,
-          isShowMore: comment.length > SUMMARY_LENGTH,
-          summary: comment.substring(0, SUMMARY_LENGTH),
+          body: cmnt,
+          isShowMore: cmnt.length > SUMMARY_LENGTH,
+          summary: cmnt.substring(0, SUMMARY_LENGTH),
           format: 'md',
         },
         onCreateTemporary: (tmpId, cid) => {
@@ -89,6 +99,7 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
           })))
           
           dispatch(insertReply({ parentId: postId, postId: tmpId }))
+          setComment('')
         },
         onCreatePost: (tmpId, id) => {
           dispatch(replaceReply({ parentId: postId, oldPostId: tmpId, newPostId: id }))
@@ -102,6 +113,12 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
     }
   }, [ keypair, post, postId, api, store, comment ])
   
+  useEffect(() => {
+    if (autoFocus && input) {
+      input.current?.focus()
+    }
+  }, [ postId ])
+  
   return (
     <View style={[styles.container, containerStyle]}>
       <MyIpfsAvatar size={30} color={theme.colors.divider} style={styles.avatar} />
@@ -110,9 +127,11 @@ export const ReplyInput = React.memo(({ postId, containerStyle, inputStyle }: Re
         <TextInput
           onFocus={onFocus}
           onBlur={onBlur}
+          ref={ref => input.current = ref || undefined}
           placeholder={address ? 'Add comment as ' + getDisplayName(address, myProfile) : 'Please login to comment'}
           style={[styles.input, inputStyle]}
           blurOnSubmit
+          value={comment}
           onChangeText={v => setComment(v)}
           onSubmitEditing={onSubmit}
         />

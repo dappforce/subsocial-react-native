@@ -24,6 +24,8 @@ export type CommentThreadProps = {
   containerStyle?: StyleProp<ViewStyle>
   threadStyle?: StyleProp<ViewStyle>
   replyStyle?: StyleProp<ViewStyle>
+  active?: boolean
+  onReply?: (replyId: PostId) => void
   onPressReply?: (replyId: PostId) => void
   onPressProfile?: (accountId: AccountId) => void
   scrollTo?: ScrollView['scrollTo']
@@ -35,6 +37,8 @@ export function CommentThread({
   containerStyle,
   threadStyle,
   replyStyle,
+  active,
+  onReply: _onReply,
   onPressReply: _onPressReply,
   onPressProfile: _onPressProfile,
   scrollTo,
@@ -45,16 +49,26 @@ export function CommentThread({
   const replies = useSelectReplyIds(id)
   const trail = useSelectReplyTrail(id)
   const nav = useNavigation<Opt<ExploreStackNavigationProp>>()
+  const navigate = active ? nav?.replace : nav?.push
   const [ offsetY, setOffsetY ] = React.useState<Opt<number>>(undefined)
+  
+  const onReply = useCallback((id: PostId) => {
+    if (_onReply) {
+      _onReply(id)
+    }
+    else {
+      navigate?.('Comment', { commentId: id, reply: true })
+    }
+  }, [ _onReply, navigate ])
   
   const onPressReply = useCallback((id: PostId) => {
     if (_onPressReply) {
       _onPressReply(id)
     }
     else {
-      nav?.push?.('Comment', { commentId: id })
+      navigate?.('Comment', { commentId: id })
     }
-  }, [ _onPressReply ])
+  }, [ _onPressReply, navigate ])
   
   const onPressProfile = useCallback((id: AccountId) => {
     if (_onPressProfile) {
@@ -108,6 +122,7 @@ export function CommentThread({
       <View style={[styles.container, containerStyle]}>
         {!hideTrail && <Replies
           replies={trail}
+          onReply={onReply}
           onPressReply={onPressReply}
           onPressProfile={onPressProfile}
         />}
@@ -115,12 +130,15 @@ export function CommentThread({
           id={id}
           preview={preview}
           onPressProfile={onPressProfile}
+          onPressMore={active ? undefined : (() => onPressReply(id))}
           onLayout={evt => setOffsetY(evt.nativeEvent.layout.y)}
+          active={active}
         />
         <Replies
           replies={replies}
           containerStyle={[styles.thread, threadStyle]}
           replyStyle={replyStyle}
+          onReply={onReply}
           onPressReply={onPressReply}
           onPressProfile={onPressProfile}
         />

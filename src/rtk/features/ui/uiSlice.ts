@@ -2,8 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PostId } from 'src/types/subsocial'
 
 export type UIState = {
-  replyTo?: PostId
+  replyTo?: ReplyToPayload
   prompt?: 'login' | 'unlock' | 'confirmTx'
+}
+
+type ReplyToPayload = {
+  postId: PostId
+  autoFocus: boolean
 }
 
 const SLICE = 'ui'
@@ -16,7 +21,7 @@ const slice = createSlice({
   name: SLICE,
   initialState,
   reducers: {
-    setReplyTo: (state, action: PayloadAction<PostId>) => {
+    setReplyTo: (state, action: PayloadAction<ReplyToPayload>) => {
       state.replyTo = action.payload
     },
     clearReplyTo: (state) => {

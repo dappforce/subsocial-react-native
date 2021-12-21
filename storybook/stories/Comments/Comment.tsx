@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Pressable, StyleProp, StyleSheet, View, ViewProps, ViewStyle } from 'react-native'
 import { useSelectPost, useSelectProfile } from 'src/rtk/app/hooks'
 import { ProfileData, PostData, PostId, AccountId, CommentStruct } from 'src/types/subsocial'
@@ -17,14 +17,19 @@ import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchPost } from 'src/rtk/features/posts/postsSlice'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Opt } from 'src/types'
+import { useNavigation } from '@react-navigation/native'
+import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
+import { assertDefined } from 'src/util/assert'
 import Age from 'src/util/Age'
+import { ReplyAction } from '~stories/Post/Reply'
 
 const log = createLogger('Comment')
 
 export type CommentProps = Omit<CommentDataProps, 'post' | 'profile'> & {
   id: PostId
+  active?: boolean
 }
-export const Comment = React.memo(({ id, ...props }: CommentProps) => {
+export const Comment = React.memo(({ id, active, ...props }: CommentProps) => {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
   
@@ -59,31 +64,41 @@ export const Comment = React.memo(({ id, ...props }: CommentProps) => {
     return true
   }, [ rootId ], [])
   
-  return <CommentData {...props} post={post?.post} profile={profile} />
+  return <CommentData
+    {...props}
+    post={post?.post}
+    profile={profile}
+    showReplyAction={!active}
+  />
 })
 
 export type CommentDataProps = {
   post?: PostData
   profile?: ProfileData
   preview?: boolean
+  showReplyAction?: boolean
   containerStyle?: StyleProp<ViewStyle>
   panelStyle?: StyleProp<ViewStyle>
   onPressMore?: () => void
   onPressProfile?: (accountId: AccountId) => void
   onLayout?: ViewProps['onLayout']
+  onReply?: () => void
 }
 export const CommentData = React.memo(({
   post,
   profile,
   preview,
+  showReplyAction,
   containerStyle,
   panelStyle,
   onPressMore,
   onPressProfile: _onPressProfile,
   onLayout,
+  onReply,
 }: CommentDataProps) =>
 {
   const styles = useThemedStyles()
+  const nav = useNavigation<Opt<ExploreStackNavigationProp>>()
   
   const onPressProfile = useOptionalCallback(() => {
     if (post) {
@@ -128,11 +143,11 @@ export const CommentData = React.memo(({
               postId={post?.id.toString() ?? ''}
               containerStyle={styles.panelIcon}
             />
-            <ActionPanel.ReplyItem
-              replyCount={post?.struct.visibleRepliesCount ?? 0}
-              onPress={() => alert('not yet implemented')}
+            {(showReplyAction ?? true) && <ReplyAction
+              postId={post?.id ?? ''}
+              onPress={onReply}
               containerStyle={styles.panelIcon}
-            />
+            />}
             <SharePostAction
               postId={post?.id.toString() ?? ''}
               containerStyle={styles.panelIcon}

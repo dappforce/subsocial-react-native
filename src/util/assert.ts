@@ -1,3 +1,4 @@
+import type { Opt } from 'src/types'
 import { logger as createLogger } from '@polkadot/util'
 
 const log = createLogger('assert')
@@ -9,11 +10,9 @@ export class AssertionError extends Error {
   }
 }
 
-export function assert(condition: boolean, message: string) {
-  if (!condition) {
+export function assert(condition: boolean, message: string): asserts condition {
+  if (!condition)
     throw new AssertionError(message)
-  }
-  return true
 }
 
 export type AssertSoftOptions = {
@@ -39,8 +38,8 @@ export function assertSoft(condition: boolean, ...args: any[]): boolean {
 }
 const assertSoftLogged: Record<string | symbol, boolean> = {}
 
-export function assertDefined<T>(value: T | undefined | null, message: string): value is T {
-  return assert(value !== undefined, message)
+export function assertDefined<T>(value: Opt<T>, message: string): asserts value {
+  assert(value !== undefined && value !== null, message)
 }
 
 export type AssertDefinedSoftOptions = AssertSoftOptions & {

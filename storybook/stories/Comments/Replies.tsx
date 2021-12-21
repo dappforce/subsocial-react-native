@@ -8,6 +8,8 @@ export type RepliesProps = {
   preview?: boolean
   containerStyle?: StyleProp<ViewStyle>
   replyStyle?: StyleProp<ViewStyle>
+  /** User pressed Reply Action */
+  onReply?: (replyId: PostId) => void
   onPressReply?: (replyId: PostId) => void
   onPressProfile?: (accountId: AccountId) => void
 }
@@ -17,6 +19,7 @@ export const Replies = React.memo(({
   preview,
   containerStyle,
   replyStyle,
+  onReply,
   onPressReply,
   onPressProfile,
 }: RepliesProps) => {
@@ -28,7 +31,8 @@ export const Replies = React.memo(({
           key={id}
           containerStyle={replyStyle}
           preview={preview}
-          onPressMore={() => onPressReply?.(id)}
+          onReply={onReply ? () => onReply(id) : undefined}
+          onPressMore={onPressReply ? () => onPressReply(id) : undefined}
           onPressProfile={onPressProfile}
         />
       ))}
