@@ -13,6 +13,15 @@ type ProfileData = {
   lastDuration: number
 }
 
+export type Profile = {
+  [item: string]: ProfileItem
+}
+
+type ProfileItem = Omit<ProfileData, 'path'> & {
+  tag: string
+  children: Profile
+}
+
 var warnThreshold = 3000
 var lastReport: ProfileData[] = []
 const registry: Registry = {}
@@ -60,22 +69,61 @@ export function start(tag: string, parent: string = '') {
   })
 }
 
-export function report(_filter?: string[]) {
+export function report(filter?: string[]) {
   // TODO: nicer output
-  const filter = new Set(_filter)
-  const entries = Object.values(registry).filter(entry => !filter.size || filter.has(entry.path))
+  const report = createReport(new Set(filter))
   
-  if (entries.length === 0) {
+  if (Object.keys(report).length === 0) {
     console.debug('no profiling data')
   }
-  else if (!isDeepEqual(lastReport, entries)) {
-    lastReport = deepCopy(entries)
+  else if (!isDeepEqual(lastReport, report)) {
+    lastReport = deepCopy(report)
     
     console.log('Profile:')
-    entries.forEach(entry => {
-      console.log(`-- ${entry.path}: ${entry.samples} samples, ${entry.totalDuration}ms total, ${entry.averageDuration}ms average, ${entry.lastDuration}ms last`)
-    })
+    printProfile(report)
   }
+}
+
+function printProfile(profile: Profile, level: number = 1) {
+  const indent = '--'.repeat(level)
+  
+  Object.values(profile).forEach(item => {
+    const {
+      tag,
+      samples,
+      totalDuration,
+      averageDuration,
+      lastDuration,
+    } = item
+    
+    console.log(`${indent} ${tag}: ${samples} samples, ${totalDuration}ms total, ${averageDuration}ms average, ${lastDuration}ms last`)
+    printProfile(item.children, level + 1)
+  })
+}
+
+export function createReport(filter: Set<string>): Profile {
+  const result: Profile = {}
+  const items = Object.values(registry).filter(entry => !filter.size || filter.has(entry.path))
+  
+  items.forEach(item => {
+    const { path, ...props } = item
+    const parts = path.split('/')
+    const tag = parts.pop() as string
+    
+    const stem = getProfilePath(result, parts)
+    if (!stem[tag]) {
+      stem[tag] = {
+        tag,
+        ...props,
+        children: {},
+      }
+    }
+    else {
+      console.warn(`Duplicate profile entry ${path}`)
+    }
+  })
+  
+  return result
 }
 
 export const setWarnThreshold = (threshold: number) => warnThreshold = threshold
@@ -89,6 +137,29 @@ function createEntry(path: string): ProfileData {
     averageDuration: 0,
     lastDuration: 0,
   }
+}
+
+function createItem(tag: string): ProfileItem {
+  return {
+    tag,
+    samples: 0,
+    totalDuration: 0,
+    averageDuration: 0,
+    lastDuration: 0,
+    children: {},
+  }
+}
+
+function getProfilePath(profile: Profile, parts: string[]): Profile {
+  let current = profile
+  for (let part of parts) {
+    if (!current[part]) {
+      current[part] = createItem(part)
+    }
+    
+    current = current[part].children
+  }
+  return current
 }
 
 function isDeepEqual(a: any, b: any) {
