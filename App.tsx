@@ -1,6 +1,6 @@
 import './polyfill'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { NavigationContainer } from '@react-navigation/native'
@@ -17,6 +17,7 @@ import { useFonts } from 'expo-font'
 import store from 'src/rtk/app/store'
 import StorybookUI from './storybook'
 import config from 'config.json'
+import { useIntervalReport } from 'src/util/Profiler/react'
 
 import LightTheme from '~themes/light'
 import DarkTheme from '~themes/dark'
@@ -53,6 +54,8 @@ export default function(props: {}) {
   })
   
   const ready = fontsLoaded
+  
+  useIntervalReport()
   
   if (!ready) {
     return <AppLoading />
