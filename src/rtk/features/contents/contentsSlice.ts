@@ -5,6 +5,8 @@ import { CommentContent, CommonContent, PostContent, ProfileContent, SharedPostC
 import { convertToDerivedContent } from '@subsocial/api/flat-subsocial/utils'
 import { createFetchOne, createSelectUnknownIds, SelectByIdFn, ThunkApiConfig } from 'src/rtk/app/helpers'
 import { RootState } from 'src/rtk/app/rootReducer'
+import * as IpfsCache from 'src/IpfsCache'
+import { ContentResult } from '@subsocial/api/types'
 
 /** Content with id */
 type Content<C extends CommonContent = CommonContent> = HasId & DerivedContent<C>
@@ -38,19 +40,33 @@ type FetchContentFn<C extends CommonContent> = AsyncThunk<Content<C>[], CommonFe
 
 export const fetchContents = createAsyncThunk<Content[], CommonFetchPropsAndIds, ThunkApiConfig>(
   'contents/fetchMany',
-  async ({ api, ids }, { getState }) => {
-
-    const newIds = selectUnknownContentIds(getState(), ids)
-    if (!newIds.length) {
-      // Nothing to load: all ids are known and their contents are already loaded.
-      return []
+  async ({ api, ids, reload }, { getState }) => {
+    let newIds = ids.map(id => id+'')
+    if (!reload) {
+      newIds = selectUnknownContentIds(getState(), ids)
+      if (!newIds.length) {
+        // Nothing to load: all ids are known and their contents are already loaded.
+        return []
+      }
+    }
+    
+    let missingIds = newIds
+    let deserialized: Record<IpfsCache.CID, CommonContent> = {}
+    if (!reload) {
+      const cached = await IpfsCache.queryContentCache(newIds)
+      missingIds = newIds.filter(cid => !cached[cid])
+      deserialized = Object.fromEntries(Object.entries(cached).map(([ cid, content ]) => [ cid, content.asContent() ]))
     }
 
-    const contents = await api.ipfs.getContentArray(newIds as string[])
-    return Object.entries(contents).map(([ id, content ]) => {
-      const derivedContent = convertToDerivedContent(content) as CommentContent
-      return { id, ...derivedContent } 
-    })
+    const contents = await api.ipfs.getContentArray(missingIds)
+    const serialized = Object.fromEntries(Object.entries(contents).map(([ cid, content ]) => [ cid, JSON.stringify(content) ]))
+    IpfsCache.cacheContent(serialized)
+    
+    return Object.entries({ ...contents, ...deserialized })
+      .map(([ id, content ]) => {
+        const derivedContent = convertToDerivedContent(content) as CommentContent
+        return { id, ...derivedContent } 
+      })
   }
 )
 
