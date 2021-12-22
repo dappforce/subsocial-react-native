@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Common & general purpose hooks
-import { DependencyList, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { DependencyList, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface InitCallback {
   (isMounted: () => boolean): boolean | Promise<boolean>
@@ -84,4 +84,20 @@ export function useMountState() {
      */
     gate: <T>(v: T) => new Promise<T>((resolve) => {isMounted.current && resolve(v)}),
   })
+}
+
+export function useDeferred<T>(cb: () => Promise<T>, deps: DependencyList) {
+  const [ value, setValue ] = useState<T | undefined>(undefined)
+  const isMounted = useMountState()
+  
+  useEffect(() => {
+    (async() => {
+      const result = await cb()
+      if (isMounted()) {
+        setValue(result)
+      }
+    })()
+  }, deps)
+  
+  return value
 }

@@ -2,7 +2,7 @@
 // Helper class to access images from Subsocial IPFS
 // SPDX-License-Identifier: GPL-3.0
 import React, { useEffect, useState } from 'react'
-import { Falsy, GestureResponderEvent, Image as RNImage, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
+import { GestureResponderEvent, Image as RNImage, ImageSourcePropType, StyleProp, TouchableWithoutFeedback, View, ViewStyle } from 'react-native'
 import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image'
 import { Avatar } from 'react-native-paper'
 import { useSubsocial } from './SubsocialContext'
@@ -11,41 +11,49 @@ import { useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
-import config from 'config.json'
-
-type CID = string
+import * as IpfsCache from '../IpfsCache'
+import { useDeferred, useInit } from './hooks'
 
 export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
-  cid?: CID
+  cid?: IpfsCache.CID
   style?: StyleProp<ImageStyle>
 }
 
-export function IpfsImage({ cid, ...props }: IpfsImageProps) {
-  if (!cid) return null
+export const IpfsImage = React.memo(({ cid, ...props }: IpfsImageProps) => {
+  const uri = useDeferred(async () => {
+    if (!cid) return undefined
+    const caches = await IpfsCache.queryImage([cid])
+    return caches[cid]
+  }, [ cid ])
   
-  const uri = IpfsImage.getUri(cid)
+  if (!uri) return null
+  console.log(uri)
+  
   return <FastImage
     {...props}
-    source={{ uri }}
+    source={{ uri: uri.toString() }}
   />
-}
-
-IpfsImage.getUri = (cid: Falsy|CID) => cid ? `${config.connections.ipfs}/ipfs/${cid}` : undefined
+})
 
 export type IpfsBannerProps = IpfsImageProps & {
   containerStyle?: StyleProp<ViewStyle>
 }
-export function IpfsBanner({ cid, style, containerStyle, ...props }: IpfsBannerProps) {
-  if (!cid) return null
-  
+export const IpfsBanner = React.memo(({ cid, style, containerStyle, ...props }: IpfsBannerProps) => {
   const [contW, setContentWidth] = useState(0)
   const [[realW, realH], setSize] = useState([0, 0])
   const [width, height] = getScaledSize(contW, realW, realH)
-  const uri = IpfsImage.getUri(cid!)!
-  
-  useEffect(() => {
-    RNImage.getSize(uri, (width, height) => setSize([width, height]))
+  const uri = useDeferred(async () => {
+    if (!cid) return undefined
+    const caches = await IpfsCache.queryImage([cid])
+    return caches[cid]
   }, [ cid ])
+  
+  useInit(() => {
+    if (!uri) return false
+    
+    RNImage.getSize(uri.toString(), (width, height) => setSize([width, height]))
+    return true
+  }, [ cid ], [ uri ])
   
   return (
     <View
@@ -55,10 +63,10 @@ export function IpfsBanner({ cid, style, containerStyle, ...props }: IpfsBannerP
       <IpfsImage {...props} cid={cid} style={[{width, height}, style]} />
     </View>
   )
-}
+})
 
 export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 'source'> & {
-  cid?: CID
+  cid?: IpfsCache.CID
   source?: ImageSourcePropType
   size?: number
   style?: StyleProp<ViewStyle>
@@ -71,7 +79,7 @@ export type IpfsAvatarProps = Omit<React.ComponentProps<typeof Avatar.Image>, 's
  * When `typeof source === 'number'`, prefers `source`. Otherwise, when `cid` is given, prefers `cid` (IPFS) over
  * `source` (Web2).
  */
-export function IpfsAvatar({ source, cid, style, onPress, ...props }: IpfsAvatarProps) {
+export const IpfsAvatar = React.memo(({ source, cid, style, onPress, ...props }: IpfsAvatarProps) => {
   const [loaded, setLoaded] = useState(false)
   const onLoad = () => setLoaded(true)
   
@@ -99,12 +107,13 @@ export function IpfsAvatar({ source, cid, style, onPress, ...props }: IpfsAvatar
   else {
     return avatar
   }
-}
+})
 
 function getScaledSize(wantW: undefined | number, realW: number, realH: number): [number, number] {
   if (!wantW) return [realW, realH]
   
-  if (!realH) return [0, 0]
+  // prelimiary size to avoid bloating screen
+  if (!realH) return [wantW, 300]
   
   return [wantW, wantW * realH/realW]
 }

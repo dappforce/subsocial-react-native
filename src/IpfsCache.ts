@@ -7,11 +7,14 @@
 // TODO: Perhaps use multiformats module to better inspect CIDs?
 // TODO: Hot cache in memory?
 import * as fs from 'expo-file-system'
+import axios from 'axios'
 import { immerable } from 'immer'
 import { CommentContent, CommonContent, PostContent, ProfileContent, SharedPostContent, SpaceContent } from '@subsocial/types'
 import { logger as createLogger } from '@polkadot/util'
+import config from 'config.json'
 
 const CONTENT_CACHE_DIR = '/content/'
+const IMAGE_CACHE_DIR = '/image/'
 const log = createLogger('IpfsCache')
 
 export type CID = string
@@ -73,7 +76,61 @@ export async function cacheContent(contents: Record<CID, string>) {
   }))
 }
 
+export async function queryImage(cids: CID[]): Promise<Record<CID, URL>> {
+  if (!fs.cacheDirectory) {
+    logNoCache()
+    return queryImageLive(cids)
+  }
+  
+  else {
+    const cached = await queryImageCache(cids)
+    const missed = cids.filter(cid => !cached[cid])
+    const fetched = await queryImageLive(missed)
+    return { ...cached, ...fetched }
+  }
+}
+
+export async function queryImageCache(cids: CID[]): Promise<Record<CID, URL>> {
+  if (!fs.cacheDirectory) {
+    logNoCache()
+    return {}
+  }
+  
+  const baseUrl = imageBaseUrl()
+  const result: Record<CID, URL> = {}
+  
+  await Promise.all(cids.map(async cid => {
+    const url = new URL(`${baseUrl}/${cid}`)
+    const info = await fs.getInfoAsync(url.toString())
+    if (info.exists) {
+      result[cid] = url
+    }
+  }))
+  
+  return result
+}
+
+export async function queryImageLive(cids: CID[]): Promise<Record<CID, URL>> {
+  if (!fs.cacheDirectory) {
+    logNoCache()
+    return Object.fromEntries(cids.map(cid => [ cid, new URL(`${config.connections.ipfs}/ipfs/${cid}`) ]))
+  }
+  
+  else {
+    const baseUrl = imageBaseUrl()
+    await fs.makeDirectoryAsync(baseUrl.toString(), { intermediates: true })
+    
+    await Promise.all(cids.map(async cid => {
+      const remote = new URL(`${config.connections.ipfs}/ipfs/${cid}`)
+      const local  = new URL(`${baseUrl}/${cid}`)
+      await fs.downloadAsync(remote.toString(), local.toString())
+    }))
+    return Object.fromEntries(cids.map(cid => [ cid, new URL(`${imageBaseUrl()}/${cid}`) ]))
+  }
+}
+
 const contentBaseUrl = () => new URL(`${fs.cacheDirectory}/${CONTENT_CACHE_DIR}/`)
+const imageBaseUrl = () => new URL(`${fs.cacheDirectory}/${IMAGE_CACHE_DIR}/`)
 
 function logNoCache() {
   if (!loggedNoCacheOnce) {
