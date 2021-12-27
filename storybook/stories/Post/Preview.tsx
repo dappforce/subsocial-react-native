@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Post Preview - assembled from Post Base components
 import React, { useCallback, useEffect } from 'react'
-import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
@@ -13,17 +13,24 @@ import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
+import { start } from 'src/util/Profiler'
+import { pathFromProp, ProfilingProps, timed } from 'src/util/Profiler/react'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
-export const Preview = React.memo(({ id, ...props }: PostPreviewProps) => {
+export const Preview = timed(({ id, profile, ...props }: PostPreviewProps & ProfilingProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
+  const path = pathFromProp(profile)
   
   useEffect(() => {
-    reloadPost({ id, reload: true })
+    start('reloadPost', path)
+      .promise(reloadPost({ id, reload: true }))
   }, [ id ])
   
-  return <PreviewData {...props} {...{ id, data }} />
+  return <PreviewData {...props} {...{ id, data }} profile={{ path: path }} />
+}, {
+  tag: 'PostPreview',
+  memoize: true,
 })
 
 
@@ -40,7 +47,7 @@ type PreviewDataProps = {
   onPressShare?: (evt: ShareEvent) => void
   onShare?: (evt: ShareEvent) => void
 }
-export const PreviewData = React.memo(({
+export const PreviewData = timed(({
   id,
   data,
   containerStyle,
@@ -52,7 +59,7 @@ export const PreviewData = React.memo(({
   onUnlike,
   onPressShare,
   onShare,
-}: PreviewDataProps) =>
+}: PreviewDataProps & ProfilingProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const renderActions = ({ size }: WithSize) => {
@@ -121,6 +128,10 @@ export const PreviewData = React.memo(({
       </ActionPanel>
     </View>
   )
+}, {
+  tag: 'PostData',
+  memoize: true,
+  withContext: true,
 })
 
 const styles = StyleSheet.create({

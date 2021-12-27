@@ -1,11 +1,14 @@
 //////////////////////////////////////////////////////////////////////
 // Custom list implementations to help with arbitrary InfiniteScroll
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useMemo } from 'react'
 import { Falsy, FlatList, FlatListProps, NativeScrollEvent, NativeSyntheticEvent, RefreshControl, StyleSheet, View } from 'react-native'
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { logger as createLogger } from '@polkadot/util'
 import { StateError } from 'src/types/errors'
 import { Text } from '~comps/Typography'
+import { start } from 'src/util/Profiler'
+import { ProfilingProps } from 'src/util/Profiler/react'
+import * as Profiler from 'src/util/Profiler/react'
 
 const logger = createLogger('InfiniteScroll')
 
@@ -67,7 +70,7 @@ export type InfiniteScrollListProps<ID> = {
   EmptyComponent?: FlatListProps<ID>['ListEmptyComponent']
 }
 
-export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListProps<ID>, ListState<ID>> {
+class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps<ID> & ProfilingProps, ListState<ID>> {
   constructor(props: InfiniteScrollListProps<ID>) {
     super(props)
     
@@ -206,6 +209,13 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
   }
   
   render() {
+    const {
+      profile: {
+        tag,
+        path,
+      } = {}
+    } = this.props
+    
     const { stage, ids } = this.state
     const {
       refreshable = true,
@@ -258,6 +268,15 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
     ids: [],
     isEnd: false,
   })
+  
+  static bound = <ID,>() => (props: InfiniteScrollListProps<ID>) => <InfiniteScrollListBase<ID> {...props} />
+}
+
+export const InfiniteScrollList = <ID,>(props: InfiniteScrollListProps<ID>) => {
+  const Comp = useMemo(() => Profiler.timed(InfiniteScrollListBase.bound<ID>(), {
+    tag: 'InfiniteScrollList',
+  }), [])
+  return <Comp {...props} />
 }
 
 type ListLoadingProps = {

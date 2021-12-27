@@ -9,30 +9,37 @@ import { useSubsocial } from './SubsocialContext'
 import { useTheme } from './Theming'
 import { useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
+import { useDeferred, useInit } from './hooks'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
 import * as IpfsCache from '../IpfsCache'
-import { useDeferred, useInit } from './hooks'
+import { start } from 'src/util/Profiler'
+import { ProfilingProps, pathFromProp, timed } from 'src/util/Profiler/react'
 
 export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
   cid?: IpfsCache.CID
   style?: StyleProp<ImageStyle>
 }
 
-export const IpfsImage = React.memo(({ cid, ...props }: IpfsImageProps) => {
+export const IpfsImage = timed(({ cid, profile, ...props }: IpfsImageProps & ProfilingProps) => {
   const uri = useDeferred(async () => {
     if (!cid) return undefined
-    const caches = await IpfsCache.queryImage([cid])
+    
+    const profiler = start('queryImage', pathFromProp(profile))
+    const caches = await profiler.promise(IpfsCache.queryImage([cid]))
+    
     return caches[cid]
   }, [ cid ])
   
   if (!uri) return null
-  console.log(uri)
   
   return <FastImage
     {...props}
     source={{ uri: uri.toString() }}
   />
+}, {
+  tag: 'IpfsImage',
+  memoize: true,
 })
 
 export type IpfsBannerProps = IpfsImageProps & {

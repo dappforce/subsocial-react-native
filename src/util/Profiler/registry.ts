@@ -1,8 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 // Epicentral & global tag-based profiler registry
 // Currently can only handle runtime measurements
-import { produce } from 'immer'
-
 type Registry = Record<string, ProfileData>
 
 type ProfileData = {
@@ -25,8 +23,14 @@ type ProfileItem = Omit<ProfileData, 'path'> & {
 var warnThreshold = 3000
 var lastReport: ProfileData[] = []
 const registry: Registry = {}
+const PROD_FINISH = Object.assign(() => {}, {
+  path: '',
+  promise: <T>(p: Promise<T>) => p,
+})
 
 export function start(tag: string, parent: string = '') {
+  if (!__DEV__) return PROD_FINISH
+  
   const path = parent ? `${parent}/${tag}` : tag
   const t0 = Date.now()
   let finished = false
@@ -70,6 +74,8 @@ export function start(tag: string, parent: string = '') {
 }
 
 export function report(filter?: string[]) {
+  if (!__DEV__) return
+  
   // TODO: nicer output
   const report = createReport(new Set(filter))
   
@@ -126,8 +132,20 @@ export function createReport(filter: Set<string>): Profile {
   return result
 }
 
+export function makepath(tag: string, parent?: string): string {
+  return parent ? `${parent}/${tag}` : tag
+}
+
 export const setWarnThreshold = (threshold: number) => warnThreshold = threshold
 export const getWarnThreshold = () => warnThreshold
+
+export const enable = () => {
+  _enabled = true
+}
+export const disable = () => {
+  _enabled = false
+}
+var _enabled = true;
 
 function createEntry(path: string): ProfileData {
   return {
