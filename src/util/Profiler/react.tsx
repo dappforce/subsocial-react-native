@@ -1,6 +1,13 @@
 import React, { ComponentType, useEffect } from 'react'
 import { report, start } from './registry'
 
+export type ProfilingProps = {
+  profile?: {
+    tag?: string
+    path: string
+  }
+}
+
 export type TimedParams = {
   tag: string
   memoize?: boolean
@@ -15,12 +22,15 @@ export type ExtraTimedProps = {
 export function timed<T>(Comp: ComponentType<T & ExtraTimedProps>, params: TimedParams) {
   const { memoize } = params
   
-  const _comp = (props: T) => {
+  const _comp = (props: T & ProfilingProps) => {
     const {
       tag,
     } = params
+    const {
+      profile,
+    } = props
     
-    const finish = start(tag)
+    const finish = start(profile?.tag ?? tag, profile?.path)
     const prop: ExtraTimedProps['timed'] = {
       path: finish.path,
     }
