@@ -40,6 +40,7 @@ const deeplinkConfig = {
 
 
 export default function(props: {}) {
+  const storybook = __DEV__
   // const scheme = useColorScheme();
   // const theme  = scheme === 'light' ? LightTheme : DarkTheme;
   const dark = false
@@ -75,10 +76,12 @@ export default function(props: {}) {
             <NavigationContainer linking={linking} theme={reduceNavigationTheme(theme, dark)}>
               <StatusBar backgroundColor={theme.colors.appBar} />
               <SafeAreaView style={[ styles.container, { backgroundColor: theme.colors.background } ]}>
-                {/* <SubsocialProvider>
-                  <MainScreen />
-                </SubsocialProvider> */}
-                <StorybookUI {...props} />
+                {storybook
+                ? <StorybookUI {...props} />
+                : <SubsocialProvider>
+                    <MainScreen />
+                  </SubsocialProvider>
+                }
               </SafeAreaView>
             </NavigationContainer>
           </SafeAreaProvider>
