@@ -12,8 +12,11 @@ import { Text } from './Typography'
 import { assertDefined } from 'src/util/assert'
 import config from 'config.json'
 import { useInit } from './hooks'
+import { logger as createLogger } from '@polkadot/util'
 
 export { SubstrateProvider, useSubstrate } from './SubstrateContext'
+
+const log = createLogger('SubsocialContext')
 
 // ===== Types =====
 
@@ -26,11 +29,17 @@ export type SubsocialState = React.PropsWithChildren<{
   connectionState: SubsocialConnectionState
 }>
 
-type StateActionType = 'CONNECT' | 'ERROR'
-type StateAction = {
-  type: StateActionType
+type ConnectAction = {
+  type: 'CONNECT'
+  data: SubstrateState
+}
+
+type ErrorAction = {
+  type: 'ERROR'
   data: any
 }
+
+type StateAction = ConnectAction | ErrorAction
 
 export const SubsocialContext = React.createContext<SubsocialState>(undefined as unknown as SubsocialState)
 export const useSubsocial = () => useContext(SubsocialContext)
@@ -49,12 +58,17 @@ export function SubsocialProvider({ children }: SubsocialProviderProps) {
   useEffect(() => {
     switch (substrate?.connectionState) {
       case 'READY': {
-        if (!api) dispatch({ type: 'CONNECT', data: { substrate } })
+        if (api) {
+          log.debug('Already connected to Subsocial API')
+        }
+        else {
+          dispatch({ type: 'CONNECT', data: substrate })
+        }
         break
       }
       case 'ERROR': {
         dispatch({ type: 'ERROR', data: substrate.apiError })
-        console.error(substrate.apiError)
+        log.error(substrate.apiError)
         break
       }
     }
@@ -101,20 +115,37 @@ function stateReducer(state: SubsocialState, action: StateAction): SubsocialStat
       }
       
       else {
-        const {substrate}: {substrate: SubstrateState} = action.data
+        const substrate = action.data
+        if (!substrate.api) {
+          log.error('no api in substrate state')
+          return state
+        }
+        
         const api = new SubsocialApi({
-          substrateApi: substrate.api!,
+          substrateApi: substrate.api,
           ipfsNodeUrl: config.connections.ipfs,
           offchainUrl: config.connections.rpc.offchain,
         })
         
-        return { ...state, api, connectionState: 'CONNECTED' }
+        return {
+          ...state,
+          substrate,
+          api,
+          connectionState: 'CONNECTED'
+        }
       }
     }
     case 'ERROR': {
-      return { ...state, api: null as unknown as SubsocialApi, apiError: action.data, connectionState: 'ERROR' }
+      return {
+        ...state,
+        api: null as unknown as SubsocialApi,
+        apiError: action.data,
+        connectionState: 'ERROR'
+      }
     }
-    default: throw new Error(`unknown Subsocial context action ${action.type}`)
+    default:
+      log.error('Unhandled action type')
+      return state
   }
 }
 
@@ -158,14 +189,15 @@ export function useSubsocialInit(
   if (subsocial === undefined)
     throw new Error('No Subsocial API context found - are you using SubsocialProvider?')
   
-  const { api, substrate: { api: substrate } } = subsocial
-  
   return useInit(async(isMounted) => {
+    const { api, substrate: { api: substrate } } = subsocial
+    
+    console.log(subsocial.substrate)
     assertDefined(api, 'Subsocial API unavailable')
     assertDefined(substrate, 'Subsocial Substrate API unavailable')
     
     return await callback(isMounted, { api, substrate })
-  }, [ api, substrate, ...resetDeps ], retryDeps)
+  }, [ subsocial, ...resetDeps ], retryDeps)
 }
 
 const styles = StyleSheet.create({
