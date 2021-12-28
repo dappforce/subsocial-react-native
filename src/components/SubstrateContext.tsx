@@ -6,6 +6,9 @@ import React, { useCallback, useContext, useEffect, useReducer } from 'react'
 import * as Subsocial from '@subsocial/api'
 import { ApiPromise } from '@polkadot/api'
 import { RegistryTypes } from '@polkadot/types/types'
+import { logger as createLogger } from '@polkadot/util'
+
+const log = createLogger('SubstrateContext')
 
 export type SubstrateProviderProps = React.PropsWithChildren<{
   endpoint: string
@@ -21,14 +24,21 @@ export type SubstrateState = {
   apiError?: any
 }
 
-type StateAction = {
-  type: 'CONNECT_SUCCESS' | 'CONNECT_ERROR' | 'DISCONNECT'
-  data?: any
+type ConnectSuccessAction = {
+  type: 'CONNECT_SUCCESS'
+  data: ApiPromise
 }
 
-type WithApi = {
-  substrate: ApiPromise
+type ConnectErrorAction = {
+  type: 'CONNECT_ERROR'
+  data: any
 }
+
+type DisconnectAction = {
+  type: 'DISCONNECT'
+}
+
+type StateAction = ConnectSuccessAction | ConnectErrorAction | DisconnectAction
 
 export const SubstrateContext = React.createContext<SubstrateState>(undefined as unknown as SubstrateState)
 export const useSubstrate = () => useContext(SubstrateContext)
@@ -43,7 +53,7 @@ export function SubstrateProvider({ children, endpoint }: SubstrateProviderProps
     try {
       const substrate = await Subsocial.getApi(endpoint)
       
-      dispatch({ type: 'CONNECT_SUCCESS', data: { substrate } })
+      dispatch({ type: 'CONNECT_SUCCESS', data: substrate })
       substrate.on('disconnected', () => dispatch({ type: 'DISCONNECT' }))
     }
     catch (err) {
@@ -67,7 +77,7 @@ function stateReducer(state: SubstrateState, action: StateAction): SubstrateStat
   switch (action.type) {
     case 'CONNECT_SUCCESS': {
       assertState(state.connectionState, 'PENDING')
-      const { substrate }: WithApi = action.data
+      const substrate = action.data
       return { ...state, api: substrate, connectionState: 'READY' }
     }
     
@@ -81,7 +91,9 @@ function stateReducer(state: SubstrateState, action: StateAction): SubstrateStat
       return { ...state, api: undefined, connectionState: 'PENDING' }
     }
     
-    default: throw new Error(`unknown action ${action.type}`)
+    default:
+      log.error('Unknown action type')
+      return state
   }
 }
 
