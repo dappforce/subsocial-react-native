@@ -192,7 +192,6 @@ export function useSubsocialInit(
   return useInit(async(isMounted) => {
     const { api, substrate: { api: substrate } } = subsocial
     
-    console.log(subsocial.substrate)
     assertDefined(api, 'Subsocial API unavailable')
     assertDefined(substrate, 'Subsocial Substrate API unavailable')
     
