@@ -17,7 +17,7 @@ import { useFonts } from 'expo-font'
 import store from 'src/rtk/app/store'
 import StorybookUI from './storybook'
 import config from 'config.json'
-import { useIntervalReport } from 'src/util/Profiler/react'
+import { useIntervalReport } from 'uniprofiler/react'
 
 import LightTheme from '~themes/light'
 import DarkTheme from '~themes/dark'

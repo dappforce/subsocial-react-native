@@ -13,8 +13,7 @@ import { useDeferred, useInit } from './hooks'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
 import * as IpfsCache from '../IpfsCache'
-import { start } from 'src/util/Profiler'
-import { ProfilingProps, pathFromProp, timed } from 'src/util/Profiler/react'
+import { ProfilingProps, pathFromProp, start, timed } from 'uniprofiler/react'
 
 export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
   cid?: IpfsCache.CID

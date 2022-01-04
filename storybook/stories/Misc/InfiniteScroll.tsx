@@ -6,11 +6,10 @@ import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { logger as createLogger } from '@polkadot/util'
 import { StateError } from 'src/types/errors'
 import { Text } from '~comps/Typography'
-import { start } from 'src/util/Profiler'
-import { ProfilingProps } from 'src/util/Profiler/react'
-import * as Profiler from 'src/util/Profiler/react'
+import * as Profiler from 'uniprofiler'
 
 const logger = createLogger('InfiniteScroll')
+const profiler = new Profiler.Context('InfiniteScroll')
 
 export const DEFAULT_PAGE_SIZE = 10
 
@@ -70,7 +69,7 @@ export type InfiniteScrollListProps<ID> = {
   EmptyComponent?: FlatListProps<ID>['ListEmptyComponent']
 }
 
-class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps<ID> & ProfilingProps, ListState<ID>> {
+export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListProps<ID>, ListState<ID>> {
   constructor(props: InfiniteScrollListProps<ID>) {
     super(props)
     
@@ -78,7 +77,7 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
     this.loadInit()
   }
   
-  private loadInit = async () => {
+  private loadInit = profiler.wrap('loadInit', async () => {
     if (this.state.stage !== 'INITIAL') throw new StateError('Cannot load initial data when not in INITIAL state')
     
     const {
@@ -86,11 +85,12 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
       loadInitial,
     } = this.props
     
-    const [ ids, page ] = await loadInitial(pageSize)
+    const [ ids, page ] = await Profiler.start('loadInitial')
+      .wrap(() => loadInitial(pageSize))
     this.dispatch({ type: 'INIT', ids, page })
-  }
+  })
   
-  private loadBatch = async (): Promise<[ ID[], number ]> => {
+  private loadBatch = profiler.wrap('loadBatch', async (): Promise<[ ID[], number ]> => {
     const {
       pageSize = DEFAULT_PAGE_SIZE,
       loadMore,
@@ -120,9 +120,9 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
     await loadItems(added)
     
     return [ added, newPage ]
-  }
+  })
   
-  loadMore = async () => {
+  loadMore = profiler.wrap('loadMore', async () => {
     const {
       stage,
       isEnd,
@@ -136,9 +136,9 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
     const [ newIds, newPage ] = await this.loadBatch()
     
     this.dispatch({ type: 'FINISH_EXPAND', newIds, page: newPage })
-  }
+  })
   
-  private dispatch = (action: ListAction<ID>) => {
+  private dispatch = profiler.wrap('dispatch', (action: ListAction<ID>, profilerPath?: string) => {
     switch (action.type) {
       case 'RESET': {
         this.setState(this.getInitialState())
@@ -198,62 +198,64 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
         return
       }
     }
-  }
+  })
   
-  private onRefresh = async () => {
+  private onRefresh = profiler.wrap('onRefresh', async () => {
     this.dispatch({ type: 'BEGIN_REFRESH' })
     
-    const [ newIds ] = await this.props.loadInitial(this.props.pageSize ?? DEFAULT_PAGE_SIZE)
+    const [ newIds ] = await Profiler.start('loadInitial', Profiler.active().path)
+      .wrap(() => this.props.loadInitial(this.props.pageSize ?? DEFAULT_PAGE_SIZE))
     
     this.dispatch({ type: 'FINISH_REFRESH', ids: newIds })
-  }
+  })
   
   render() {
-    const {
-      profile: {
-        tag,
-        path,
-      } = {}
-    } = this.props
+    profiler.activate();
+    const finish = Profiler.start('render', profiler.path);
     
-    const { stage, ids } = this.state
-    const {
-      refreshable = true,
-      renderItem,
-      HeaderComponent,
-      EmptyComponent,
-      onScroll,
-      onScrollBeginDrag,
-      onScrollEndDrag,
-    } = this.props
-    
-    if (stage === 'INITIAL') {
-      return <SpanningActivityIndicator />
+    try {
+      const { stage, ids } = this.state
+      const {
+        refreshable = true,
+        renderItem,
+        HeaderComponent,
+        EmptyComponent,
+        onScroll,
+        onScrollBeginDrag,
+        onScrollEndDrag,
+      } = this.props
+      
+      if (stage === 'INITIAL') {
+        return <SpanningActivityIndicator />
+      }
+      
+      else {
+        return (
+          <FlatList
+            data={ids}
+            renderItem={({ item: id }) => renderItem(id)}
+            ListHeaderComponent={HeaderComponent}
+            ListFooterComponent={<ListLoading isLoading={stage !== 'READY'} />}
+            ListEmptyComponent={EmptyComponent}
+            onEndReached={this.loadMore}
+            onEndReachedThreshold={1}
+            onScroll={onScroll}
+            onScrollBeginDrag={onScrollBeginDrag}
+            onScrollEndDrag={onScrollEndDrag}
+            keyExtractor={(id) => id+''}
+            refreshControl={refreshable
+            ? <RefreshControl
+                refreshing={stage === 'REFRESH'}
+                onRefresh={this.onRefresh}
+              />
+            : undefined
+            }
+          />
+        )
+      }
     }
-    
-    else {
-      return (
-        <FlatList
-          data={ids}
-          renderItem={({ item: id }) => renderItem(id)}
-          ListHeaderComponent={HeaderComponent}
-          ListFooterComponent={<ListLoading isLoading={stage !== 'READY'} />}
-          ListEmptyComponent={EmptyComponent}
-          onEndReached={this.loadMore}
-          onEndReachedThreshold={1}
-          onScroll={onScroll}
-          onScrollBeginDrag={onScrollBeginDrag}
-          onScrollEndDrag={onScrollEndDrag}
-          keyExtractor={(id) => id+''}
-          refreshControl={refreshable
-          ? <RefreshControl
-              refreshing={stage === 'REFRESH'}
-              onRefresh={this.onRefresh}
-            />
-          : undefined
-          }
-        />
-      )
+    finally {
+      finish();
     }
   }
   
@@ -269,14 +271,7 @@ class InfiniteScrollListBase<ID> extends React.Component<InfiniteScrollListProps
     isEnd: false,
   })
   
-  static bound = <ID,>() => (props: InfiniteScrollListProps<ID>) => <InfiniteScrollListBase<ID> {...props} />
-}
-
-export const InfiniteScrollList = <ID,>(props: InfiniteScrollListProps<ID>) => {
-  const Comp = useMemo(() => Profiler.timed(InfiniteScrollListBase.bound<ID>(), {
-    tag: 'InfiniteScrollList',
-  }), [])
-  return <Comp {...props} />
+  static bound = <ID,>() => (props: InfiniteScrollListProps<ID>) => <InfiniteScrollList<ID> {...props} />
 }
 
 type ListLoadingProps = {

@@ -13,8 +13,7 @@ import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
-import { start } from 'src/util/Profiler'
-import { pathFromProp, ProfilingProps, timed } from 'src/util/Profiler/react'
+import { pathFromProp, ProfilingProps, start, timed } from 'uniprofiler/react'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
 export const Preview = timed(({ id, profile, ...props }: PostPreviewProps & ProfilingProps) => {
