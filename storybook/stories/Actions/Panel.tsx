@@ -7,7 +7,6 @@ import Constants from 'expo-constants'
 import { AnyIcon, IconRaw, isAnyIcon } from '~comps/Icon'
 import { useTheme } from '~comps/Theming'
 import { Text } from '~comps/Typography'
-import SubIcon from 'assets/sub-icon.svg'
 
 export class ShareEvent {
   #isDefaultPrevented = false
@@ -143,8 +142,8 @@ Panel.ShareItem = ({
     <Panel.Item
       {...props}
       icon={{
-        family: 'ionicon',
-        name: 'arrow-redo-outline',
+        family: 'subicon',
+        name: 'share',
       }}
       label={label === true ? 'Share' : label+''}
       onPress={onPress}
@@ -156,12 +155,13 @@ export type PanelTipItemProps = Omit<PanelItemProps, 'icon' | 'label'> & {
   
 };
 Panel.TipItem = ({ ...props }: PanelTipItemProps) => {
-  const ICON_SIZE = 20
-  
   return (
     <Panel.Item
       {...props}
-      icon={<SubIcon width={ICON_SIZE} height={ICON_SIZE} />}
+      icon={{
+        family: 'subicon',
+        name: 'send-tip',
+      }}
     />
   )
 }
