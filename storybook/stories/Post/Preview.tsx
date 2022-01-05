@@ -13,24 +13,18 @@ import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
-import { pathFromProp, ProfilingProps, start, timed } from 'uniprofiler/react'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
-export const Preview = timed(({ id, profile, ...props }: PostPreviewProps & ProfilingProps) => {
+export const Preview = ({ id, ...props }: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
-  const path = pathFromProp(profile)
   
   useEffect(() => {
-    start('reloadPost', path)
-      .promise(reloadPost({ id, reload: true }))
+    reloadPost({ id, reload: true })
   }, [ id ])
   
-  return <PreviewData {...props} {...{ id, data }} profile={{ path: path }} />
-}, {
-  tag: 'PostPreview',
-  memoize: true,
-})
+  return <PreviewData {...props} {...{ id, data }} />
+}
 
 
 type PreviewDataProps = {
@@ -46,7 +40,7 @@ type PreviewDataProps = {
   onPressShare?: (evt: ShareEvent) => void
   onShare?: (evt: ShareEvent) => void
 }
-export const PreviewData = timed(({
+export const PreviewData = ({
   id,
   data,
   containerStyle,
@@ -58,7 +52,7 @@ export const PreviewData = timed(({
   onUnlike,
   onPressShare,
   onShare,
-}: PreviewDataProps & ProfilingProps) =>
+}: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const renderActions = ({ size }: WithSize) => {
@@ -127,11 +121,7 @@ export const PreviewData = timed(({
       </ActionPanel>
     </View>
   )
-}, {
-  tag: 'PostData',
-  memoize: true,
-  withContext: true,
-})
+}
 
 const styles = StyleSheet.create({
   container: {
