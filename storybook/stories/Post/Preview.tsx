@@ -13,18 +13,20 @@ import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
+import { ProfilingProps, timed } from 'uniprofiler/react'
+import * as Profiler from 'uniprofiler/react';
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
-export const Preview = ({ id, ...props }: PostPreviewProps) => {
+export const Preview = timed<PostPreviewProps>('PostPreview', ({ id, profile, ...props }) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
   useEffect(() => {
-    reloadPost({ id, reload: true })
+    profile?.timed('reloadPost', () => reloadPost({ id, reload: true }))
   }, [ id ])
   
   return <PreviewData {...props} {...{ id, data }} />
-}
+}).memoize();
 
 
 type PreviewDataProps = {
@@ -40,7 +42,7 @@ type PreviewDataProps = {
   onPressShare?: (evt: ShareEvent) => void
   onShare?: (evt: ShareEvent) => void
 }
-export const PreviewData = ({
+export const PreviewData = timed<PreviewDataProps>('PostPreviewData', ({
   id,
   data,
   containerStyle,
@@ -121,7 +123,7 @@ export const PreviewData = ({
       </ActionPanel>
     </View>
   )
-}
+}).memoize();
 
 const styles = StyleSheet.create({
   container: {

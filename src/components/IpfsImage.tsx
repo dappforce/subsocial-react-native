@@ -13,18 +13,18 @@ import { useDeferred, useInit } from './hooks'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
 import * as IpfsCache from '../IpfsCache'
+import { timed } from 'uniprofiler/react'
 
 export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
   cid?: IpfsCache.CID
   style?: StyleProp<ImageStyle>
 }
 
-export const IpfsImage = ({ cid, ...props }: IpfsImageProps) => {
+export const IpfsImage = timed<IpfsImageProps>('IpfsImage', ({ cid, profile, ...props }) => {
   const uri = useDeferred(async () => {
     if (!cid) return undefined
     
-    const caches = await IpfsCache.queryImage([cid])
-    
+    const caches = await profile!.timed('queryImage', () => IpfsCache.queryImage([cid]))
     return caches[cid]
   }, [ cid ])
   
@@ -34,7 +34,7 @@ export const IpfsImage = ({ cid, ...props }: IpfsImageProps) => {
     {...props}
     source={{ uri: uri.toString() }}
   />
-}
+}).memoize();
 
 export type IpfsBannerProps = IpfsImageProps & {
   containerStyle?: StyleProp<ViewStyle>
