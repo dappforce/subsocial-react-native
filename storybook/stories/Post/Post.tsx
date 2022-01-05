@@ -20,6 +20,7 @@ const IMAGE_PREVIEW_HEIGHT = 160
 export type PostOwnerProps = {
   postId: PostId
   postData?: PostData
+  loading: boolean
   actionMenuProps?: ActionMenuProps
   onPressOwner?: (id: PostId, ownerId: ProfileId) => void
   onPressSpace?: (id: PostId, spaceId: SpaceId) => void
@@ -27,6 +28,7 @@ export type PostOwnerProps = {
 export const PostOwner = React.memo(({
   postId,
   postData,
+  loading,
   actionMenuProps,
   onPressOwner: _onPressOwner,
   onPressSpace: _onPressSpace
@@ -40,7 +42,6 @@ export const PostOwner = React.memo(({
   const ownerId = postData?.struct?.ownerId
   const spaceData = useSelectSpace(spaceId)
   const ownerData = useSelectProfile(ownerId)
-  const age = new Age(postData?.struct?.createdAtTime ?? 0)
   
   const onPressOwner = useCallback(() => {
     if (ownerId) {
@@ -82,11 +83,16 @@ export const PostOwner = React.memo(({
     return true
   }, [ postId ], [ ownerId ])
   
+  const author = loading ? 'Author'  : ownerData?.content?.name ?? 'Unknown Author'
+  const space  = loading ? 'Space'   : spaceData?.content?.name ?? 'Unknown Space'
+  const avatar = loading ? undefined : ownerData?.content?.avatar
+  const age    = loading ? 'some time ago' : new Age(postData?.struct?.createdAtTime ?? 0)
+  
   return (
     <Header
-      title={ownerData?.content?.name??''}
-      subtitle={`${spaceData?.content?.name??'some space'} · ${age}`}
-      avatar={ownerData?.content?.avatar}
+      title={author}
+      subtitle={`${space} · ${age}`}
+      avatar={avatar}
       actionMenuProps={actionMenuProps}
       onPressTitle={() => onPressOwner()}
       onPressSubtitle={() => onPressSpace()}
@@ -100,17 +106,24 @@ export type HeadProps = {
   image?: string
   title?: string
   preview?: boolean
+  loading: boolean
   bannerStyle?: StyleProp<ImageStyle>
   previewBannerStyle?: StyleProp<ImageStyle>
   titleStyle?: StyleProp<TextStyle>
 }
-export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false }: HeadProps) {
+export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false, loading }: HeadProps) {
+  if (loading) {
+    title = 'Title'
+  }
+  
   return (
     <View>
       <Banner cid={image} style={bannerStyle} previewStyle={previewBannerStyle} preview={preview} />
-      {!!title && <Title preview={preview} style={[ styles.title, titleStyle ]}>
-        {title}
-      </Title>}
+      {!!title &&
+        <Title preview={preview} style={[ styles.title, titleStyle ]}>
+          {title}
+        </Title>
+      }
     </View>
   )
 }
@@ -140,12 +153,15 @@ export const Banner = React.memo(({ cid, preview, style, previewStyle }: BannerP
 export type BodyProps = {
   content: string
   preview?: boolean
+  loading: boolean
   previewStyle?: StyleProp<TextStyle>
   onPressMore?: () => void
 }
-export function Body({ content, previewStyle, onPressMore, preview = false }: BodyProps) {
+export function Body({ content, previewStyle, onPressMore, preview = false, loading }: BodyProps) {
   return (
-    <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>{content}</Markdown>
+    <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>
+      {loading ? 'Loading content.' : content}
+    </Markdown>
   )
 }
 

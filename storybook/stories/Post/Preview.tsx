@@ -13,23 +13,26 @@ import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
+import { useInit } from '~comps/hooks'
 
-export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
+export type PostPreviewProps = Omit<PreviewDataProps, 'data' | 'loading'>
 export const Preview = ({ id, ...props }: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
-  useEffect(() => {
-    reloadPost({ id, reload: true })
-  }, [ id ])
+  const loading = !useInit(async () => {
+    await reloadPost({ id, reload: true })
+    return true
+  }, [ id ], [])
   
-  return <PreviewData {...props} {...{ id, data }} />
+  return <PreviewData {...props} {...{ id, data, loading }} />
 }
 
 
 type PreviewDataProps = {
   id: PostId
   data: PostWithSomeDetails | undefined
+  loading: boolean
   containerStyle?: StyleProp<ViewStyle>
   onPressMore?: (id: PostId) => void
   onPressOwner?: PostOwnerProps['onPressOwner']
@@ -43,6 +46,7 @@ type PreviewDataProps = {
 export const PreviewData = ({
   id,
   data,
+  loading,
   containerStyle,
   onPressMore: _onPressMore,
   onPressOwner,
@@ -95,12 +99,13 @@ export const PreviewData = ({
         {...{ onPressOwner, onPressSpace }}
         postId={id}
         postData={data?.post}
+        loading={loading}
         actionMenuProps={{
           secondary: renderActions
         }}
       />
-      <Head {...{ title, image }} preview />
-      <Body content={content} preview onPressMore={() => onPressMore?.(id)} />
+      <Head {...{ title, image }} preview loading={loading} />
+      <Body content={content} preview loading={loading} onPressMore={() => onPressMore?.(id)} />
       
       <Divider style={{ marginTop: 16 }} />
       
