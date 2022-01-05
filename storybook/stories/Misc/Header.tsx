@@ -54,7 +54,7 @@ export function Header({
               onPress={onPressTitle}
               numberOfLines={1}
             >
-              {title}
+              {normalize(title)}
             </Text>
           : title
           }
@@ -67,7 +67,7 @@ export function Header({
               onPress={onPressSubtitle}
               numberOfLines={1}
             >
-              {subtitle}
+              {normalize(subtitle)}
             </Text>
           : subtitle
           }
@@ -112,3 +112,5 @@ const styles = StyleSheet.create({
     
   },
 });
+
+const normalize = (s: string) => s.replace(String.fromCharCode(8), '');
