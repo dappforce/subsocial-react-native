@@ -203,24 +203,26 @@ const ImportView = React.memo(({ onClose, toggleView }: SubviewProps) => {
   )
 })
 
-const useThemedStyles = createThemedStylesHook(({ fonts }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ fonts, consts }) => StyleSheet.create({
   container: {
     flexDirection: 'column',
     alignItems: 'center',
   },
   paragraph: {
-    marginBottom: 20,
+    marginBottom: 2 * consts.spacing,
     lineHeight: 20,
   },
   input: {
     fontSize: fonts.secondary.fontSize,
     width: '100%',
-    marginBottom: 10,
+    height: 4 * consts.spacing,
+    marginBottom: consts.spacing,
   },
   lastInput: {
     fontSize: fonts.secondary.fontSize,
     width: '100%',
-    marginBottom: 20,
+    height: 4 * consts.spacing,
+    marginBottom: 2 * consts.spacing,
   },
   firstButtonContainer: {
     display: 'flex',
@@ -229,11 +231,11 @@ const useThemedStyles = createThemedStylesHook(({ fonts }) => StyleSheet.create(
   buttonContainer: {
     display: 'flex',
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: consts.spacing,
   },
   button: {
     flex: 1,
-    marginRight: 20,
+    marginRight: 2 * consts.spacing,
   },
   lastButton: {
     flex: 1,
