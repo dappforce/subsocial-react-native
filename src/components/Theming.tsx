@@ -36,6 +36,7 @@ export type Theme = {
   }
   consts: {
     roundness: number
+    spacing: number
   }
   fonts: FontList<
     'primary' |

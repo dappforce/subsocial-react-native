@@ -14,6 +14,7 @@ import { SharePostAction } from './Share'
 import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
 import { WithSize } from 'src/types'
 import { useInit } from '~comps/hooks'
+import { createThemedStylesHook } from '~comps/Theming'
 
 export type PostPreviewProps = Omit<PreviewDataProps, 'data' | 'loading'>
 export const Preview = ({ id, ...props }: PostPreviewProps) => {
@@ -59,6 +60,7 @@ export const PreviewData = ({
 }: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
+  const styles = useThemedStyles();
   const renderActions = ({ size }: WithSize) => {
     return <>
       <ActionMenu.Secondary
@@ -128,12 +130,11 @@ export const PreviewData = ({
   )
 }
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   container: {
     width: '100%',
-    padding: 20,
+    padding: 2 * consts.spacing,
     paddingBottom: 0,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   titleWrapper: {
     paddingTop: 6,
@@ -145,4 +146,4 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   },
-})
+}))

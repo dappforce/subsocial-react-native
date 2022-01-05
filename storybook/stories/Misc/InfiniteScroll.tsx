@@ -5,7 +5,7 @@ import { Falsy, FlatList, FlatListProps, NativeScrollEvent, NativeSyntheticEvent
 import { SpanningActivityIndicator } from '~comps/SpanningActivityIndicator'
 import { logger as createLogger } from '@polkadot/util'
 import { StateError } from 'src/types/errors'
-import { Text } from '~comps/Typography'
+import { Divider, Text } from '~comps/Typography'
 import * as Profiler from 'uniprofiler'
 
 const logger = createLogger('InfiniteScroll')
@@ -67,6 +67,7 @@ export type InfiniteScrollListProps<ID> = {
   onScrollEndDrag?: (e: ScrollEvent) => void
   HeaderComponent?: FlatListProps<ID>['ListHeaderComponent']
   EmptyComponent?: FlatListProps<ID>['ListEmptyComponent']
+  SeparatorComponent?: FlatListProps<ID>['ItemSeparatorComponent']
 }
 
 export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListProps<ID>, ListState<ID>> {
@@ -220,6 +221,7 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
         renderItem,
         HeaderComponent,
         EmptyComponent,
+        SeparatorComponent,
         onScroll,
         onScrollBeginDrag,
         onScrollEndDrag,
@@ -237,6 +239,7 @@ export class InfiniteScrollList<ID> extends React.Component<InfiniteScrollListPr
             ListHeaderComponent={HeaderComponent}
             ListFooterComponent={<ListLoading isLoading={stage !== 'READY'} />}
             ListEmptyComponent={EmptyComponent}
+            ItemSeparatorComponent={SeparatorComponent ?? Divider}
             onEndReached={this.loadMore}
             onEndReachedThreshold={1}
             onScroll={onScroll}

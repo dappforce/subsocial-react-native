@@ -8,7 +8,7 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header, Markdown, SocialLinks as Socials, Tags } from '~stories/Misc'
 import { ActionMenu, FollowSpaceButton } from '~stories/Actions'
 
-export type DataProps = Omit<DataRawProps, 'data'> & {
+export type DataProps = Omit<DataRawProps, 'data' | 'loading'> & {
   id: SpaceId
 }
 export const Data = React.memo(({ id, ...props }: DataProps) => {
@@ -16,7 +16,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
   const data = useSelectSpace(realid)
   const reloadSpace = useCreateReloadSpace()
   
-  useInit(async () => {
+  const loading = !useInit(async () => {
     if (data) return true
     
     if (!reloadSpace) return false
@@ -28,6 +28,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
   return (
     <DataRaw
       data={data}
+      loading={loading}
       {...props}
     />
   )
@@ -35,6 +36,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
 
 export type DataRawProps = {
   data?: SpaceWithSomeDetails
+  loading: boolean
   titlePlaceholder?: string
   showFollowButton?: boolean
   showAbout?: boolean
@@ -46,6 +48,7 @@ export type DataRawProps = {
 }
 export const DataRaw = React.memo(({
   data,
+  loading,
   titlePlaceholder,
   showFollowButton,
   showAbout,
@@ -70,13 +73,16 @@ export const DataRaw = React.memo(({
     }
   }, [ data?.id, _onPressSpace ])
   
+  const socials = data?.content?.links ?? []
+  const tags    = data?.content?.tags  ?? []
+  
   return (
     <View style={[ { width: '100%' }, containerStyle ]}>
       <Head {...{ titlePlaceholder, data, showFollowButton }} onPressSpace={onPressSpace} />
       
       {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.item} />}
-      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={styles.item} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} style={{ marginVertical: 10 }} />}
+      {showSocials && <Socials links={socials} containerStyle={styles.item} />}
+      {showTags    && <Tags tags={tags} style={{ marginVertical: 10 }} />}
     </View>
   )
 })

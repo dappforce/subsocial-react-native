@@ -8,7 +8,7 @@ import { SpaceId } from 'src/types/subsocial'
 import { useInit } from '~comps/hooks'
 import { DataRaw, DataRawProps } from './Data'
 
-export type PreviewProps = Omit<DataRawProps, 'data' | 'preview' | 'state'> & {
+export type PreviewProps = Omit<DataRawProps, 'data' | 'loading' | 'preview' | 'state'> & {
   id: SpaceId
 }
 export const Preview = React.memo(({ id, ...props }: PreviewProps) => {
@@ -16,12 +16,12 @@ export const Preview = React.memo(({ id, ...props }: PreviewProps) => {
   const reloadSpace = useCreateReloadSpace()
   const data = useSelectSpace(resolvedId)
   
-  useInit(async () => {
+  const loading = !useInit(async () => {
     if (!resolvedId) return false
     
     await reloadSpace({ id: resolvedId })
     return true
   }, [ resolvedId ], [])
   
-  return <DataRaw {...props} data={data} titlePlaceholder={id.toString()} preview />
+  return <DataRaw {...props} data={data} loading={loading} titlePlaceholder={id.toString()} preview />
 })

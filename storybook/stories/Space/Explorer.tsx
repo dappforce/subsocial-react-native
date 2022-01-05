@@ -3,10 +3,10 @@
 import React, { useCallback } from 'react'
 import { StyleSheet } from 'react-native'
 import { Preview } from './Preview'
-import { Divider } from 'src/components/Typography'
 import { InfiniteScrollList, InfiniteScrollListProps } from '~stories/Misc/InfiniteScroll'
 import { SpaceId } from 'src/types/subsocial'
 import { useCreateReloadSpace } from 'src/rtk/app/hooks'
+import { createThemedStylesHook } from '~comps/Theming'
 
 export type SuggestedProps = {
   spaces: SpaceId[]
@@ -44,7 +44,9 @@ type WrappedSpaceProps = {
   id: SpaceId
 }
 const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
-  return <>
+  const styles = useThemedStyles()
+  
+  return (
     <Preview
       id={id}
       showAbout
@@ -52,13 +54,12 @@ const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
       showTags
       containerStyle={styles.wrappedSpace}
     />
-    <Divider />
-  </>
+  )
 })
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   wrappedSpace: {
-    padding: 20,
+    padding: 2 * consts.spacing,
     paddingBottom: 0,
   },
-})
+}))

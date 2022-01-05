@@ -75,15 +75,15 @@ async function loadFromREST(id: AccountId, page: number, pageSize: number) {
   return res.data.map(({ post_id }) => post_id)
 }
 
-const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   post: {
-    padding: 20,
+    padding: 2 * consts.spacing,
     paddingBottom: 0,
     borderBottomWidth: 1,
     borderColor: colors.line,
   },
   empty: {
     textAlign: 'center',
-    marginVertical: 10,
+    marginVertical: consts.spacing,
   },
 }))

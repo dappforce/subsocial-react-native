@@ -70,11 +70,9 @@ const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
   )
 })
 
-const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   space: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.divider,
-    padding: 20,
+    padding: 2 * consts.spacing,
   },
   empty: {
     textAlign: 'center',

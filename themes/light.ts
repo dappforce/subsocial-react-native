@@ -26,6 +26,7 @@ const theme: Theme = {
   },
   consts: {
     roundness: 4,
+    spacing: 10,
   },
   fonts: {
     primary: {
