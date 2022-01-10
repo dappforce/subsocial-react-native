@@ -1,7 +1,8 @@
-import React, { ReactElement, ReactNode, useState } from 'react'
+import React, { ReactElement, ReactNode, useRef } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
-import { Menu, TouchableRipple } from 'react-native-paper'
-import { useTheme } from '../../../src/components/Theming'
+import { TouchableRipple } from 'react-native-paper'
+import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet'
+import { createThemedStylesHook, useTheme } from '../../../src/components/Theming'
 import { AnyIcon, Icon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
 import { WithSize } from 'src/types'
@@ -15,27 +16,38 @@ export type ActionMenuProps = {
   size?: number
 }
 export function ActionMenu({ primary, secondary, size = 24, style }: ActionMenuProps) {
+  const bottomSheet = useRef<BottomSheetModal>(null)
   const theme = useTheme();
-  const [ showSecondary, setShowSecondary ] = useState(false)
+  const styles = useThemedStyles()
   
   return (
     <View style={[ styles.actionMenu, style ]}>
-      {!!secondary &&
-        <Menu
-          visible={showSecondary}
-          onDismiss={() => setShowSecondary(false)}
-          anchor={<Icon
-            family="feather"
-            name="more-horizontal"
+      {!!secondary && (
+        <>
+          <Icon
+            icon={{
+              family: 'ionicon',
+              name: 'ellipsis-vertical',
+            }}
             size={size}
-            style={{ color: theme.colors.textSecondary }}
-            onPress={() => setShowSecondary(true)}
+            color={theme.colors.textSecondary}
+            onPress={() => bottomSheet.current?.present()}
             rippleBorderless
-          />}
-        >
-          {secondary?.({ size })}
-        </Menu>
-      }
+          />
+          <BottomSheetModal
+            ref={bottomSheet}
+            backdropComponent={(props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} />}
+            index={0}
+            snapPoints={[200, '90%']}
+            enablePanDownToClose
+            enableDismissOnClose
+          >
+            <BottomSheetScrollView>
+              {secondary?.({ size })}
+            </BottomSheetScrollView>
+          </BottomSheetModal>
+        </>
+      )}
       {primary?.({ size })}
     </View>
   )
@@ -45,6 +57,7 @@ export type PrimaryProps = React.PropsWithChildren<{
   style?: StyleProp<ViewStyle>
 }>;
 ActionMenu.Primary = function({ children, style }: PrimaryProps) {
+  const styles = useThemedStyles()
   return (
     <View style={[ styles.actionPrimary, style ]}>
       {children}
@@ -61,6 +74,7 @@ export type SecondaryProps = {
 };
 ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disabled }: SecondaryProps) {
   const theme = useTheme()
+  const styles = useThemedStyles()
   let iconRender = null
   
   if (icon) {
@@ -81,19 +95,19 @@ ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disa
   
   return (
     <TouchableRipple style={styles.actionSecondary} {...{ onPress, disabled }}>
-      <>
+      <View style={styles.row}>
         <View style={[ styles.iconSecondary, iconContainerStyle ]}>
           {iconRender}
         </View>
-        <Text style={[ disabled && { color: theme.colors.textDisabled } ]}>
+        <Text style={[ styles.labelSecondary, disabled && { color: theme.colors.textDisabled } ]}>
           {label}
         </Text>
-      </>
+      </View>
     </TouchableRipple>
   )
 }
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   actionMenu: {
     display: 'flex',
     flexDirection: 'row',
@@ -107,11 +121,21 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 0.5 * consts.spacing,
     minWidth: 200,
   },
-  iconSecondary: {
-    width: 36,
+  row: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-})
+  iconSecondary: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+  },
+  labelSecondary: {
+    flex: 1,
+  },
+}))

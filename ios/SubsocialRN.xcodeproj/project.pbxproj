@@ -14,7 +14,7 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		96905EF65AED1B983A6B3ABC /* libPods-SubsocialRN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58EEBF8E8E6FB1BC6CAF49B5 /* libPods-SubsocialRN.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		D9337410885B4A569F61D621 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = A42946A082FD4D4AA93B053F /* noop-file.swift */; };
+		6B0CDC096C384077AC2CB275 /* noop-file.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CC3FEC3D40A42B1A414C43B /* noop-file.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,8 +33,8 @@
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		ED2971642150620600B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = Platforms/AppleTVOS.platform/Developer/SDKs/AppleTVOS12.0.sdk/System/Library/Frameworks/JavaScriptCore.framework; sourceTree = DEVELOPER_DIR; };
-		A42946A082FD4D4AA93B053F /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "SubsocialRN/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
-		2F366F901F67427CBAB2028E /* SubsocialRN-Bridging-Header.h */ = {isa = PBXFileReference; name = "SubsocialRN-Bridging-Header.h"; path = "SubsocialRN/SubsocialRN-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		9CC3FEC3D40A42B1A414C43B /* noop-file.swift */ = {isa = PBXFileReference; name = "noop-file.swift"; path = "SubsocialRN/noop-file.swift"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.swift; explicitFileType = undefined; includeInIndex = 0; };
+		FF2C5C3DF99E45B795F0E08B /* SubsocialRN-Bridging-Header.h */ = {isa = PBXFileReference; name = "SubsocialRN-Bridging-Header.h"; path = "SubsocialRN/SubsocialRN-Bridging-Header.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +61,8 @@
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A42946A082FD4D4AA93B053F /* noop-file.swift */,
-				2F366F901F67427CBAB2028E /* SubsocialRN-Bridging-Header.h */,
+				9CC3FEC3D40A42B1A414C43B /* noop-file.swift */,
+				FF2C5C3DF99E45B795F0E08B /* SubsocialRN-Bridging-Header.h */,
 			);
 			name = SubsocialRN;
 			sourceTree = "<group>";
@@ -188,7 +188,7 @@
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				D11A7CDA2F44410993057673 /* SubsocialRN-Bridging-Header.h in Resources */,
+				CC773827AEF542CBAD83383E /* SubsocialRN-Bridging-Header.h in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,7 +277,7 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				D9337410885B4A569F61D621 /* noop-file.swift in Sources */,
+				6B0CDC096C384077AC2CB275 /* noop-file.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

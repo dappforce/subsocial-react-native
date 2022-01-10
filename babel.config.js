@@ -11,6 +11,7 @@ module.exports = function(api) {
           '@emotion/core': '@emotion/react',
         },
       }],
+      'react-native-reanimated/plugin', // must be listed last
     ],
     env: {
       production: {
