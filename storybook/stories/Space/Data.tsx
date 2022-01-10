@@ -80,9 +80,9 @@ export const DataRaw = React.memo(({
     <View style={[ { width: '100%' }, containerStyle ]}>
       <Head {...{ titlePlaceholder, data, showFollowButton }} onPressSpace={onPressSpace} />
       
-      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.item} />}
-      {showSocials && <Socials links={socials} containerStyle={styles.item} />}
-      {showTags    && <Tags tags={tags} style={{ marginVertical: 10 }} />}
+      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.about} />}
+      {showSocials && <Socials links={socials} containerStyle={styles.socials} />}
+      {showTags    && <Tags tags={tags} style={styles.tags} tagStyle={styles.tag} />}
     </View>
   )
 })
@@ -125,7 +125,7 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
         onPress={() => {}}
       />
     </>
-  }, []);
+  }, [])
   
   return (
     <Header
@@ -170,9 +170,19 @@ export function About({ data, preview, containerStyle, onPressMore: _onPressMore
 }
 
 const styles = StyleSheet.create({
-  item: {
-    marginBottom: 20,
-  }
+  about: {
+    marginTop: 10,
+  },
+  socials: {
+    marginTop: 10,
+  },
+  tags: {
+    marginTop: 2,
+  },
+  tag: {
+    marginTop: 8,
+    marginBottom: 0,
+  },
 })
 
 const mdStyles = StyleSheet.create({

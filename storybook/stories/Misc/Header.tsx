@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
   },
   left: {
     marginRight: 10,

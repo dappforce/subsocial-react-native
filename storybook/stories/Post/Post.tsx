@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying Post from data Component
 import React, { useCallback } from 'react'
-import { StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ImageStyle } from 'react-native-fast-image'
 import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
@@ -22,6 +22,7 @@ export type PostOwnerProps = {
   postData?: PostData
   loading: boolean
   actionMenuProps?: ActionMenuProps
+  style?: StyleProp<ViewStyle>
   onPressOwner?: (id: PostId, ownerId: ProfileId) => void
   onPressSpace?: (id: PostId, spaceId: SpaceId) => void
 }
@@ -30,6 +31,7 @@ export const PostOwner = React.memo(({
   postData,
   loading,
   actionMenuProps,
+  style,
   onPressOwner: _onPressOwner,
   onPressSpace: _onPressSpace
 }: PostOwnerProps) =>
@@ -97,6 +99,7 @@ export const PostOwner = React.memo(({
       onPressTitle={() => onPressOwner()}
       onPressSubtitle={() => onPressSpace()}
       onPressAvatar={() => onPressOwner()}
+      containerStyle={style}
     />
   )
 })

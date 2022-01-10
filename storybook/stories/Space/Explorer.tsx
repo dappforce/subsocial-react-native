@@ -60,6 +60,5 @@ const WrappedSpace = React.memo(({ id }: WrappedSpaceProps) => {
 const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   wrappedSpace: {
     padding: 2 * consts.spacing,
-    paddingBottom: 0,
   },
 }))

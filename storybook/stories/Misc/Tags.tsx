@@ -14,14 +14,12 @@ export type TagsProps = {
 export function Tags({ tags, accented, onPress, style, tagStyle }: TagsProps) {
   if (!tags.length) return null
   
-  const _tagStyle = useMemo(() => StyleSheet.compose<ViewStyle>(styles.tag, tagStyle), [tagStyle])
-  
   const children = tags.map(tag => (
     <Chip
       mode={accented ? 'accent' : 'flat'}
       onPress={()=>onPress?.(tag)}
       key={tag}
-      style={_tagStyle}
+      style={[ styles.tag, tagStyle ]}
     >
       {tag}
     </Chip>

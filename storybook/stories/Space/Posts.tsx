@@ -83,7 +83,7 @@ const WrappedPost = React.memo(({ id, onPressMore, onPressOwner }: WrappedPostPr
   return (
     <Post.Preview
       {...{ id, onPressMore, onPressOwner }}
-      onPressSpace={()=>{}}
+      onPressSpace={() => {}}
     />
   )
 })

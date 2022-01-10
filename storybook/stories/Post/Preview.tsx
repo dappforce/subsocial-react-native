@@ -105,6 +105,7 @@ export const PreviewData = ({
         actionMenuProps={{
           secondary: renderActions
         }}
+        style={styles.owner}
       />
       <Head {...{ title, image }} preview loading={loading} />
       <Body content={content} preview loading={loading} onPressMore={() => onPressMore?.(id)} />
@@ -135,6 +136,9 @@ const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create
     width: '100%',
     padding: 2 * consts.spacing,
     paddingBottom: 0,
+  },
+  owner: {
+    marginBottom: consts.spacing,
   },
   titleWrapper: {
     paddingTop: 6,

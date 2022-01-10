@@ -20,6 +20,7 @@ import { Preview as SpacePreview } from '../Space/Preview'
 import { CommentThread } from '../Comments'
 import { Panel as ActionPanel, ShareEvent } from '../Actions'
 import { Tags } from '../Misc'
+import { createThemedStylesHook } from '~comps/Theming'
 
 export type DetailsProps = {
   id: PostId
@@ -55,6 +56,7 @@ export function Details({
 }: DetailsProps) {
   const { api } = useSubsocial()
   const dispatch = useAppDispatch()
+  const styles = useThemedStyles()
   
   const data = useSelectPost(id)
   const { spaceId, ownerId } = data?.post?.struct ?? {}
@@ -100,20 +102,24 @@ export function Details({
         <ScrollView style={[ styles.scroller, scrollerStyle ]}>
           <View style={[ styles.content, contentContainerStyle ]}>
             <PostOwner
+              loading={false}
               postId={id}
               postData={data?.post}
               {...{ onPressOwner, onPressSpace }}
-            />
+              style={styles.owner}
+              />
             <Head 
+              loading={false}
               title={data?.post?.content?.title}
               titleStyle={{ marginBottom: 0 }} // Markdown adds indents as well
               image={data?.post?.content?.image}
-            />
+              />
             <Body
+              loading={false}
               content={data?.post?.content?.body ?? ''}
             />
-            <Tags tags={data?.post?.content?.tags ?? []} />
-            <ActionPanel style={{ marginVertical: 20, justifyContent: 'space-between' }}>
+            <Tags tags={data?.post?.content?.tags ?? []} style={styles.tags} tagStyle={styles.tag} />
+            <ActionPanel style={styles.actions}>
               <LikeAction
                 postId={id}
                 onPress={onPressLike}
@@ -141,7 +147,7 @@ export function Details({
           
           {loadingReplies
           ? <View style={styles.loadingReplies}><ActivityIndicator /></View>
-          : replies.map(id => (
+          : replies.map((id, idx, lst) => (
               <View key={id}>
                 <CommentThread
                   id={id}
@@ -149,7 +155,7 @@ export function Details({
                   onPressProfile={onPressReplyOwner}
                   containerStyle={[ styles.comment, commentContainerStyle ]}
                 />
-                <Divider style={styles.commentDivider} />
+                {idx < lst.length - 1 && <Divider style={styles.commentDivider} />}
               </View>
             ))
           }
@@ -159,7 +165,7 @@ export function Details({
   }
 }
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   loadingContainer: {
     flex: 1,
     display: 'flex',
@@ -169,26 +175,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  owner: {
+    marginBottom: consts.spacing,
+  },
   scroller: {
     flex: 1,
   },
   content: {
-    padding: 20,
+    padding: 2 * consts.spacing,
   },
   divider: {
     marginVertical: 0,
   },
   comment: {
-    padding: 20,
+    padding: 2 * consts.spacing,
     paddingBottom: 0,
   },
   commentDivider: {
     marginVertical: 0,
   },
+  tags: {
+    marginTop: consts.spacing,
+    marginBottom: consts.spacing - 8,
+  },
+  tag: {
+    marginBottom: 8,
+  },
+  actions: {
+    marginTop: consts.spacing,
+    marginBottom: 2 * consts.spacing,
+    justifyContent: 'space-between'
+  },
   loadingReplies: {
     width: '100%',
-    height: 80,
+    height: 8 * consts.spacing,
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+}))

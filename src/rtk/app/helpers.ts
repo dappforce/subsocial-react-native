@@ -4,9 +4,9 @@ import { AsyncThunk, EntityId } from '@reduxjs/toolkit'
 import { getFirstOrUndefined, isEmptyArray, nonEmptyStr } from '@subsocial/utils'
 import { CommonContent, EntityData, FlatSuperCommon, HasId } from 'src/types/subsocial'
 import { asString } from '@subsocial/utils'
-import { RootState } from './rootReducer'
-import { AppDispatch, AppThunk } from './store'
 import { useAppDispatch } from './hooksCommon'
+import type { RootState } from './rootReducer'
+import type { AppDispatch, AppThunk } from './store'
 
 export type ThunkApiConfig = {
   state: RootState
