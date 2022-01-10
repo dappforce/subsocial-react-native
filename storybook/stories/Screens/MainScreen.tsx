@@ -200,13 +200,13 @@ type TabBarIconProps = {
 }
 
 const renderHomeIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="home-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'home-outline'}} color={color} size={size} />
 }
 
 const renderSearchIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="search-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'search-outline'}} color={color} size={size} />
 }
 
 const renderNotifIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="notifications-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'notifications-outline'}} color={color} size={size} />
 }

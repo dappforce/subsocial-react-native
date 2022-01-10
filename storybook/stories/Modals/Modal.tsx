@@ -58,8 +58,10 @@ export function Modal({
           <View style={[ styles.titleContainer, titleContainerStyle ]} accessibilityRole="header">
             <Title preview style={titleStyle}>{title}</Title>
             <Icon
-              family="ionicon"
-              name="close-outline"
+              icon={{
+                family: 'ionicon',
+                name: 'close-outline',
+              }}
               size={20}
               onPress={onRequestClose}
               rippleBorderless

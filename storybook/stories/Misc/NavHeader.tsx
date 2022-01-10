@@ -24,8 +24,10 @@ export function StackHeader({ navigation, route, options, back }: StackHeaderPro
           <View style={[ styles.container, themedStyles.container ]}>
             <View style={styles.leftContainer}>
               {back && <Icon
-                family="ionicon"
-                name="chevron-back-outline"
+                icon={{
+                  family: 'ionicon',
+                  name: 'chevron-back-outline',
+                }}
                 color={theme.colors.primary}
                 size={20}
                 onPress={() => navigation.goBack()}

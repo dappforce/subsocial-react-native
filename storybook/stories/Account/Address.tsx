@@ -56,12 +56,12 @@ export const Address = React.memo(({ id, containerStyle, walletIconContainerStyl
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.address}>
-        <MyIcon family="subicon" name="wallet" color={theme.colors.divider} containerStyle={[styles.walletIcon, walletIconContainerStyle]} />
+        <MyIcon icon={{family: 'subicon', name: 'wallet'}} color={theme.colors.divider} containerStyle={[styles.walletIcon, walletIconContainerStyle]} />
         <Text>{truncateAddress(id)}</Text>
       </View>
       
-      <MyIcon family="subicon" name="copy" onPress={onCopy} containerStyle={actionIconContainerStyle} />
-      <MyIcon family="subicon" name="qr-code" onPress={onShowQR} containerStyle={actionIconContainerStyle} />
+      <MyIcon icon={{family: 'subicon', name: 'copy'}} onPress={onCopy} containerStyle={actionIconContainerStyle} />
+      <MyIcon icon={{family: 'subicon', name: 'qr-code'}} onPress={onShowQR} containerStyle={actionIconContainerStyle} />
       <TouchableRipple
         style={styles.actionIconContainer}
         rippleSize={rippleSize}
@@ -99,8 +99,10 @@ function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalP
     if (copyClicked) {
       return ({ size }) => (
         <Icon
-          family="ionicon"
-          name="checkmark-circle-outline"
+          icon={{
+            family: 'ionicon',
+            name: 'checkmark-circle-outline',
+          }}
           size={size}
           color={theme.colors.background}
         />
@@ -110,8 +112,10 @@ function AddressQRModal({ id, visible, onClose, styles, theme }: AddressQRModalP
     else {
       return ({ size }) => (
         <Icon
-          family="subicon"
-          name="copy"
+          icon={{
+            family: 'subicon',
+            name: 'copy',
+          }}
           size={size}
           color={theme.colors.background}
         />
