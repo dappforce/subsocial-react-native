@@ -39,7 +39,7 @@ export function StackHeader({ navigation, route, options, back }: StackHeaderPro
           </View>
         )
       }}
-      </ThemeContext.Consumer>
+    </ThemeContext.Consumer>
   )
 }
 
