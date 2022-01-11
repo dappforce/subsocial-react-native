@@ -13,7 +13,7 @@ import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { fetchPostReplyIds } from 'src/rtk/features/replies/repliesSlice'
 import { AccountId, PostId } from 'src/types/subsocial'
 import { Divider } from '~comps/Typography'
-import { Head, Body, PostOwner } from './Post'
+import { Head, Body, PostActionMenu, PostOwner } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
 import { SharePostAction } from './Share'
 import { Preview as SpacePreview } from '../Space/Preview'
@@ -105,15 +105,18 @@ export function Details({
               loading={false}
               postId={id}
               postData={data?.post}
+              actionMenuProps={{
+                secondary: ({ size }) => <PostActionMenu isMyPost={false} iconSize={size} />,
+              }}
               {...{ onPressOwner, onPressSpace }}
               style={styles.owner}
-              />
+            />
             <Head 
               loading={false}
               title={data?.post?.content?.title}
               titleStyle={{ marginBottom: 0 }} // Markdown adds indents as well
               image={data?.post?.content?.image}
-              />
+            />
             <Body
               loading={false}
               content={data?.post?.content?.body ?? ''}

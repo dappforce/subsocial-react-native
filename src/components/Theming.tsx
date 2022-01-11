@@ -198,10 +198,10 @@ export const reduceMarkdownTheme = (base: NonNullable<MdProps['style']>, { color
 
 
 export type StyleFactory<T> = {
-  (theme: Theme): T | StyleSheet.NamedStyles<T>
+  (theme: Theme): T
 }
 export type StyleFactoryHook<T> = {
-  (): T | StyleSheet.NamedStyles<T>
+  (): T
 }
 
 /** A hook which reuses the same StyleSheet across instances of the same component.
@@ -213,7 +213,7 @@ export type StyleFactoryHook<T> = {
  */
 export function createThemedStylesHook<T>(factory: StyleFactory<T>): StyleFactoryHook<T> {
   let oldTheme = undefined as unknown as Theme
-  let cached   = undefined as unknown as StyleSheet.NamedStyles<T>
+  let cached   = undefined as unknown as T
   
   const useThemedStyle = () => {
     const theme = useTheme()

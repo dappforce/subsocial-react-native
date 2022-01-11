@@ -7,7 +7,10 @@ import { AnyIcon, Icon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
 import { WithSize } from 'src/types'
 
-export type IconDescriptor = AnyIcon & Partial<WithSize>
+export type IconDescriptor = AnyIcon & {
+  size?: number
+  color?: string
+}
 
 export type ActionMenuProps = {
   primary?: ({ size }: WithSize) => ReactNode
@@ -87,7 +90,7 @@ ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disa
           family={icon.family}
           name={icon.name}
           size={icon.size ?? 24}
-          color={disabled ? theme.colors.textDisabled : theme.colors.textPrimary}
+          color={icon.color || (disabled ? theme.colors.textDisabled : theme.colors.textPrimary)}
         />
       )
     }

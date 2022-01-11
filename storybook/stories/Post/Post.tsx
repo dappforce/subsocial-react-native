@@ -8,12 +8,13 @@ import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
-import { ActionMenuProps } from '~stories/Actions'
+import { ActionMenu, ActionMenuProps } from '~stories/Actions'
 import { Markdown } from '~stories/Misc'
-import { Title } from '~comps/Typography'
+import { Divider, Text, Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { useInit } from '~comps/hooks'
 import Age from 'src/util/Age'
+import { createThemedStylesHook, useTheme } from '~comps/Theming'
 
 const IMAGE_PREVIEW_HEIGHT = 160
 
@@ -115,6 +116,8 @@ export type HeadProps = {
   titleStyle?: StyleProp<TextStyle>
 }
 export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false, loading }: HeadProps) {
+  const styles = useThemedStyles()
+  
   if (loading) {
     title = 'Title'
   }
@@ -138,6 +141,8 @@ export type BannerProps = {
   previewStyle?: StyleProp<ImageStyle>
 }
 export const Banner = React.memo(({ cid, preview, style, previewStyle }: BannerProps) => {
+  const styles = useThemedStyles()
+  
   if (!cid) return null
   
   if (preview) {
@@ -168,7 +173,65 @@ export function Body({ content, previewStyle, onPressMore, preview = false, load
   )
 }
 
-const styles = StyleSheet.create({
+export type PostActionMenuProps = {
+  isMyPost?: boolean
+  iconSize?: number
+}
+export const PostActionMenu = React.memo(({ isMyPost, iconSize = 24 }: PostActionMenuProps) => {
+  const theme = useTheme()
+  const styles = useThemedStyles()
+  
+  return <>
+      <View style={styles.actionMenuContent}>
+        <Text  style={styles.actionMenuTitle}>Actions</Text>
+        <Divider style={styles.actionMenuDivider} />
+      </View>
+      <ActionMenu.Secondary
+        label="View reactions"
+        icon={{
+          family: 'ionicon',
+          name: 'heart-outline',
+          size: iconSize,
+          color: theme.colors.divider,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+      <ActionMenu.Secondary
+        label="View on IPFS"
+        icon={{
+          family: 'ionicon',
+          name: 'analytics-outline',
+          size: iconSize,
+          color: theme.colors.divider,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+      {isMyPost && <>
+        <ActionMenu.Secondary
+          label="Edit post"
+          icon={{
+            family: 'ionicon',
+            name: 'create',
+            size: iconSize,
+            color: theme.colors.divider,
+          }}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+        <ActionMenu.Secondary
+          label="Hide post"
+          icon={{
+            family: 'ionicon',
+            name: 'trash-outline',
+            size: iconSize,
+            color: theme.colors.divider,
+          }}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+      </>}
+    </>
+})
+
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   title: {
     marginTop: 0,
     marginBottom: 6,
@@ -177,11 +240,21 @@ const styles = StyleSheet.create({
   previewBanner: {
     width: '100%',
     height: IMAGE_PREVIEW_HEIGHT,
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: consts.roundness,
+    marginBottom: consts.spacing,
   },
   banner: {
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: consts.roundness,
+    marginBottom: consts.spacing,
   },
-});
+  actionMenuTitle: {
+    marginBottom: consts.spacing,
+    color: colors.textSecondary,
+  },
+  actionMenuDivider: {
+    marginBottom: consts.spacing,
+  },
+  actionMenuContent: {
+    paddingHorizontal: 2 * consts.spacing,
+  }
+}))

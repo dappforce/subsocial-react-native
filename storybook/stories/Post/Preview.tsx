@@ -7,12 +7,11 @@ import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
-import { Head, Body, PostOwner, PostOwnerProps } from './Post'
+import { Head, Body, PostActionMenu, PostOwner, PostOwnerProps } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
 import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
-import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
-import { WithSize } from 'src/types'
+import { Panel as ActionPanel, ShareEvent } from '../Actions'
 import { useInit } from '~comps/hooks'
 import { createThemedStylesHook } from '~comps/Theming'
 
@@ -61,28 +60,6 @@ export const PreviewData = ({
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
   const styles = useThemedStyles();
-  const renderActions = ({ size }: WithSize) => {
-    return <>
-      <ActionMenu.Secondary
-        label="View reactions"
-        icon={{
-          family: 'ionicon',
-          name: 'bulb-outline',
-          size,
-        }}
-        onPress={() => alert('not yet implemented, sorry')}
-      />
-      <ActionMenu.Secondary
-        label="View on IPFS"
-        icon={{
-          family: 'ionicon',
-          name: 'analytics-outline',
-          size,
-        }}
-        onPress={() => alert('not yet implemented, sorry')}
-      />
-    </>
-  }
   
   const { title = '', body: content = '', image } = data?.post?.content ?? {}
   
@@ -103,7 +80,7 @@ export const PreviewData = ({
         postData={data?.post}
         loading={loading}
         actionMenuProps={{
-          secondary: renderActions
+          secondary: ({ size }) => <PostActionMenu isMyPost={false} iconSize={size} />,
         }}
         style={styles.owner}
       />
