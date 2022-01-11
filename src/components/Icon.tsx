@@ -78,9 +78,11 @@ type RippleProps = Pick<TouchableRippleProps, 'rippleSize' | 'rippleBorderless'>
 
 Elements.registerCustomIconType('subicon', createIconSet(SubiconGlyphmap, 'Subicon'))
 
-export type IconProps = AnyIcon & Omit<Elements.IconProps, 'name' | 'type'> & RippleProps
-export function Icon(props: IconProps) {
-  return <IconRaw {...props} />
+export type IconProps = Omit<Elements.IconProps, 'name' | 'type'> & RippleProps & {
+  icon: AnyIcon
+}
+export function Icon({ icon, ...props }: IconProps) {
+  return <IconRaw {...icon} {...props} />
 }
 
 export type IconRawProps = Omit<Elements.IconProps, 'type'> & RippleProps & {

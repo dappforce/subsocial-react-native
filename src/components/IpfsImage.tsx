@@ -141,7 +141,14 @@ export const MyIpfsAvatar = React.memo(({ color, size, style, ...props }: MyIpfs
   else {
     return (
       <View style={style}>
-        <Icon family="ionicon" name="person-circle-outline" size={size} color={color ?? theme.colors.primary} />
+        <Icon
+          icon={{
+            family: 'ionicon',
+            name: 'person-circle-outline'
+          }}
+          size={size}
+          color={color ?? theme.colors.primary}
+        />
       </View>
     )
   }

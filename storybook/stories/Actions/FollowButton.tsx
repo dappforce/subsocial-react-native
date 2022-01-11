@@ -70,8 +70,10 @@ export function FollowButtonBase({
     extraProps.icon = ({ size, color }) => {
       return (
         <Icon
-          family="subicon"
-          name={isFollowing ? 'followed' : 'follow'}
+          icon={{
+            family: 'subicon',
+            name: isFollowing ? 'followed' : 'follow',
+          }}
           size={size}
           color={color}
         />

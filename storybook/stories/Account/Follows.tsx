@@ -76,11 +76,9 @@ const WrappedFollowedAccount = React.memo(({ id }: WrappedFollowedAccountProps) 
   )
 })
 
-const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   followedAccount: {
-    padding: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.divider,
+    padding: 2 * consts.spacing,
   },
   empty: {
     textAlign: 'center',

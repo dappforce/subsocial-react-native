@@ -6,9 +6,9 @@ import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'sr
 import { useInit } from '~comps/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header, Markdown, SocialLinks as Socials, Tags } from '~stories/Misc'
-import { ActionMenu, FollowSpaceButton } from '~stories/Actions'
+import { ActionMenu, ActionMenuItem, FollowSpaceButton } from '~stories/Actions'
 
-export type DataProps = Omit<DataRawProps, 'data'> & {
+export type DataProps = Omit<DataRawProps, 'data' | 'loading'> & {
   id: SpaceId
 }
 export const Data = React.memo(({ id, ...props }: DataProps) => {
@@ -16,7 +16,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
   const data = useSelectSpace(realid)
   const reloadSpace = useCreateReloadSpace()
   
-  useInit(async () => {
+  const loading = !useInit(async () => {
     if (data) return true
     
     if (!reloadSpace) return false
@@ -28,6 +28,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
   return (
     <DataRaw
       data={data}
+      loading={loading}
       {...props}
     />
   )
@@ -35,6 +36,7 @@ export const Data = React.memo(({ id, ...props }: DataProps) => {
 
 export type DataRawProps = {
   data?: SpaceWithSomeDetails
+  loading: boolean
   titlePlaceholder?: string
   showFollowButton?: boolean
   showAbout?: boolean
@@ -46,6 +48,7 @@ export type DataRawProps = {
 }
 export const DataRaw = React.memo(({
   data,
+  loading,
   titlePlaceholder,
   showFollowButton,
   showAbout,
@@ -70,13 +73,16 @@ export const DataRaw = React.memo(({
     }
   }, [ data?.id, _onPressSpace ])
   
+  const socials = data?.content?.links ?? []
+  const tags    = data?.content?.tags  ?? []
+  
   return (
     <View style={[ { width: '100%' }, containerStyle ]}>
       <Head {...{ titlePlaceholder, data, showFollowButton }} onPressSpace={onPressSpace} />
       
-      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.item} />}
-      {showSocials && <Socials links={data?.content?.links??[]} containerStyle={styles.item} />}
-      {showTags    && <Tags tags={data?.content?.tags??[]} style={{ marginVertical: 10 }} />}
+      {showAbout   && <About {...{data, preview}} onPressMore={onPressSpace} containerStyle={styles.about} />}
+      {showSocials && <Socials links={socials} containerStyle={styles.socials} />}
+      {showTags    && <Tags tags={tags} style={styles.tags} tagStyle={styles.tag} />}
     </View>
   )
 })
@@ -100,27 +106,6 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
     </>
   }, [ id ])
   
-  const renderSecondaryActions = useCallback(() => {
-    return <>
-      <ActionMenu.Secondary
-        label="Share Space"
-        icon={{
-          family: 'ionicon',
-          name: 'share-social-outline',
-        }}
-        onPress={() => {}}
-      />
-      <ActionMenu.Secondary
-        label="View on IPFS"
-        icon={{
-          family: 'ionicon',
-          name: 'analytics-outline',
-        }}
-        onPress={() => {}}
-      />
-    </>
-  }, []);
-  
   return (
     <Header
       title={data?.content?.name ?? titlePlaceholder}
@@ -130,7 +115,28 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
       onPressAvatar={onPressSpace}
       actionMenuProps={{
         primary: renderPrimaryActions,
-        secondary: renderSecondaryActions
+        secondary: ({ size }) => (
+          <>
+            <ActionMenuItem
+              label="Share Space"
+              icon={{
+                family: 'subicon',
+                name: 'share',
+                size,
+              }}
+              onPress={() => alert('Sorry, not yet implemented')}
+            />
+            <ActionMenuItem
+              label="View on IPFS"
+              icon={{
+                family: 'ionicon',
+                name: 'analytics-outline',
+                size,
+              }}
+              onPress={() => alert('Sorry, not yet implemented')}
+            />
+          </>
+        )
       }}
     />
   )
@@ -164,9 +170,19 @@ export function About({ data, preview, containerStyle, onPressMore: _onPressMore
 }
 
 const styles = StyleSheet.create({
-  item: {
-    marginBottom: 20,
-  }
+  about: {
+    marginTop: 10,
+  },
+  socials: {
+    marginTop: 10,
+  },
+  tags: {
+    marginTop: 2,
+  },
+  tag: {
+    marginTop: 8,
+    marginBottom: 0,
+  },
 })
 
 const mdStyles = StyleSheet.create({

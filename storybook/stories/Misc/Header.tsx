@@ -54,7 +54,7 @@ export function Header({
               onPress={onPressTitle}
               numberOfLines={1}
             >
-              {title}
+              {normalize(title)}
             </Text>
           : title
           }
@@ -67,7 +67,7 @@ export function Header({
               onPress={onPressSubtitle}
               numberOfLines={1}
             >
-              {subtitle}
+              {normalize(subtitle)}
             </Text>
           : subtitle
           }
@@ -86,7 +86,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
   },
   left: {
     marginRight: 10,
@@ -112,3 +111,5 @@ const styles = StyleSheet.create({
     
   },
 });
+
+const normalize = (s: string) => s.replace(String.fromCharCode(8), '');

@@ -6,7 +6,7 @@ import { TextInput } from 'react-native-paper'
 import { useKeypair } from 'src/rtk/app/hooks'
 import { delaySnack } from 'src/util/snack'
 import { useMountState } from '~comps/hooks'
-import { useTheme } from '~comps/Theming'
+import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { Button, Text } from '~comps/Typography'
 import { Modal } from './Modal'
 
@@ -19,6 +19,7 @@ export type UnlockPromptProps = {
 export function UnlockPrompt({ visible, onClose, modalStyle }: UnlockPromptProps) {
   const isMounted = useMountState()
   const theme = useTheme()
+  const styles = useThemedStyles()
   const keypair = useKeypair()
   const [ loading, setLoading ] = useState(false)
   const [ passphrase, setPassphrase ] = useState('')
@@ -80,16 +81,17 @@ export function UnlockPrompt({ visible, onClose, modalStyle }: UnlockPromptProps
   )
 }
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   container: {
     display: 'flex',
     flexDirection: 'column',
   },
   paragraph: {
-    marginVertical: 10,
+    marginVertical: consts.spacing,
   },
   input: {
     width: '100%',
-    marginBottom: 10,
+    height: 3 * consts.spacing,
+    marginBottom: consts.spacing,
   },
-})
+}))

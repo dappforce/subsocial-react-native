@@ -7,31 +7,32 @@ import { useCreateReloadPost, useSelectPost } from 'src/rtk/app/hooks'
 import { PostId, PostWithSomeDetails } from 'src/types/subsocial'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Divider } from '~comps/Typography'
-import { Head, Body, PostOwner, PostOwnerProps } from './Post'
+import { Head, Body, PostActionMenu, PostOwner, PostOwnerProps } from './Post'
 import { LikeAction, LikeEvent } from './Likes'
 import { ReplyAction } from './Reply'
 import { SharePostAction } from './Share'
-import { ActionMenu, Panel as ActionPanel, ShareEvent } from '../Actions'
-import { WithSize } from 'src/types'
-import { ProfilingProps, timed } from 'uniprofiler/react'
-import * as Profiler from 'uniprofiler/react';
+import { Panel as ActionPanel, ShareEvent } from '../Actions'
+import { useInit } from '~comps/hooks'
+import { createThemedStylesHook } from '~comps/Theming'
 
-export type PostPreviewProps = Omit<PreviewDataProps, 'data'>
-export const Preview = timed<PostPreviewProps>('PostPreview', ({ id, profile, ...props }) => {
+export type PostPreviewProps = Omit<PreviewDataProps, 'data' | 'loading'>
+export const Preview = ({ id, ...props }: PostPreviewProps) => {
   const reloadPost = useCreateReloadPost()
   const data = useSelectPost(id)
   
-  useEffect(() => {
-    profile?.timed('reloadPost', () => reloadPost({ id, reload: true }))
-  }, [ id ])
+  const loading = !useInit(async () => {
+    await reloadPost({ id, reload: true })
+    return true
+  }, [ id ], [])
   
-  return <PreviewData {...props} {...{ id, data }} />
-}).memoize();
+  return <PreviewData {...props} {...{ id, data, loading }} />
+}
 
 
 type PreviewDataProps = {
   id: PostId
   data: PostWithSomeDetails | undefined
+  loading: boolean
   containerStyle?: StyleProp<ViewStyle>
   onPressMore?: (id: PostId) => void
   onPressOwner?: PostOwnerProps['onPressOwner']
@@ -42,9 +43,10 @@ type PreviewDataProps = {
   onPressShare?: (evt: ShareEvent) => void
   onShare?: (evt: ShareEvent) => void
 }
-export const PreviewData = timed<PreviewDataProps>('PostPreviewData', ({
+export const PreviewData = ({
   id,
   data,
+  loading,
   containerStyle,
   onPressMore: _onPressMore,
   onPressOwner,
@@ -57,28 +59,7 @@ export const PreviewData = timed<PreviewDataProps>('PostPreviewData', ({
 }: PreviewDataProps) =>
 {
   const nav = useNavigation<ExploreStackNavigationProp | undefined>()
-  const renderActions = ({ size }: WithSize) => {
-    return <>
-      <ActionMenu.Secondary
-        label="View reactions"
-        icon={{
-          family: 'ionicon',
-          name: 'bulb-outline',
-          size,
-        }}
-        onPress={() => alert('not yet implemented, sorry')}
-      />
-      <ActionMenu.Secondary
-        label="View on IPFS"
-        icon={{
-          family: 'ionicon',
-          name: 'analytics-outline',
-          size,
-        }}
-        onPress={() => alert('not yet implemented, sorry')}
-      />
-    </>
-  }
+  const styles = useThemedStyles();
   
   const { title = '', body: content = '', image } = data?.post?.content ?? {}
   
@@ -97,12 +78,14 @@ export const PreviewData = timed<PreviewDataProps>('PostPreviewData', ({
         {...{ onPressOwner, onPressSpace }}
         postId={id}
         postData={data?.post}
+        loading={loading}
         actionMenuProps={{
-          secondary: renderActions
+          secondary: ({ size }) => <PostActionMenu isMyPost={false} iconSize={size} />,
         }}
+        style={styles.owner}
       />
-      <Head {...{ title, image }} preview />
-      <Body content={content} preview onPressMore={() => onPressMore?.(id)} />
+      <Head {...{ title, image }} preview loading={loading} />
+      <Body content={content} preview loading={loading} onPressMore={() => onPressMore?.(id)} />
       
       <Divider style={{ marginTop: 16 }} />
       
@@ -123,14 +106,16 @@ export const PreviewData = timed<PreviewDataProps>('PostPreviewData', ({
       </ActionPanel>
     </View>
   )
-}).memoize();
+};
 
-const styles = StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
   container: {
     width: '100%',
-    padding: 20,
+    padding: 2 * consts.spacing,
     paddingBottom: 0,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  owner: {
+    marginBottom: consts.spacing,
   },
   titleWrapper: {
     paddingTop: 6,
@@ -142,4 +127,4 @@ const styles = StyleSheet.create({
   italic: {
     fontStyle: 'italic',
   },
-})
+}))

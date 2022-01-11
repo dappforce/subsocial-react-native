@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////
 // Main Screen consisting of Bottom Tabs navigation
 import React from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { BottomTabNavigationProp, BottomTabScreenProps, createBottomTabNavigator, BottomTabBar, BottomTabBarProps } from '@react-navigation/bottom-tabs'
 import { createThemedStylesHook, useTheme } from '~comps/Theming'
 import { useLoadKeypair, useSelectReplyTo } from 'src/rtk/app/hooks'
@@ -85,14 +85,60 @@ export function MainScreen({}: MainScreenProps) {
   )
 }
 
-const MainScreenTabBar = React.memo((props: BottomTabBarProps) => {
+const MainScreenTabBar = React.memo(({ state, navigation, descriptors }: BottomTabBarProps) => {
+  const { colors } = useTheme()
   const styles = useThemedStyles()
   const replyTo = useSelectReplyTo()
   
   return (
-    <View style={styles.tabBar}>
+    <View style={styles.container}>
       {!!replyTo && <ReplyInput postId={replyTo.postId} containerStyle={styles.replyTo} autoFocus={replyTo.autoFocus} />}
-      <BottomTabBar {...props} />
+      <View style={styles.tabBar}>
+        {state.routes.map((route, index) => {
+          const { options: opts } = descriptors[route.key]
+          const isFocused = state.index === index
+          const renderIcon = opts.tabBarIcon ?? (() => null)
+          const inactiveTint = opts.tabBarInactiveTintColor ?? colors.line
+          const activeTint   = opts.tabBarActiveTintColor ?? colors.primary
+          
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name, route.params)
+            }
+          }
+          
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            })
+          }
+          
+          return (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={isFocused ? { selected: true } : {}}
+              accessibilityLabel={opts.tabBarAccessibilityLabel ?? opts.title ?? route.name}
+              testID={opts.tabBarTestID}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={opts.tabBarItemStyle}
+            >
+              {renderIcon({
+                focused: isFocused,
+                color: isFocused ? activeTint : inactiveTint,
+                size: 24,
+              })}
+            </Pressable>
+          )
+        })}
+      </View>
     </View>
   )
 })
@@ -122,10 +168,17 @@ const ProfileScreen = React.memo(({}: MainNavScreenProps<'Profile'>) => {
 })
 
 const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
-  tabBar: {
+  container: {
     backgroundColor: colors.backgroundMenu,
     borderTopColor: colors.line,
     borderTopWidth: 1,
+  },
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingTop: 13,
+    paddingBottom: 13,
   },
   centered: {
     flex: 1,
@@ -134,6 +187,7 @@ const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create
   },
   replyTo: {
     paddingTop: 10,
+    paddingBottom: 5,
     paddingHorizontal: 20,
   },
 }))
@@ -146,13 +200,13 @@ type TabBarIconProps = {
 }
 
 const renderHomeIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="home-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'home-outline'}} color={color} size={size} />
 }
 
 const renderSearchIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="search-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'search-outline'}} color={color} size={size} />
 }
 
 const renderNotifIcon = ({ color, size }: TabBarIconProps) => {
-  return <Icon family="ionicon" name="notifications-outline" color={color} size={size} />
+  return <Icon icon={{family: 'ionicon', name: 'notifications-outline'}} color={color} size={size} />
 }

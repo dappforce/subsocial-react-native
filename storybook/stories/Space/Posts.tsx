@@ -80,22 +80,18 @@ type WrappedPostProps = Omit<Post.PostPreviewProps, 'onPressMore' | 'onPressSpac
   onPressOwner?: (id: PostId, ownerId: AccountId) => void
 }
 const WrappedPost = React.memo(({ id, onPressMore, onPressOwner }: WrappedPostProps) => {
-  const theme = useTheme()
-  
   return (
-    <>
-      <Post.Preview id={id} containerStyle={{ borderBottomColor: theme.colors.divider }}
-        {...{ onPressMore, onPressOwner }}
-        onPressSpace={()=>{}}
-      />
-    </>
+    <Post.Preview
+      {...{ id, onPressMore, onPressOwner }}
+      onPressSpace={() => {}}
+    />
   )
 })
 
-const useThemedStyles = createThemedStylesHook(({ colors }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   space: {
-    padding: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.divider,
+    padding: 2 * consts.spacing,
+    borderBottomColor: colors.divider,
+    borderBottomWidth: 1,
   },
 }))

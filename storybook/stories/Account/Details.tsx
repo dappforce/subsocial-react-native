@@ -107,8 +107,10 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
       <Address id={id} walletIconContainerStyle={styles.dataIcon} />
       <View style={styles.balanceContainer}>
         <Icon
-          family="subicon"
-          name="sub-coin"
+          icon={{
+            family: 'subicon',
+            name: 'sub-coin',
+          }}
           color={theme.colors.divider}
           containerStyle={styles.dataIcon}
         />
@@ -124,8 +126,10 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
           mode="outlined"
           color={theme.colors.divider}
           icon={() => <Icon
-            family="subicon"
-            name="send-tip"
+            icon={{
+              family: 'subicon',
+              name: 'send-tip',
+            }}
             color={theme.colors.textPrimary}
           />}
           style={styles.tipButton}

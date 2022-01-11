@@ -4,6 +4,7 @@ import React, { useEffect } from 'react'
 import { StyleSheet } from 'react-native'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { NavigationContainer } from '@react-navigation/native'
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { Provider as ReduxProvider } from 'react-redux'
 import { StatusBar } from 'expo-status-bar'
 import AppLoading from 'expo-app-loading'
@@ -76,12 +77,14 @@ export default function(props: {}) {
             <NavigationContainer linking={linking} theme={reduceNavigationTheme(theme, dark)}>
               <StatusBar backgroundColor={theme.colors.appBar} />
               <SafeAreaView style={[ styles.container, { backgroundColor: theme.colors.background } ]}>
-                {storybook
-                ? <StorybookUI {...props} />
-                : <SubsocialProvider>
-                    <MainScreen />
-                  </SubsocialProvider>
-                }
+                <BottomSheetModalProvider>
+                  {storybook
+                  ? <StorybookUI {...props} />
+                  : <SubsocialProvider>
+                      <MainScreen />
+                    </SubsocialProvider>
+                  }
+                </BottomSheetModalProvider>
               </SafeAreaView>
             </NavigationContainer>
           </SafeAreaProvider>

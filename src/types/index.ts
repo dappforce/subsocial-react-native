@@ -1,4 +1,6 @@
 
+export type Nullish = null | undefined
+
 export type Opt<T> = T | undefined
 
 export type Rect = {

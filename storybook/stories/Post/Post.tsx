@@ -1,33 +1,38 @@
 //////////////////////////////////////////////////////////////////////
 // Underlying Post from data Component
 import React, { useCallback } from 'react'
-import { StyleProp, StyleSheet, TextStyle, View } from 'react-native'
+import { StyleProp, StyleSheet, TextStyle, View, ViewStyle } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { ImageStyle } from 'react-native-fast-image'
 import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
-import { ActionMenuProps } from '~stories/Actions'
+import { ActionMenuItem, ActionMenuProps } from '~stories/Actions'
 import { Markdown } from '~stories/Misc'
 import { Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { useInit } from '~comps/hooks'
 import Age from 'src/util/Age'
+import { createThemedStylesHook } from '~comps/Theming'
 
 const IMAGE_PREVIEW_HEIGHT = 160
 
 export type PostOwnerProps = {
   postId: PostId
   postData?: PostData
+  loading: boolean
   actionMenuProps?: ActionMenuProps
+  style?: StyleProp<ViewStyle>
   onPressOwner?: (id: PostId, ownerId: ProfileId) => void
   onPressSpace?: (id: PostId, spaceId: SpaceId) => void
 }
 export const PostOwner = React.memo(({
   postId,
   postData,
+  loading,
   actionMenuProps,
+  style,
   onPressOwner: _onPressOwner,
   onPressSpace: _onPressSpace
 }: PostOwnerProps) =>
@@ -40,7 +45,6 @@ export const PostOwner = React.memo(({
   const ownerId = postData?.struct?.ownerId
   const spaceData = useSelectSpace(spaceId)
   const ownerData = useSelectProfile(ownerId)
-  const age = new Age(postData?.struct?.createdAtTime ?? 0)
   
   const onPressOwner = useCallback(() => {
     if (ownerId) {
@@ -82,15 +86,21 @@ export const PostOwner = React.memo(({
     return true
   }, [ postId ], [ ownerId ])
   
+  const author = loading ? 'Author'  : ownerData?.content?.name ?? 'Unknown Author'
+  const space  = loading ? 'Space'   : spaceData?.content?.name ?? 'Unknown Space'
+  const avatar = loading ? undefined : ownerData?.content?.avatar
+  const age    = loading ? 'some time ago' : new Age(postData?.struct?.createdAtTime ?? 0)
+  
   return (
     <Header
-      title={ownerData?.content?.name??''}
-      subtitle={`${spaceData?.content?.name??'some space'} · ${age}`}
-      avatar={ownerData?.content?.avatar}
+      title={author}
+      subtitle={`${space} · ${age}`}
+      avatar={avatar}
       actionMenuProps={actionMenuProps}
       onPressTitle={() => onPressOwner()}
       onPressSubtitle={() => onPressSpace()}
       onPressAvatar={() => onPressOwner()}
+      containerStyle={style}
     />
   )
 })
@@ -100,17 +110,26 @@ export type HeadProps = {
   image?: string
   title?: string
   preview?: boolean
+  loading: boolean
   bannerStyle?: StyleProp<ImageStyle>
   previewBannerStyle?: StyleProp<ImageStyle>
   titleStyle?: StyleProp<TextStyle>
 }
-export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false }: HeadProps) {
+export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle, preview = false, loading }: HeadProps) {
+  const styles = useThemedStyles()
+  
+  if (loading) {
+    title = 'Title'
+  }
+  
   return (
     <View>
       <Banner cid={image} style={bannerStyle} previewStyle={previewBannerStyle} preview={preview} />
-      {!!title && <Title preview={preview} style={[ styles.title, titleStyle ]}>
-        {title}
-      </Title>}
+      {!!title &&
+        <Title preview={preview} style={[ styles.title, titleStyle ]}>
+          {title}
+        </Title>
+      }
     </View>
   )
 }
@@ -122,6 +141,8 @@ export type BannerProps = {
   previewStyle?: StyleProp<ImageStyle>
 }
 export const Banner = React.memo(({ cid, preview, style, previewStyle }: BannerProps) => {
+  const styles = useThemedStyles()
+  
   if (!cid) return null
   
   if (preview) {
@@ -140,16 +161,66 @@ export const Banner = React.memo(({ cid, preview, style, previewStyle }: BannerP
 export type BodyProps = {
   content: string
   preview?: boolean
+  loading: boolean
   previewStyle?: StyleProp<TextStyle>
   onPressMore?: () => void
 }
-export function Body({ content, previewStyle, onPressMore, preview = false }: BodyProps) {
+export function Body({ content, previewStyle, onPressMore, preview = false, loading }: BodyProps) {
   return (
-    <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>{content}</Markdown>
+    <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>
+      {loading ? 'Loading content.' : content}
+    </Markdown>
   )
 }
 
-const styles = StyleSheet.create({
+export type PostActionMenuProps = {
+  isMyPost?: boolean
+  iconSize?: number
+}
+export const PostActionMenu = React.memo(({ isMyPost, iconSize = 24 }: PostActionMenuProps) => {
+  return <>
+      <ActionMenuItem
+        label="View reactions"
+        icon={{
+          family: 'ionicon',
+          name: 'heart-outline',
+          size: iconSize,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+      <ActionMenuItem
+        label="View on IPFS"
+        icon={{
+          family: 'ionicon',
+          name: 'analytics-outline',
+          size: iconSize,
+        }}
+        onPress={() => alert('not yet implemented, sorry')}
+      />
+      {isMyPost && <>
+        <ActionMenuItem
+          label="Edit post"
+          icon={{
+            family: 'ionicon',
+            name: 'create',
+            size: iconSize,
+          }}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+        <ActionMenuItem
+          label="Hide post"
+          icon={{
+            family: 'ionicon',
+            name: 'trash-outline',
+            size: iconSize,
+          }}
+          onPress={() => alert('not yet implemented, sorry')}
+        />
+      </>}
+    </>
+})
+
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   title: {
     marginTop: 0,
     marginBottom: 6,
@@ -158,11 +229,11 @@ const styles = StyleSheet.create({
   previewBanner: {
     width: '100%',
     height: IMAGE_PREVIEW_HEIGHT,
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: consts.roundness,
+    marginBottom: consts.spacing,
   },
   banner: {
-    borderRadius: 10,
-    marginBottom: 10,
+    borderRadius: consts.roundness,
+    marginBottom: consts.spacing,
   },
-});
+}))
