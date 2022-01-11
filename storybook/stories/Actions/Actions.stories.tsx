@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react-native'
 import { boolean, number, text } from '@storybook/addon-knobs'
 import { action } from '@storybook/addon-actions'
 import { SubsocialProvider } from '~comps/SubsocialContext'
-import { ActionMenu, Panel } from './index'
+import { ActionMenu, ActionMenuItem, Panel } from './index'
 import { Button } from '~comps/Typography'
 import CenterView from '~stories/CenterView'
 import { FollowButtonBase } from './FollowButton'
@@ -29,9 +29,9 @@ storiesOf('Actions', module)
       </ActionMenu.Primary>
     </>;
     const renderSecondary = () => <>
-      <ActionMenu.Secondary label="Undo"  onPress={action('undo')} icon={{name: "arrow-undo-outline", family: "ionicon"}} />
-      <ActionMenu.Secondary label="Redo"  onPress={action('redo')} icon={{name: "arrow-redo-outline", family: "ionicon"}} />
-      <ActionMenu.Secondary label="Dummy" onPress={action('dummy')} />
+      <ActionMenuItem label="Undo"  onPress={action('undo')} icon={{name: "arrow-undo-outline", family: "ionicon"}} />
+      <ActionMenuItem label="Redo"  onPress={action('redo')} icon={{name: "arrow-redo-outline", family: "ionicon"}} />
+      <ActionMenuItem label="Dummy" onPress={action('dummy')} />
     </>;
     return <SubsocialProvider><ActionMenu primary={renderPrimary} secondary={renderSecondary} /></SubsocialProvider>
   })

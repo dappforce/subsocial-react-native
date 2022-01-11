@@ -6,7 +6,7 @@ import { useCreateReloadSpace, useResolvedSpaceHandle, useSelectSpace } from 'sr
 import { useInit } from '~comps/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header, Markdown, SocialLinks as Socials, Tags } from '~stories/Misc'
-import { ActionMenu, FollowSpaceButton } from '~stories/Actions'
+import { ActionMenu, ActionMenuItem, FollowSpaceButton } from '~stories/Actions'
 
 export type DataProps = Omit<DataRawProps, 'data' | 'loading'> & {
   id: SpaceId
@@ -106,27 +106,6 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
     </>
   }, [ id ])
   
-  const renderSecondaryActions = useCallback(() => {
-    return <>
-      <ActionMenu.Secondary
-        label="Share Space"
-        icon={{
-          family: 'ionicon',
-          name: 'share-social-outline',
-        }}
-        onPress={() => {}}
-      />
-      <ActionMenu.Secondary
-        label="View on IPFS"
-        icon={{
-          family: 'ionicon',
-          name: 'analytics-outline',
-        }}
-        onPress={() => {}}
-      />
-    </>
-  }, [])
-  
   return (
     <Header
       title={data?.content?.name ?? titlePlaceholder}
@@ -136,7 +115,28 @@ export function Head({ titlePlaceholder = '', data, showFollowButton, onPressSpa
       onPressAvatar={onPressSpace}
       actionMenuProps={{
         primary: renderPrimaryActions,
-        secondary: renderSecondaryActions
+        secondary: ({ size }) => (
+          <>
+            <ActionMenuItem
+              label="Share Space"
+              icon={{
+                family: 'subicon',
+                name: 'share',
+                size,
+              }}
+              onPress={() => alert('Sorry, not yet implemented')}
+            />
+            <ActionMenuItem
+              label="View on IPFS"
+              icon={{
+                family: 'ionicon',
+                name: 'analytics-outline',
+                size,
+              }}
+              onPress={() => alert('Sorry, not yet implemented')}
+            />
+          </>
+        )
       }}
     />
   )

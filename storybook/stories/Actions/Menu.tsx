@@ -13,12 +13,13 @@ export type IconDescriptor = AnyIcon & {
 }
 
 export type ActionMenuProps = {
+  title?: string
   primary?: ({ size }: WithSize) => ReactNode
   secondary?: ({ size }: WithSize) => ReactNode
   style?: StyleProp<ViewStyle>
   size?: number
 }
-export function ActionMenu({ primary, secondary, size = 24, style }: ActionMenuProps) {
+export function ActionMenu({ title = 'Actions', primary, secondary, size = 24, style }: ActionMenuProps) {
   const bottomSheet = useRef<BottomSheetModal>(null)
   const theme = useTheme();
   const styles = useThemedStyles()
@@ -46,6 +47,9 @@ export function ActionMenu({ primary, secondary, size = 24, style }: ActionMenuP
             enableDismissOnClose
           >
             <BottomSheetScrollView>
+              <View style={styles.actionMenuTitleContainer}>
+                <Text style={styles.actionMenuTitle}>{title}</Text>
+              </View>
               {secondary?.({ size })}
             </BottomSheetScrollView>
           </BottomSheetModal>
@@ -56,26 +60,27 @@ export function ActionMenu({ primary, secondary, size = 24, style }: ActionMenuP
   )
 }
 
-export type PrimaryProps = React.PropsWithChildren<{
+export type PrimaryProps = {
+  children?: ReactNode
   style?: StyleProp<ViewStyle>
-}>;
-ActionMenu.Primary = function({ children, style }: PrimaryProps) {
+};
+ActionMenu.Primary = React.memo(function({ children, style }: PrimaryProps) {
   const styles = useThemedStyles()
   return (
     <View style={[ styles.actionPrimary, style ]}>
       {children}
     </View>
   )
-}
+})
 
-export type SecondaryProps = {
+export type ActionMenuItemProps = {
   label: string
   icon?: (() => ReactElement) | IconDescriptor
   iconContainerStyle?: StyleProp<ViewStyle>
   onPress: () => void
   disabled?: boolean
 };
-ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disabled }: SecondaryProps) {
+export const ActionMenuItem = React.memo(function({ label, icon, iconContainerStyle, onPress, disabled }: ActionMenuItemProps) {
   const theme = useTheme()
   const styles = useThemedStyles()
   let iconRender = null
@@ -90,7 +95,7 @@ ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disa
           family={icon.family}
           name={icon.name}
           size={icon.size ?? 24}
-          color={icon.color || (disabled ? theme.colors.textDisabled : theme.colors.textPrimary)}
+          color={icon.color || (disabled ? theme.colors.textDisabled : theme.colors.divider)}
         />
       )
     }
@@ -108,14 +113,25 @@ ActionMenu.Secondary = function({ label, icon, iconContainerStyle, onPress, disa
       </View>
     </TouchableRipple>
   )
-}
+})
 
-const useThemedStyles = createThemedStylesHook(({ consts }) => StyleSheet.create({
+const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleSheet.create({
   actionMenu: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  actionMenuTitleContainer: {
+    paddingHorizontal: 2 * consts.spacing,
+    paddingBottom: consts.spacing,
+    marginBottom: consts.spacing,
+    color: colors.textSecondary,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+  actionMenuTitle: {
+    color: colors.textSecondary,
   },
   actionPrimary: {
     marginLeft: 6,

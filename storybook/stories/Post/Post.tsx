@@ -8,13 +8,13 @@ import { PostData, PostId, ProfileId, SpaceId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useCreateReloadSpace, useSelectProfile, useSelectSpace } from 'src/rtk/app/hooks'
 import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
-import { ActionMenu, ActionMenuProps } from '~stories/Actions'
+import { ActionMenuItem, ActionMenuProps } from '~stories/Actions'
 import { Markdown } from '~stories/Misc'
-import { Divider, Text, Title } from '~comps/Typography'
+import { Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { useInit } from '~comps/hooks'
 import Age from 'src/util/Age'
-import { createThemedStylesHook, useTheme } from '~comps/Theming'
+import { createThemedStylesHook } from '~comps/Theming'
 
 const IMAGE_PREVIEW_HEIGHT = 160
 
@@ -178,52 +178,41 @@ export type PostActionMenuProps = {
   iconSize?: number
 }
 export const PostActionMenu = React.memo(({ isMyPost, iconSize = 24 }: PostActionMenuProps) => {
-  const theme = useTheme()
-  const styles = useThemedStyles()
-  
   return <>
-      <View style={styles.actionMenuContent}>
-        <Text  style={styles.actionMenuTitle}>Actions</Text>
-        <Divider style={styles.actionMenuDivider} />
-      </View>
-      <ActionMenu.Secondary
+      <ActionMenuItem
         label="View reactions"
         icon={{
           family: 'ionicon',
           name: 'heart-outline',
           size: iconSize,
-          color: theme.colors.divider,
         }}
         onPress={() => alert('not yet implemented, sorry')}
       />
-      <ActionMenu.Secondary
+      <ActionMenuItem
         label="View on IPFS"
         icon={{
           family: 'ionicon',
           name: 'analytics-outline',
           size: iconSize,
-          color: theme.colors.divider,
         }}
         onPress={() => alert('not yet implemented, sorry')}
       />
       {isMyPost && <>
-        <ActionMenu.Secondary
+        <ActionMenuItem
           label="Edit post"
           icon={{
             family: 'ionicon',
             name: 'create',
             size: iconSize,
-            color: theme.colors.divider,
           }}
           onPress={() => alert('not yet implemented, sorry')}
         />
-        <ActionMenu.Secondary
+        <ActionMenuItem
           label="Hide post"
           icon={{
             family: 'ionicon',
             name: 'trash-outline',
             size: iconSize,
-            color: theme.colors.divider,
           }}
           onPress={() => alert('not yet implemented, sorry')}
         />
@@ -247,14 +236,4 @@ const useThemedStyles = createThemedStylesHook(({ colors, consts }) => StyleShee
     borderRadius: consts.roundness,
     marginBottom: consts.spacing,
   },
-  actionMenuTitle: {
-    marginBottom: consts.spacing,
-    color: colors.textSecondary,
-  },
-  actionMenuDivider: {
-    marginBottom: consts.spacing,
-  },
-  actionMenuContent: {
-    paddingHorizontal: 2 * consts.spacing,
-  }
 }))
