@@ -115,7 +115,20 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
         actionMenu={() => <DetailsActionMenu id={id} />}
       />
       
-      {!!data?.content?.about && <Markdown containerStyle={styles.about}>{data?.content?.about}</Markdown>}
+      {!!data?.content?.about && (
+        <Markdown
+          containerStyle={styles.about}
+          style={{
+            paragraph: {
+              marginTop: 2 * theme.consts.spacing,
+              marginBottom: 0,
+            }
+          }}
+          mergeStyle={false}
+        >
+          {data?.content?.about}
+        </Markdown>
+      )}
       
       <Button
         mode="outlined"
@@ -353,7 +366,7 @@ const useThemedStyle = createThemedStylesHook(({ colors, consts, fonts }: Theme)
   },
   
   about: {
-    marginTop: 2 * consts.spacing,
+    
   },
   
   //#region Buttons
