@@ -18,8 +18,17 @@ export type FormattedBalance = {
   currency: string
 }
 
-export type BalanceProps = {
+export type BalanceProps = Omit<BalanceDataProps, 'balance'> & {
   address: string
+}
+export function Balance({ address, ...props }: BalanceProps)
+{
+  const balance = useBalance(address)
+  return <BalanceData balance={balance} {...props} />
+}
+
+export type BalanceDataProps = {
+  balance: number | BN
   labelStyle?: StyleProp<TextStyle>
   integerBalanceStyle?: StyleProp<TextStyle>
   decimalBalanceStyle?: StyleProp<TextStyle>
@@ -29,9 +38,8 @@ export type BalanceProps = {
   currency?: string
   formatter?: (value: BN, decimals: number, currency: string) => React.ReactElement
 }
-
-export function Balance({
-  address,
+export function BalanceData({
+  balance,
   labelStyle,
   integerBalanceStyle,
   decimalBalanceStyle,
@@ -39,12 +47,9 @@ export function Balance({
   decimals,
   truncate,
   currency,
-}: BalanceProps)
-{
+}: BalanceDataProps) {
   const { decimals: defaultDecimals, unit: defaultCurrency } = formatBalance.getDefaults()
-  const balance = useBalance(address)
-  
-  const formatted = defaultBalanceFormat(balance, decimals || defaultDecimals || 1, currency ?? defaultCurrency, truncate)
+  const formatted = defaultBalanceFormat(new BN(balance), decimals || defaultDecimals || 1, currency ?? defaultCurrency, truncate)
   
   return (
     <Text style={labelStyle}>

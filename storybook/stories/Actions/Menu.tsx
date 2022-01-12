@@ -54,19 +54,28 @@ ActionMenu.Primary = React.memo(function({ children, style }: PrimaryProps) {
 
 export type ActionMenuItemProps = {
   label: string
-  icon?: (() => ReactElement) | IconDescriptor
+  icon?: (({size}: WithSize) => ReactElement) | IconDescriptor
+  containerStyle?: StyleProp<ViewStyle>
   iconContainerStyle?: StyleProp<ViewStyle>
   onPress: () => void
   disabled?: boolean
 };
-export const ActionMenuItem = React.memo(function({ label, icon, iconContainerStyle, onPress, disabled }: ActionMenuItemProps) {
+export const ActionMenuItem = React.memo(function({
+  label,
+  icon,
+  containerStyle,
+  iconContainerStyle,
+  onPress,
+  disabled
+}: ActionMenuItemProps)
+{
   const theme = useTheme()
   const styles = useThemedStyles()
   let iconRender = null
   
   if (icon) {
     if (typeof icon === 'function') {
-      iconRender = icon()
+      iconRender = icon({ size: 24 })
     }
     else {
       iconRender = (
@@ -81,7 +90,7 @@ export const ActionMenuItem = React.memo(function({ label, icon, iconContainerSt
   }
   
   return (
-    <TouchableRipple style={styles.actionSecondary} {...{ onPress, disabled }}>
+    <TouchableRipple style={[styles.actionSecondary, containerStyle]} {...{ onPress, disabled }}>
       <View style={styles.row}>
         <View style={[ styles.iconSecondary, iconContainerStyle ]}>
           {iconRender}

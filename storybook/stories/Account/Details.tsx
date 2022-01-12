@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { Dimensions, LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import Animated, { Extrapolate, interpolate, useAnimatedStyle, useDerivedValue, useSharedValue } from 'react-native-reanimated'
 import {
   createMaterialTopTabNavigator,
   MaterialTopTabBarProps,
@@ -7,13 +8,20 @@ import {
   MaterialTopTabNavigationProp,
   MaterialTopTabScreenProps
 } from '@react-navigation/material-top-tabs'
+import { BottomSheetHandleProps } from '@gorhom/bottom-sheet'
+import Clipboard from '@react-native-community/clipboard'
+import * as Linking from 'expo-linking'
 import { AccountId } from 'src/types/subsocial'
 import { useCreateReloadProfile, useSelectKeypair, useSelectProfile } from 'src/rtk/app/hooks'
 import { createThemedStylesHook, Theme, useTheme } from '~comps/Theming'
+import { useInit } from '~comps/hooks'
 import { Preview } from './Preview'
-import { Balance, Markdown } from '~stories/Misc'
+import { BalanceData, Markdown, useBalance } from '~stories/Misc'
 import { Button, Divider } from '~comps/Typography'
-import { FollowAccountButton } from '~stories/Actions'
+import { Icon } from '~comps/Icon'
+import { IpfsAvatar } from '~comps/IpfsImage'
+import { ActionMenuItem, FollowAccountButton } from '~stories/Actions'
+import { BottomSheet } from '~stories/Modals/BottomSheet'
 import { DetailsHeaderProvider, useDetailsHeader } from './DetailsHeaderContext'
 import { Address } from './Address'
 import { Posts } from './Posts'
@@ -21,10 +29,11 @@ import { Comments } from './Comments'
 import { Upvotes } from './Upvotes'
 import { Follows } from './Follows'
 import { Spaces } from './Spaces'
-import Elevations from 'react-native-elevation'
 import Collapsible from 'react-native-collapsible'
-import { useInit } from '~comps/hooks'
-import { Icon } from '~comps/Icon'
+import Elevations from 'react-native-elevation'
+import SubIDIcon from 'assets/subid-logo.svg'
+import { snack } from 'src/util/snack'
+import { QRCodeModal } from '~stories/Modals/QRCodeModal'
 
 export type DetailsRoutes = {
   posts:    {}
@@ -100,28 +109,29 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
   
   return (
     <View {...{style, onLayout}}>
-      <Preview id={id} showFollowButton={false} />
+      <Preview
+        id={id}
+        showFollowButton={false}
+        actionMenu={() => <DetailsActionMenu id={id} />}
+      />
       
       {!!data?.content?.about && <Markdown containerStyle={styles.about}>{data?.content?.about}</Markdown>}
       
-      <Address id={id} walletIconContainerStyle={styles.dataIcon} />
-      <View style={styles.balanceContainer}>
-        <Icon
-          icon={{
-            family: 'subicon',
-            name: 'sub-coin',
-          }}
-          color={theme.colors.divider}
-          containerStyle={styles.dataIcon}
-        />
-        <Balance
-          address={id}
-          truncate={4}
-          decimalBalanceStyle={{ fontSize: theme.fonts.primary.fontSize }}
-        />
-      </View>
-      
+      <Button
+        mode="outlined"
+        icon={() => <IpfsAvatar cid={data?.content?.avatar} size={24} />}
+        style={styles.subidButton}
+        labelStyle={{ color: theme.colors.textPrimary }}
+        onPress={() => showOnSubID(id)}
+      >
+        Show on Sub.ID
+      </Button>
       {!isMyAccount && <View style={styles.buttonRow}>
+        <FollowAccountButton
+          id={id}
+          style={styles.followButton}
+          showIcon
+        />
         <Button
           mode="outlined"
           color={theme.colors.divider}
@@ -138,13 +148,123 @@ export function DetailsHeader({ id, style, onLayout }: DetailsHeaderProps) {
         >
           Send tips
         </Button>
-        <FollowAccountButton
-          id={id}
-          style={styles.followButton}
-          showIcon
-        />
       </View>}
     </View>
+  )
+}
+
+type DetailsActionMenuProps = {
+  id: AccountId
+}
+function DetailsActionMenu({ id }: DetailsActionMenuProps) {
+  const theme = useTheme()
+  const styles = useThemedStyle()
+  const data = useSelectProfile(id)
+  const balance = useBalance(id)
+  const [ showQRCode, setShowQRCode ] = useState(false)
+  
+  return (
+    <BottomSheet
+      height={280}
+      TriggerComponent={BottomSheet.trigger.MoreVertical}
+      HandleComponent={(props) => <AvatarBottomSheetHandle cid={data?.content?.avatar ?? ''} {...props} />}
+    >
+      <BottomSheet.View>
+        <View style={styles.menuHeader}>
+          <Address id={id} style={styles.address} />
+          <BalanceData
+            balance={balance}
+            truncate={3}
+            labelStyle={styles.balance}
+            currencyStyle={styles.balance}
+            integerBalanceStyle={styles.balance}
+            decimalBalanceStyle={styles.balance}
+          />
+        </View>
+        <View style={styles.menuContent}>
+          <ActionMenuItem
+            label="Copy address"
+            icon={{
+              family: 'subicon',
+              name: 'copy',
+            }}
+            onPress={() => {
+              Clipboard.setString(id)
+              snack({ text: 'Address copied to clipboard' })
+            }}
+            containerStyle={styles.menuItem}
+          />
+          <ActionMenuItem
+            label="Show QR code"
+            icon={{
+              family: 'subicon',
+              name: 'qr-code',
+            }}
+            onPress={() => setShowQRCode(true)}
+            containerStyle={styles.menuItem}
+          />
+          <ActionMenuItem
+            label="View on Sub.ID"
+            icon={({ size }) => (
+              <SubIDIcon
+                width={size}
+                height={size}
+                color={theme.colors.line}
+              />
+            )}
+            onPress={() => showOnSubID(id)}
+            containerStyle={styles.menuItem}
+          />
+          
+          <QRCodeModal
+            data={id}
+            visible={showQRCode}
+            onClose={() => setShowQRCode(false)}
+          />
+        </View>
+      </BottomSheet.View>
+    </BottomSheet>
+  )
+}
+
+type AvatarBottomSheetHandleProps = BottomSheetHandleProps & {
+  cid: string
+}
+function AvatarBottomSheetHandle({ cid, animatedIndex, animatedPosition }: AvatarBottomSheetHandleProps) {
+  const SIZE = 70
+  const HALF_SIZE = SIZE / 2
+  const theme = useTheme()
+  
+  const offsetX = useSharedValue(Dimensions.get('window').width / 2 - HALF_SIZE);
+  const offsetY = useDerivedValue(() => {
+    return interpolate(animatedIndex.value, [-1, 0], [0, -HALF_SIZE], Extrapolate.CLAMP)
+  }, [ animatedPosition, HALF_SIZE ])
+  
+  const animstyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        { translateX: offsetX.value },
+        { translateY: offsetY.value },
+      ],
+    }
+  })
+  
+  return (
+    <Animated.View style={[
+      animstyle,
+      {
+        height: HALF_SIZE,
+        marginBottom: theme.consts.spacing,
+      }
+    ]}>
+      <IpfsAvatar
+        cid={cid}
+        size={SIZE}
+        style={{
+          ...Elevations[6],
+        }}
+      />
+    </Animated.View>
   )
 }
 
@@ -201,16 +321,21 @@ const WrappedSpaces = React.memo(({ id }: CommonDetailsScreenProps)   => {
 })
 
 
-const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => StyleSheet.create({
+function showOnSubID(id: AccountId) {
+  Linking.openURL(`https://sub.id/#/${id}`)
+}
+
+
+const useThemedStyle = createThemedStylesHook(({ colors, consts, fonts }: Theme) => StyleSheet.create({
   container: {
     flex: 1,
   },
   padded: {
-    padding: 10,
+    padding: consts.spacing,
   },
   
   header: {
-    margin: 20,
+    margin: 2 * consts.spacing,
     marginBottom: 0,
   },
   tabBar: {
@@ -228,38 +353,54 @@ const useThemedStyle = createThemedStylesHook(({ colors, fonts }: Theme) => Styl
   },
   
   about: {
-    marginBottom: 10,
+    marginTop: 2 * consts.spacing,
   },
   
+  //#region Buttons
+  subidButton: {
+    marginTop: 2 * consts.spacing,
+    borderRadius: 40,
+  },
   buttonRow: {
     display: 'flex',
     flexDirection: 'row',
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: 1.5 * consts.spacing,
   },
   tipButton: {
     flex: 1,
     borderRadius: 40,
-    marginRight: 20,
   },
   followButton: {
     flex: 1,
     borderRadius: 40,
+    marginRight: 2 * consts.spacing,
   },
+  //#endregion
   
-  dataIcon: {
-    marginRight: 15,
+  //#region Bottom Sheet
+  menuHeader: {
+    marginHorizontal: 2 * consts.spacing,
+    marginBottom: consts.spacing,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.divider,
   },
-  
-  balanceContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
+  address: {
+    fontFamily: 'RobotoBold',
+    fontSize: fonts.titlePreview.fontSize,
+    textAlign: 'center',
+    marginBottom: consts.spacing,
   },
   balance: {
-    ...fonts.secondary,
-    fontFamily: 'RobotoMedium',
+    fontSize: fonts.primary.fontSize,
     color: colors.textSecondary,
+    marginBottom: 2 * consts.spacing,
+    textAlign: 'center',
   },
+  menuContent: {
+    
+  },
+  menuItem: {
+    paddingVertical: consts.spacing,
+  },
+  //#endregion
 }))

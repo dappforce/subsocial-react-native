@@ -13,18 +13,20 @@ import { useDeferred, useInit } from './hooks'
 import { fetchProfile } from 'src/rtk/features/profiles/profilesSlice'
 import { Icon } from './Icon'
 import * as IpfsCache from '../IpfsCache'
-import { timed } from 'uniprofiler/react'
+import { profile, useProfiler } from 'uniprofiler/react'
 
 export type IpfsImageProps = Omit<FastImageProps, 'source'> & {
   cid?: IpfsCache.CID
   style?: StyleProp<ImageStyle>
 }
 
-export const IpfsImage = timed<IpfsImageProps>('IpfsImage', ({ cid, profile, ...props }) => {
+export const IpfsImage = profile<IpfsImageProps>('IpfsImage', ({ cid, ...props }) => {
+  const profiler = useProfiler()
+  
   const uri = useDeferred(async () => {
     if (!cid) return undefined
     
-    const caches = await profile!.timed('queryImage', () => IpfsCache.queryImage([cid]))
+    const caches = await profiler.timed('queryImage', () => IpfsCache.queryImage([cid]))
     return caches[cid]
   }, [ cid ])
   
@@ -119,7 +121,7 @@ function getScaledSize(wantW: undefined | number, realW: number, realH: number):
   return [wantW, wantW * realH/realW]
 }
 
-export type MyIpfsAvatarProps = IpfsAvatarProps & {
+export type MyIpfsAvatarProps = Omit<IpfsAvatarProps, 'cid'> & {
   color?: string
 }
 
