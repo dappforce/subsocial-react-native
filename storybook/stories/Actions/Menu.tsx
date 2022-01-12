@@ -1,11 +1,11 @@
-import React, { ReactElement, ReactNode, useRef } from 'react'
+import React, { ReactElement, ReactNode } from 'react'
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { TouchableRipple } from 'react-native-paper'
-import { BottomSheetBackdrop, BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet'
 import { createThemedStylesHook, useTheme } from '../../../src/components/Theming'
-import { AnyIcon, Icon, IconRaw } from '~comps/Icon'
+import { AnyIcon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
 import { WithSize } from 'src/types'
+import { BottomSheet } from '~stories/Modals/BottomSheet'
 
 export type IconDescriptor = AnyIcon & {
   size?: number
@@ -20,40 +20,19 @@ export type ActionMenuProps = {
   size?: number
 }
 export function ActionMenu({ title = 'Actions', primary, secondary, size = 24, style }: ActionMenuProps) {
-  const bottomSheet = useRef<BottomSheetModal>(null)
-  const theme = useTheme();
   const styles = useThemedStyles()
   
   return (
     <View style={[ styles.actionMenu, style ]}>
       {!!secondary && (
-        <>
-          <Icon
-            icon={{
-              family: 'ionicon',
-              name: 'ellipsis-vertical',
-            }}
-            size={size}
-            color={theme.colors.textSecondary}
-            onPress={() => bottomSheet.current?.present()}
-            rippleBorderless
-          />
-          <BottomSheetModal
-            ref={bottomSheet}
-            backdropComponent={(props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} />}
-            index={0}
-            snapPoints={[200, '90%']}
-            enablePanDownToClose
-            enableDismissOnClose
-          >
-            <BottomSheetScrollView>
-              <View style={styles.actionMenuTitleContainer}>
-                <Text style={styles.actionMenuTitle}>{title}</Text>
-              </View>
-              {secondary?.({ size })}
-            </BottomSheetScrollView>
-          </BottomSheetModal>
-        </>
+        <BottomSheet TriggerComponent={BottomSheet.trigger.MoreVertical}>
+          <BottomSheet.ScrollView>
+            <View style={styles.actionMenuTitleContainer}>
+              <Text style={styles.actionMenuTitle}>{title}</Text>
+            </View>
+            {secondary?.({ size })}
+          </BottomSheet.ScrollView>
+        </BottomSheet>
       )}
       {primary?.({ size })}
     </View>

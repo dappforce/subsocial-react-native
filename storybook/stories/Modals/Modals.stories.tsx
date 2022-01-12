@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet } from 'react-native'
 import { storiesOf } from '@storybook/react-native'
-import { text } from '@storybook/addon-knobs'
+import { number, text } from '@storybook/addon-knobs'
 import { useAppDispatch } from 'src/rtk/app/hooksCommon'
 import { setPrompt } from 'src/rtk/features/ui/uiSlice'
 import { Button, Text } from '~comps/Typography'
@@ -9,12 +9,23 @@ import { Modal } from './Modal'
 import { ModalPortal } from './ModalPortal'
 import QRCode from 'react-native-qrcode-svg'
 import CenterView from '../CenterView'
+import { BottomSheet } from './BottomSheet'
 
 storiesOf('Modals', module)
   .addDecorator(getStory => <CenterView style={styles.padded}>{getStory()}</CenterView>)
   .add('Modal', () => <ModalStory />)
   .add('Login Prompt', () => <LoginPromptStory />)
   .add('Unlock Prompt', () => <UnlockPromptStory />)
+  .add('Bottom Sheet', () => (
+    <CenterView>
+      <BottomSheet
+        TriggerComponent={BottomSheet.trigger.MoreVertical}
+        height={number('Height', 200)}
+      >
+        <Text style={styles.centerText}>This is a generic standardized bottom sheet</Text>
+      </BottomSheet>
+    </CenterView>
+  ))
 
 function ModalStory() {
   const [ visible, setVisible ] = React.useState(false)
@@ -80,4 +91,8 @@ const styles = StyleSheet.create({
   margined: {
     margin: 20,
   },
+  centerText: {
+    width: '100%',
+    textAlign: 'center',
+  }
 })
