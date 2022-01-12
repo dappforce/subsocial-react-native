@@ -1,16 +1,17 @@
 import { SubsocialApi } from '@subsocial/api'
 import { useSubsocial } from 'src/components/SubsocialContext'
-import { AsyncThunk, EntityId } from '@reduxjs/toolkit'
 import { getFirstOrUndefined, isEmptyArray, nonEmptyStr } from '@subsocial/utils'
-import { CommonContent, EntityData, FlatSuperCommon, HasId } from 'src/types/subsocial'
 import { asString } from '@subsocial/utils'
 import { useAppDispatch } from './hooksCommon'
+import type { Action, AsyncThunk, EntityId, ThunkAction } from '@reduxjs/toolkit'
+import type { CommonContent, EntityData, FlatSuperCommon, HasId } from 'src/types/subsocial'
 import type { RootState } from './rootReducer'
-import type { AppDispatch, AppThunk } from './store'
+import type { AppDispatch } from './store'
+
+type FetchThunk = ThunkAction<void, RootState, unknown, Action<string>>
 
 export type ThunkApiConfig = {
   state: RootState
-  dispatch: AppDispatch
 }
 
 type StructEntity = HasId & Partial<FlatSuperCommon>
@@ -75,7 +76,7 @@ function toParamsAndIds ({ id, ...params }: CommonFetchPropsAndId): CommonFetchP
 type FetchManyFn<Returned> = AsyncThunk<Returned[], CommonFetchPropsAndIds, {}>
 
 export function createFetchOne<R> (fetchMany: FetchManyFn<R>) {
-  return (arg: CommonFetchPropsAndId): AppThunk => async dispatch => {
+  return (arg: CommonFetchPropsAndId): FetchThunk => async dispatch => {
     await dispatch(fetchMany(toParamsAndIds(arg)))
   }
 }
@@ -87,7 +88,7 @@ export function createFetchOne<R> (fetchMany: FetchManyFn<R>) {
 //   fetchManyStructs: FetchManyFn<S>,
 //   fetchManyContents: FetchManyFn<C>,
 // ) {
-//   return (arg: ApiAndIds): AppThunk => async dispatch => {
+//   return (arg: ApiAndIds): FetchThunk => async dispatch => {
 //     await dispatch(fetchManyStructs(arg))
 //     await dispatch(fetchManyContents(arg))
 //   }
