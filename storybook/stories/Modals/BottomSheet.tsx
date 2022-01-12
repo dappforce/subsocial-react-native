@@ -4,6 +4,7 @@ import React, { ComponentType, RefObject, useRef } from 'react'
 import {
   BottomSheetBackdrop,
   BottomSheetFlatList,
+  BottomSheetHandleProps,
   BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetSectionList,
@@ -20,12 +21,13 @@ export type BottomSheetTriggerProps = {
 
 export type BottomSheetProps = {
   TriggerComponent: ComponentType<BottomSheetTriggerProps>
+  HandleComponent?: React.FC<BottomSheetHandleProps>
   children: React.ReactNode
   height?: number | string
   iconSize?: number
 }
 
-export const BottomSheet = ({ children, TriggerComponent, height = 200, iconSize = 24 }: BottomSheetProps) => {
+export const BottomSheet = ({ children, TriggerComponent, HandleComponent, height = 200, iconSize = 24 }: BottomSheetProps) => {
   const ref = useRef<BottomSheetModal>(null)
   
   return (
@@ -36,6 +38,7 @@ export const BottomSheet = ({ children, TriggerComponent, height = 200, iconSize
         index={0}
         snapPoints={[height, '90%']}
         backdropComponent={(props) => <BottomSheetBackdrop {...props} disappearsOnIndex={-1} />}
+        handleComponent={HandleComponent}
         enablePanDownToClose
         enableDismissOnClose
       >
