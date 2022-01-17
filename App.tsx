@@ -57,7 +57,7 @@ export default function(props: {}) {
   
   const ready = fontsLoaded
   
-  useIntervalReport()
+  // useIntervalReport()
   
   if (!ready) {
     return <AppLoading />

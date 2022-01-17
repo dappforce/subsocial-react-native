@@ -6,6 +6,7 @@ import { AnyIcon, IconRaw } from '~comps/Icon'
 import { Text } from '~comps/Typography'
 import { WithSize } from 'src/types'
 import { BottomSheet } from '~stories/Modals/BottomSheet'
+import strings from 'src/util/localization'
 
 export type IconDescriptor = AnyIcon & {
   size?: number
@@ -19,7 +20,14 @@ export type ActionMenuProps = {
   style?: StyleProp<ViewStyle>
   size?: number
 }
-export function ActionMenu({ title = 'Actions', primary, secondary, size = 24, style }: ActionMenuProps) {
+export function ActionMenu({
+  title = strings().general.actions,
+  primary,
+  secondary,
+  size = 24,
+  style
+}: ActionMenuProps)
+{
   const styles = useThemedStyles()
   
   return (

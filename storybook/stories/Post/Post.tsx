@@ -10,11 +10,12 @@ import { ExploreStackNavigationProp } from '~comps/ExploreStackNav'
 import { Header } from '~stories/Misc'
 import { ActionMenuItem, ActionMenuProps } from '~stories/Actions'
 import { Markdown } from '~stories/Misc'
+import { createThemedStylesHook } from '~comps/Theming'
 import { Title } from '~comps/Typography'
 import { IpfsBanner, IpfsImage } from '~comps/IpfsImage'
 import { useInit } from '~comps/hooks'
 import Age from 'src/util/Age'
-import { createThemedStylesHook } from '~comps/Theming'
+import strings from 'src/util/localization'
 
 const IMAGE_PREVIEW_HEIGHT = 160
 
@@ -86,10 +87,10 @@ export const PostOwner = React.memo(({
     return true
   }, [ postId ], [ ownerId ])
   
-  const author = loading ? 'Author'  : ownerData?.content?.name ?? 'Unknown Author'
-  const space  = loading ? 'Space'   : spaceData?.content?.name ?? 'Unknown Space'
+  const author = loading ? strings().post.skeleton.author  : ownerData?.content?.name ?? strings().post.skeleton.unknownAuthor
+  const space  = loading ? strings().post.skeleton.space   : spaceData?.content?.name ?? strings().post.skeleton.unknownSpace
   const avatar = loading ? undefined : ownerData?.content?.avatar
-  const age    = loading ? 'some time ago' : new Age(postData?.struct?.createdAtTime ?? 0)
+  const age    = loading ? strings().post.skeleton.someTimeAgo : new Age(postData?.struct?.createdAtTime ?? 0)
   
   return (
     <Header
@@ -119,7 +120,7 @@ export function Head({ title, titleStyle, image, bannerStyle, previewBannerStyle
   const styles = useThemedStyles()
   
   if (loading) {
-    title = 'Title'
+    title = strings().post.skeleton.title
   }
   
   return (
@@ -168,7 +169,7 @@ export type BodyProps = {
 export function Body({ content, previewStyle, onPressMore, preview = false, loading }: BodyProps) {
   return (
     <Markdown summary={preview} summaryStyle={previewStyle} onPressMore={onPressMore}>
-      {loading ? 'Loading content.' : content}
+      {loading ? strings().general.loadingContent : content}
     </Markdown>
   )
 }
@@ -180,41 +181,41 @@ export type PostActionMenuProps = {
 export const PostActionMenu = React.memo(({ isMyPost, iconSize = 24 }: PostActionMenuProps) => {
   return <>
       <ActionMenuItem
-        label="View reactions"
+        label={strings().post.viewReactions}
         icon={{
           family: 'ionicon',
           name: 'heart-outline',
           size: iconSize,
         }}
-        onPress={() => alert('not yet implemented, sorry')}
+        onPress={() => alert(strings().general.notYetImplemented)}
       />
       <ActionMenuItem
-        label="View on IPFS"
+        label={strings().general.viewOnIPFS}
         icon={{
           family: 'ionicon',
           name: 'analytics-outline',
           size: iconSize,
         }}
-        onPress={() => alert('not yet implemented, sorry')}
+        onPress={() => alert(strings().general.notYetImplemented)}
       />
       {isMyPost && <>
         <ActionMenuItem
-          label="Edit post"
+          label={strings().post.edit}
           icon={{
             family: 'ionicon',
             name: 'create',
             size: iconSize,
           }}
-          onPress={() => alert('not yet implemented, sorry')}
+          onPress={() => alert(strings().general.notYetImplemented)}
         />
         <ActionMenuItem
-          label="Hide post"
+          label={strings().post.hide}
           icon={{
             family: 'ionicon',
             name: 'trash-outline',
             size: iconSize,
           }}
-          onPress={() => alert('not yet implemented, sorry')}
+          onPress={() => alert(strings().general.notYetImplemented)}
         />
       </>}
     </>
