@@ -1,0 +1,14 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "jsx": "react-native",
+    "paths": {
+      "~stories/*": ["./storybook/stories/*"],
+      "~comps/*": ["./src/components/*"],
+      "~themes/*": ["./themes/*"]
+    }
+  }
+}
